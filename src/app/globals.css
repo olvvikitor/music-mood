@@ -1,27 +1,44 @@
 @import "tailwindcss";
 
-@utility glass-card {
-  @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] rounded-2xl;
+/* 1. DEFINIÇÃO DE TOKENS (Sua paleta de cores personalizada) */
+@theme {
+  --color-brand-primary: #60a5fa;
+  --color-brand-secondary: #a855f7;
+  --color-surface: rgba(255, 255, 255, 0.03);
+  --color-border-glass: rgba(255, 255, 255, 0.12);
+  
+  --color-text-main: #f4f4f5;
+  --color-text-muted: #94a3b8;
 }
 
-/* Scrollbar minimalista estilo Apple */
+/* 2. ESTILOS GLOBAIS */
+@layer base {
+  body {
+    /* Gradiente mais suave e profundo, estilo Dashboard Premium */
+    @apply bg-[#09090b] bg-gradient-to-br from-[#09090b] via-[#000000] to-[#003d07] 
+           min-h-screen text-text-main antialiased;
+  }
+}
+
+/* 3. UTILIDADES CUSTOMIZADAS */
+@utility glass-card {
+  @apply bg-surface backdrop-blur-xl border border-border-glass 
+         shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] rounded-2xl transition-all duration-300;
+}
+
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    @apply bg-white/20 rounded-full;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    @apply bg-white/30;
+    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
   }
 }
 
-@layer base {
-  body {
-    @apply bg-gradient-to-br from-slate-900 via-blue-900 to-blue-600 min-h-screen text-slate-100 antialiased;
-  }
+@utility badge-pro {
+  @apply bg-brand-primary/10 text-brand-primary border border-brand-primary/20 
+         px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider;
 }

@@ -9,7 +9,7 @@ export default function Profile() {
 
   if (isLoading) return <LoadingComponent type="profile" />;
 
-  if (isError || !data) return <ErrorComponent />;
+  if (isError || !data) return <ErrorComponent type="profile" />;
 
   return (
     <>

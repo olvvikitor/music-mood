@@ -26,10 +26,8 @@ export default function Dashboard() {
         <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* Últimas Músicas */}
-          <div className="glass-card p-6">
-            <h3 className="font-semibold mb-4 text-lg">Últimas Músicas</h3>
+
             <RecentSongs/>
-          </div>
 
           {/* Gráfico de Humor (Ocupa 2 colunas no mobile, 1 no grid interno) */}
           <div className="glass-card p-6">

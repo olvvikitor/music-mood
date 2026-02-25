@@ -5,6 +5,6 @@ export function useRecentMusics(){
     return useQuery({
         queryKey:["recents-musics"],
         queryFn: getRecentMusics,
-        staleTime:1000*60*5,
+        staleTime:Infinity,
     })
 }

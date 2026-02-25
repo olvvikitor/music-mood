@@ -27,10 +27,9 @@ export default function LoadingComponent({ type = 'list' }: LoadingProps) {
     }
 
     return (
-        <div className="flex flex-col gap-4 animate-pulse">
+        <div className="flex flex-col gap-4  glass-card animate-pulse">
             {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex gap-3 items-center">
-                    <div className="w-12 h-12 bg-white/10 rounded-md" />
                     <div className="flex-1 space-y-2">
                         <div className="h-4 bg-white/10 rounded w-full" />
                         <div className="h-3 bg-white/5 rounded w-1/2" />

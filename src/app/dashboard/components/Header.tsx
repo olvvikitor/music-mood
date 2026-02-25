@@ -8,11 +8,8 @@ export function Header() {
     const {data, isError, isLoading} = useProfile()
       if (isLoading) return <LoadingComponent type="header" />;
     
-      if (isError || !data) return <ErrorComponent />;
+      if (isError || !data) return <ErrorComponent type="header" />;
     
-
-
-
     return (
         // No seu Header dentro do page.tsx (Dashboard)
         <div className="flex items-center gap-2 cursor-pointer p-1 pr-3 rounded-full hover:bg-white/10 transition glass-card">

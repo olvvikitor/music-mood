@@ -12,10 +12,12 @@ export default function MoodProfile() {
 
     return (
         <>
-            <div className="mt-8">
-                <div className="text-6xl mb-4">{data.emoticon}</div>
-                <p className="text-sm text-blue-100/90">Seu humor predominante hoje:</p>
-                <p className="text-lg font-bold">{data.sentiment}</p>
+            <div className="flex items-center gap-3 mt-1">
+                {/* Seu GIF aqui com tamanho controlado */}
+                <img src="seu-gif.gif" className="w-12 h-12 rounded-lg object-cover" />
+
+                {/* O texto "Resiliente" */}
+                <span className="text-lg font-medium text-white/90">Resiliente</span>
             </div>
         </>
     );

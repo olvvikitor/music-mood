@@ -21,8 +21,6 @@ export default function RecentSongs() {
         return <ErrorComponent />
     }
 
-
-
     return (
         <div className="glass-card p-6">
             <h3 className="font-semibold mb-4 text-lg">Últimas Músicas</h3>

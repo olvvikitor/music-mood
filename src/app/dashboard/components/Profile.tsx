@@ -14,28 +14,47 @@ export default function Profile() {
 
   return (
     <>
-      {/* CÍRCULO DA FOTO */}
-      <div className="w-32 h-32 rounded-full mb-4 border-4 border-white/20 overflow-hidden bg-blue-300/30 flex items-center justify-center">
-        {data.img_profile ? (
-          <img
-            src={data.img_profile}
-            alt={data.display_name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <UserCircle className="w-20 h-20 text-white/50" />
-        )}
+      <div className="md:col-span-4 glass-card p-6 flex flex-col gap-6 h-fit">
+
+        {/* 1. SEÇÃO PERFIL (Horizontal - 1 Coluna cheia) */}
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full border border-white/10 overflow-hidden bg-blue-300/10 flex-shrink-0">
+            {data.img_profile ? (
+              <img src={data.img_profile} alt={data.display_name} className="w-full h-full object-cover" />
+            ) : (
+              <UserCircle className="w-full h-full text-white/20" />
+            )}
+          </div>
+          <div className="flex flex-col items-center">
+            <h2 className="text-lg font-bold mb-1 leading-tight">{data.display_name}</h2>
+            <span className="w-fit px-3 py-1.5 text-[10px] font-bold text-blue-400 rounded-full border border-blue-200/20 uppercase tracking-tight">
+              Pro Plan
+            </span>
+          </div>
+        </div>
+
+        {/* 2. SEÇÃO HUMOR (Horizontal - Dividida em 2 colunas) */}
+        <div className="grid grid-cols-2 gap-4 items-center pt-4 border-t border-white/5">
+
+          {/* Coluna 1: Texto informativo */}
+          <div className="flex flex-col gap-1">
+            <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest">
+              Humor de Hoje
+            </p>
+            <span className="text-sm font-medium text-white/80">
+              Resiliente
+            </span>
+          </div>
+
+          {/* Coluna 2: GIF / MoodProfile */}
+          <div className="flex justify-end">
+            <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/5 flex items-center justify-center">
+              <MoodProfile />
+            </div>
+          </div>
+
+        </div>
       </div>
-
-      <h2 className="text-xl font-bold">{data.display_name}</h2>
-      <p className="text-blue-200/80 text-sm">{data.email}</p>
-
-      <span className="px-4 py-1 mt-2 text-xs font-semibold bg-blue-500/30 rounded-full border border-blue-400/30">
-        Pro Plan
-      </span>
-      <MoodProfile></MoodProfile>
-
-
     </>
   );
 }

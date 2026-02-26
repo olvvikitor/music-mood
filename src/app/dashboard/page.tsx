@@ -27,7 +27,7 @@ export default function Dashboard() {
 
           {/* Últimas Músicas */}
 
-            <RecentSongs/>
+            {/* <RecentSongs /> */}
 
           {/* Gráfico de Humor (Ocupa 2 colunas no mobile, 1 no grid interno) */}
           <div className="glass-card p-6">

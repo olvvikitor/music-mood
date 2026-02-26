@@ -3,6 +3,7 @@ import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { useProfile } from "../hooks/useProfile";
 import { UserCircle } from 'lucide-react'; // Ícone de fallback
+import MoodProfile from "./MoodProfile";
 
 export default function Profile() {
   const { data, isLoading, isError } = useProfile();
@@ -32,12 +33,9 @@ export default function Profile() {
       <span className="px-4 py-1 mt-2 text-xs font-semibold bg-blue-500/30 rounded-full border border-blue-400/30">
         Pro Plan
       </span>
+      <MoodProfile></MoodProfile>
 
-      <div className="mt-8">
-        <div className="text-6xl mb-4">😎</div>
-        <p className="text-sm text-blue-100/90">Seu humor predominante hoje:</p>
-        <p className="text-lg font-bold">Motivado</p>
-      </div>
+
     </>
   );
 }

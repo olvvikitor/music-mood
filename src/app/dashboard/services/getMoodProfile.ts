@@ -81,7 +81,7 @@ async function getGifByMood(sentiment: string): Promise<string> {
     const translated = moodTranslationMap[sentiment] ?? "neutral"
 
     const { data } = await gf.random({
-        tag: `anime ${translated} reaction`,
+        tag: `anime character ${translated}`,
         type: "gifs",
         rating: "pg-13"
     })

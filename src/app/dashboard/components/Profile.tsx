@@ -34,26 +34,8 @@ export default function Profile() {
         </div>
 
         {/* 2. SEÇÃO HUMOR (Horizontal - Dividida em 2 colunas) */}
-        <div className="grid grid-cols-2 gap-4 items-center pt-4 border-t border-white/5">
+        <MoodProfile></MoodProfile>
 
-          {/* Coluna 1: Texto informativo */}
-          <div className="flex flex-col gap-1">
-            <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest">
-              Humor de Hoje
-            </p>
-            <span className="text-sm font-medium text-white/80">
-              Resiliente
-            </span>
-          </div>
-
-          {/* Coluna 2: GIF / MoodProfile */}
-          <div className="flex justify-end">
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/5 flex items-center justify-center">
-              <MoodProfile />
-            </div>
-          </div>
-
-        </div>
       </div>
     </>
   );

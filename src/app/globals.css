@@ -1,31 +1,78 @@
 @import "tailwindcss";
+/* IMPORTANTE: Adicione esta linha no topo */
 
+@import "nprogress/nprogress.css";
 /* 1. DEFINIÇÃO DE TOKENS (Sua paleta de cores personalizada) */
 @theme {
-  --color-brand-primary: #60a5fa;
+  --color-brand-primary: #22c55e; /* Mudando para verde para combinar com seu gradiente */
   --color-brand-secondary: #a855f7;
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-border-glass: rgba(255, 255, 255, 0.12);
+  
+  /* SURFACE: Agora um preto profundo com 40% de opacidade */
+  --color-surface: rgba(0, 0, 0, 0.4); 
+  
+  /* BORDER: Mais sutil, para não criar aquele "contorno de giz" */
+  --color-border-glass: rgba(255, 255, 255, 0.05);
   
   --color-text-main: #f4f4f5;
-  --color-text-muted: #94a3b8;
+  --color-text-muted: #71717a;
+}
+@theme {
+  /* Se estiver usando v4, você pode definir variáveis de animação aqui */
+  --animate-fade-in-up: fadeInUp 0.5s ease-out forwards;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* 2. ESTILOS GLOBAIS */
 @layer base {
   body {
     /* Gradiente mais suave e profundo, estilo Dashboard Premium */
-    @apply bg-[#09090b] bg-gradient-to-br from-[#09090b] via-[#000000] to-[#003d07] 
+    @apply bg-[#09090b] bg-gradient-to-br from-[#09090b] via-[#0e2e0a] to-[#003d07] 
            min-h-screen text-text-main antialiased;
   }
 }
 
 /* 3. UTILIDADES CUSTOMIZADAS */
 @utility glass-card {
-  @apply bg-surface backdrop-blur-xl border border-border-glass 
-         shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] rounded-2xl transition-all duration-300;
-}
+  /* 1. Fundo preto translúcido 
+     2. Blur forte para dar sensação de vidro
+     3. Borda sutil apenas no topo e esquerda (simula luz batendo)
+  */
+  @apply bg-surface backdrop-blur-2xl border border-white/5
+           shadow-[0_4px_24px_-1px_rgba(0,0,0,0.5)] 
+           rounded-2xl transition-all duration-500 ease-out;
 
+  /* Efeito de "Inner Glow" (Brilho interno) para dar volume */
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px; /* Espessura da borda de luz */
+    background: linear-gradient(
+      135deg, 
+      rgba(255,255,255,0.1), 
+      transparent 40%, 
+      transparent 60%, 
+      rgba(255,255,255,0.02)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
     width: 5px;
@@ -41,4 +88,37 @@
 @utility badge-pro {
   @apply bg-brand-primary/10 text-brand-primary border border-brand-primary/20 
          px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider;
+}
+
+
+/* ... suas definições de @theme e @layer base ... */
+
+/* 4. CONFIGURAÇÃO NPROGRESS */
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: #22c55e !important; /* Verde neon */
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px !important; /* Um pouco mais fina fica mais elegante */
+  
+  /* Efeito de brilho nas bordas */
+  box-shadow: 0 0 10px #22c55e, 0 0 5px #22c55e !important;
+}
+
+/* Opcional: Estiliza o "peg" (a pontinha da barra que brilha enquanto corre) */
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 10px #22c55e, 0 0 5px #22c55e !important;
+  opacity: 1.0;
+  transform: rotate(3deg) translate(0px, -4px);
 }

@@ -6,6 +6,6 @@ export function useMoodProfile(){
     return useQuery({
         queryKey:["moodProfile"],
         queryFn: getMoodProfile,
-        staleTime:Infinity,
+        staleTime:Infinity
     })
 }

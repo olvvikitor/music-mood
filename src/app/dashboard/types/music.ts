@@ -1,8 +1,32 @@
-export type Mood = 'Calmo' | 'Feliz' | 'Nostálgico' | 'Intenso'
+import { EmotionalVector } from "../services/getMoodProfile"
+
+export type Mood =
+  // 🔥 Positivo + Alta Energia
+  | 'EuforiaAtiva'
+  | 'ConfiancaDominante'
+
+  // 🌤 Positivo + Baixa Energia
+  | 'Serenidade'
+  | 'ConexaoAfetiva'
+
+  // 🌙 Reflexivo
+  | 'NostalgiaProfunda'
+  | 'Contemplacao'
+
+  // ⚡ Negativo + Alta Energia
+  | 'IrritacaoAtiva'
+  | 'RaivaExplosiva'
+
+  // 🌧 Negativo + Baixa Energia
+  | 'Desanimo'
+  | 'VulnerabilidadeEmocional';
 
 export interface Music {
-  id: string
+  id:string,
   name: string
   artist: string
-  mood: Mood
+  img_url:string,
+  mood: EmotionalVector
+  dominantSentiment: Mood
+
 }

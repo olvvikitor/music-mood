@@ -16,75 +16,92 @@ export type MoodProfileResponse = {
         img_url: string
         artist: string,
         emotionalVector: EmotionalVector,
-        moodScore:number,
+        moodScore: number,
         dominantSentiment: string
     }[];
 }
 const animeSearchMap: Record<string, string[]> = {
-
     // 🔥 Positivo + Alta Energia
     EuforiaAtiva: [
-        "anime power up aura",
-        "anime glowing energy transformation",
-        "anime hype battle moment"
+        "dragon ball super saiyan transformation",
+        "luffy gear 5 animation",
+        "jujutsu kaisen satoru gojo hollow purple",
+        "promare burning rescue energy",
+        "demon slayer tanjiro hinokami kagura"
     ],
 
     ConfiancaDominante: [
-        "anime confident smirk close up",
-        "anime villain calm smile",
-        "anime boss aura scene"
+        "madara uchiha badass moment",
+        "bleach aizen calm smile",
+        "death note light yagami god complex",
+        "code geass lelouch commanding",
+        "gilgamesh fate series laugh"
     ],
 
     // 🌤 Positivo + Baixa Energia
     Serenidade: [
-        "anime peaceful sunset scene",
-        "anime soft smile wind blowing",
-        "anime calm nature landscape"
+        "studio ghibli landscape wind",
+        "mushishi forest scene",
+        "hyouka chitanda peaceful",
+        "your name balcony view sunset",
+        "naruto field of flowers peace"
     ],
 
     ConexaoAfetiva: [
-        "anime warm hug emotional",
-        "anime holding hands sunset",
-        "anime heartfelt smile close up"
+        "spy x family anya loid hug",
+        "kimi ni todoke heartfelt smile",
+        "clannad after story hug",
+        "one piece crew banquet laugh",
+        "horimiya sweet moment"
     ],
 
     // 🌙 Reflexivo
     NostalgiaProfunda: [
-        "anime nostalgic flashback scene",
-        "anime sad smile rain",
-        "anime childhood memory scene"
+        "cowboy bebop see you space cowboy",
+        "naruto swing alone scene",
+        "fullmetal alchemist rain scene",
+        "spirited away train ride lights",
+        "5 centimeters per second train station"
     ],
 
     Contemplacao: [
-        "anime looking at sky alone",
-        "anime deep thought balcony scene",
-        "anime quiet night city lights"
+        "evangelion shinji looking at stars",
+        "vinland saga thorfinn looking at horizon",
+        "violet evergarden writing letter",
+        "attack on titan eren looking at sea",
+        "berserk guts bonfire of dreams"
     ],
 
     // ⚡ Negativo + Alta Energia
     IrritacaoAtiva: [
-        "anime frustrated shout scene",
-        "anime intense glare close up",
-        "anime argument dramatic scene"
+        "black clover asta shouting frustrated",
+        "fullmetal alchemist edward short temper",
+        "bakugo boku no hero yelling",
+        "kill la kill ryuko angry transformation"
     ],
 
     RaivaExplosiva: [
-        "anime rage power up",
-        "anime angry transformation scene",
-        "anime screaming energy burst"
+        "hunter x hunter rage",
+        "naruto rage",
+        "dragon ball rage screaming",
+        "attack on titan rage scene",
+        "anime fight scenes"
     ],
 
     // 🌧 Negativo + Baixa Energia
     Desanimo: [
-        "anime sitting alone rain",
-        "anime crying softly night",
-        "anime emotional breakdown scene"
+        "march comes in like a lion depression",
+        "tokyo ghoul kaneki walking in rain",
+        "cowboy bebop spike rain blue",
+        "shigatsu wa kimi no uso monochrome",
+        "neon genesis evangelion hospital scene"
     ],
 
     VulnerabilidadeEmocional: [
-        "anime emotional confession scene",
-        "anime tears close up",
-        "anime vulnerable moment soft lighting"
+        "one piece nami help me luffy",
+        "violet evergarden crying emotional",
+        "my hero academia deku crying midoriya",
+        "demon slayer nezuko vulnerable moment"
     ]
 };
 const renameSentiment: Record<string, string> = {
@@ -139,16 +156,20 @@ export async function getMoodProfile(): Promise<MoodProfileResponse> {
 
 
 async function getGifByMood(sentiment: string): Promise<string> {
-    const searchTerms = animeSearchMap[sentiment] ?? ["anime neutral mood"]
+    const searchTerms = animeSearchMap[sentiment] ?? ["anime aesthetic"]
 
     const randomTag =
         searchTerms[Math.floor(Math.random() * searchTerms.length)]
 
-    const { data } = await gf.random({
-        tag: `${randomTag}`,
+    const { data: results } = await gf.search(randomTag, {
+        sort: 'relevant', // Garante o GIF mais relevante
+        limit: 1,         // Pega apenas o melhor resultado
         type: "gifs",
         rating: "pg-13"
-    })
+    });
 
-    return data.images.fixed_height.webp
-}
+// Verifica se retornou algo, senão usa um fallback
+    return results.length > 0 
+        ? results[0].images.fixed_height.webp 
+        : "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJid3p6ZzR0bmZ6eGZ6ZzR0bmZ6eGZ6ZzR0bmZ6eGZ6ZzR0JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/1136UBdSNn6PPa/giphy.gif";
+    }

@@ -4,6 +4,8 @@ import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { useMoodProfile } from "../hooks/useMoodProfile";
 import Image from "next/image";
+import { EmotionalChart } from "@/shared/components/EmotionalCharts";
+import { EmotionalVector, Track } from "../types/music";
 
 export const emotionStyles: Record<string, string> = {
     "Euforia Ativa": 'bg-orange-500/20 text-orange-200 border-orange-500/30',
@@ -44,113 +46,6 @@ const DIMENSION_COLORS: Record<string, string> = {
     Vulnerabilidade: "bg-fuchsia-400",
 };
 
-type CoreAxes = {
-    polaridade: number;
-    ativacao: number;
-    quadrante: string;
-};
-
-type EmotionalVector = {
-    Valencia: number;
-    Energia: number;
-    Dominancia: number;
-    Melancolia: number;
-    Euforia: number;
-    Tensao: number;
-    ConexaoSocial: number;
-    Introspeccao: number;
-    Empoderamento: number;
-    Vulnerabilidade: number;
-};
-
-type Track = {
-    id: string;
-    music: string;
-    artist: string;
-    img_url: string;
-    dominantSentiment: string;
-    moodScore: number;
-    coreAxes: CoreAxes;
-    emotionalVector: EmotionalVector;
-};
-
-function toPercent(value: number): number {
-    return ((value + 1) / 2) * 100;
-}
-
-// ─── Gráfico 2D ─────────────────────────────────────────────────────────────
-function EmotionalChart({ coreAxes }: { coreAxes: CoreAxes }) {
-    const x = toPercent(coreAxes.polaridade);
-    const y = toPercent(-coreAxes.ativacao);
-
-    return (
-        <div className="flex flex-col gap-3">
-            <p className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">
-                Posição Emocional
-            </p>
-
-            <div className="relative w-full aspect-square max-w-[200px] mx-auto select-none">
-                <div className="absolute inset-0 rounded-xl overflow-hidden border border-white/10">
-                    <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-500/5 flex items-start justify-end p-1.5">
-                        <span className="text-[9px] text-emerald-500/50 font-medium text-right leading-tight">Animado<br />Eufórico</span>
-                    </div>
-                    <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-rose-500/5 flex items-start justify-start p-1.5">
-                        <span className="text-[9px] text-rose-500/50 font-medium leading-tight">Tenso<br />Irritado</span>
-                    </div>
-                    <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-zinc-500/5 flex items-end justify-start p-1.5">
-                        <span className="text-[9px] text-zinc-500/50 font-medium leading-tight">Triste<br />Desanimado</span>
-                    </div>
-                    <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-sky-500/5 flex items-end justify-end p-1.5">
-                        <span className="text-[9px] text-sky-500/50 font-medium text-right leading-tight">Calmo<br />Sereno</span>
-                    </div>
-                </div>
-
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-1/2 left-0 right-0 h-px bg-white/10" />
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10" />
-                </div>
-
-                <div className="absolute -bottom-5 left-0 right-0 flex justify-between text-[9px] text-slate-600 px-1">
-                    <span>← Negativo</span>
-                    <span>Positivo →</span>
-                </div>
-                <div className="absolute top-0 bottom-0 -left-8 flex flex-col justify-between text-[9px] text-slate-600 py-1">
-                    <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }} className="leading-none">Alta</span>
-                    <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }} className="leading-none">Baixa</span>
-                </div>
-
-                <div
-                    className="absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 transition-all duration-500"
-                    style={{ left: `${x}%`, top: `${y}%` }}
-                >
-                    <span className="absolute inset-0 rounded-full bg-white/30 animate-ping" />
-                    <span className="relative block w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
-                </div>
-            </div>
-
-            <div className="flex gap-2 mt-6">
-                <div className="flex-1 bg-white/5 rounded-lg p-2 border border-white/10 text-center">
-                    <p className="text-[9px] text-slate-500 uppercase tracking-wider mb-0.5">Clima</p>
-                    <p className={`text-sm font-bold ${coreAxes.polaridade >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {coreAxes.polaridade >= 0 ? "Positivo" : "Negativo"}
-                    </p>
-                    <p className="text-[10px] text-slate-500 font-mono">
-                        {coreAxes.polaridade >= 0 ? "+" : ""}{Math.round(coreAxes.polaridade * 100)}%
-                    </p>
-                </div>
-                <div className="flex-1 bg-white/5 rounded-lg p-2 border border-white/10 text-center">
-                    <p className="text-[9px] text-slate-500 uppercase tracking-wider mb-0.5">Energia</p>
-                    <p className={`text-sm font-bold ${coreAxes.ativacao >= 0 ? "text-orange-400" : "text-sky-400"}`}>
-                        {coreAxes.ativacao >= 0 ? "Alta" : "Baixa"}
-                    </p>
-                    <p className="text-[10px] text-slate-500 font-mono">
-                        {coreAxes.ativacao >= 0 ? "+" : ""}{Math.round(coreAxes.ativacao * 100)}%
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 // ─── Vetor emocional ─────────────────────────────────────────────────────────
 function EmotionalVectorBars({ vector }: { vector: EmotionalVector }) {

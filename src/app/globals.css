@@ -2,6 +2,7 @@
 /* IMPORTANTE: Adicione esta linha no topo */
 
 @import "nprogress/nprogress.css";
+
 /* 1. DEFINIÇÃO DE TOKENS (Sua paleta de cores personalizada) */
 @theme {
   --color-brand-primary: #22c55e; /* Mudando para verde para combinar com seu gradiente */

@@ -13,7 +13,6 @@ export default function AuthSuccessPage() {
     if (token) {
       // 1. Salva o token
       localStorage.setItem('auth_token', token);
-
       // 2. Redireciona para a dashboard
       router.push('/dashboard');
     } else {

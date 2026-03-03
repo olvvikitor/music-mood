@@ -1,6 +1,6 @@
 import api from "@/shared/services/apiService"
 import { GiphyFetch } from "@giphy/js-fetch-api"
-import { Mood } from "../types/music";
+import { CoreAxes, Mood } from "../types/music";
 
 export type MoodProfileResponse = {
     moodScore: number;
@@ -10,6 +10,7 @@ export type MoodProfileResponse = {
     url_gif: string,
     emotions: EmotionalVector;
     analyzedAt: Date;
+    coreAxes:CoreAxes
     tracksAnalyzeds: {
         music: string,
         id: string,
@@ -17,7 +18,8 @@ export type MoodProfileResponse = {
         artist: string,
         emotionalVector: EmotionalVector,
         moodScore: number,
-        dominantSentiment: string
+        dominantSentiment: string,
+        coreAxes:CoreAxes
     }[];
 }
 const animeSearchMap: Record<string, string[]> = {

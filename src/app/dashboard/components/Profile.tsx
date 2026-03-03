@@ -8,76 +8,8 @@ import { useMoodProfile } from "../hooks/useMoodProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRefreshProfile } from "../services/getRefreshProfileService";
 import NProgress from "nprogress";
+import { EmotionalChart } from "@/shared/components/EmotionalCharts";
 
-type CoreAxes = {
-    polaridade: number;
-    ativacao: number;
-    quadrante: string;
-};
-
-function toPercent(value: number): number {
-    return ((value + 1) / 2) * 100;
-}
-
-function DayEmotionalChart({ coreAxes }: { coreAxes: CoreAxes }) {
-    const x = toPercent(coreAxes.polaridade);
-    const y = toPercent(-coreAxes.ativacao);
-
-    return (
-        <div className="flex flex-col gap-3 h-full justify-center">
-            <div className="relative w-full max-w-[200px] mx-auto aspect-square select-none">
-                <div className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10">
-                    <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-emerald-500/5 flex items-start justify-end p-2">
-                        <span className="text-[8px] text-emerald-500/40 font-medium text-right leading-tight">Animado<br />Eufórico</span>
-                    </div>
-                    <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-rose-500/5 flex items-start justify-start p-2">
-                        <span className="text-[8px] text-rose-500/40 font-medium leading-tight">Tenso<br />Irritado</span>
-                    </div>
-                    <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-zinc-500/5 flex items-end justify-start p-2">
-                        <span className="text-[8px] text-zinc-500/40 font-medium leading-tight">Triste<br />Desanimado</span>
-                    </div>
-                    <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-sky-500/5 flex items-end justify-end p-2">
-                        <span className="text-[8px] text-sky-500/40 font-medium text-right leading-tight">Calmo<br />Sereno</span>
-                    </div>
-                </div>
-
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-1/2 left-0 right-0 h-px bg-white/10" />
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10" />
-                </div>
-
-                <div
-                    className="absolute w-3.5 h-3.5 -translate-x-1/2 -translate-y-1/2 transition-all duration-700"
-                    style={{ left: `${x}%`, top: `${y}%` }}
-                >
-                    <span className="absolute inset-0 rounded-full bg-emerald-400/40 animate-ping" />
-                    <span className="relative block w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
-                </div>
-            </div>
-
-            <div className="flex gap-2">
-                <div className="flex-1 bg-white/5 rounded-lg p-2 border border-white/10 text-center">
-                    <p className="text-[8px] text-slate-500 uppercase tracking-wider mb-0.5">Clima</p>
-                    <p className={`text-xs font-bold ${coreAxes.polaridade >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {coreAxes.polaridade >= 0 ? "Positivo" : "Negativo"}
-                    </p>
-                    <p className="text-[9px] text-slate-500 font-mono">
-                        {coreAxes.polaridade >= 0 ? "+" : ""}{Math.round(coreAxes.polaridade * 100)}%
-                    </p>
-                </div>
-                <div className="flex-1 bg-white/5 rounded-lg p-2 border border-white/10 text-center">
-                    <p className="text-[8px] text-slate-500 uppercase tracking-wider mb-0.5">Energia</p>
-                    <p className={`text-xs font-bold ${coreAxes.ativacao >= 0 ? "text-orange-400" : "text-sky-400"}`}>
-                        {coreAxes.ativacao >= 0 ? "Alta" : "Baixa"}
-                    </p>
-                    <p className="text-[9px] text-slate-500 font-mono">
-                        {coreAxes.ativacao >= 0 ? "+" : ""}{Math.round(coreAxes.ativacao * 100)}%
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 export default function Profile() {
     const { data: profile, isLoading: profileLoading, isError: profileError } = useProfile();
@@ -134,7 +66,7 @@ export default function Profile() {
                         <img src={profile.img_profile} className="w-full h-full rounded-full object-cover" alt="Avatar" />
                     </div>
                     <div className="flex flex-col">
-                        <h2 className="text-xs font-bold text-white/90 truncate max-w-[120px]">{profile.display_name}</h2>
+                        <h2 className="text-xs font-bold text-white/90 truncate max-w-30">{profile.display_name}</h2>
                         <p className="text-[9px] text-emerald-500 font-black uppercase tracking-widest">Premium</p>
                     </div>
                 </div>
@@ -177,16 +109,16 @@ export default function Profile() {
                         <div className="w-full h-full shrink-0 flex justify-center items-center">
                             <div className="relative group/gif">
                                 <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full scale-75 group-hover/gif:scale-95 transition-transform duration-700 opacity-50" />
-                                <div className="w-44 h-44 rounded-[2rem] overflow-hidden relative border border-white/10 shadow-xl transform transition-transform duration-500 group-hover/gif:-rotate-1">
+                                <div className="w-44 h-44 rounded-4xl overflow-hidden relative border border-white/10 shadow-xl transform transition-transform duration-500 group-hover/gif:-rotate-1">
                                     <img src={mood.url_gif} className="w-full h-full object-cover" alt="GIF de Humor" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
                                 </div>
                             </div>
                         </div>
 
                         {/* Slide 1 — Gráfico 2D */}
                         <div className="w-full h-full shrink-0 px-2 overflow-y-auto">
-                            <DayEmotionalChart coreAxes={mood.coreAxes} />
+                            <EmotionalChart coreAxes={mood.coreAxes} />
                         </div>
                     </div>
                 </div>

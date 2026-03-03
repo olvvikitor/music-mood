@@ -1,4 +1,3 @@
-import { EmotionalVector } from "../services/getMoodProfile"
 
 export type Mood =
   // 🔥 Positivo + Alta Energia
@@ -21,12 +20,32 @@ export type Mood =
   | 'Desanimo'
   | 'VulnerabilidadeEmocional';
 
-export interface Music {
-  id:string,
-  name: string
-  artist: string
-  img_url:string,
-  mood: EmotionalVector
-  dominantSentiment: Mood
+export type CoreAxes = {
+    polaridade: number;
+    ativacao: number;
+    quadrante: string;
+};
 
-}
+export type EmotionalVector = {
+    Valencia: number;
+    Energia: number;
+    Dominancia: number;
+    Melancolia: number;
+    Euforia: number;
+    Tensao: number;
+    ConexaoSocial: number;
+    Introspeccao: number;
+    Empoderamento: number;
+    Vulnerabilidade: number;
+};
+
+export type Track = {
+    id: string;
+    music: string;
+    artist: string;
+    img_url: string;
+    dominantSentiment: string;
+    moodScore: number;
+    coreAxes: CoreAxes;
+    emotionalVector: EmotionalVector;
+};

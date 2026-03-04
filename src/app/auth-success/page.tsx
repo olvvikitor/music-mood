@@ -14,7 +14,7 @@ export default function AuthSuccessPage() {
       // 1. Salva o token
       localStorage.setItem('auth_token', token);
       // 2. Redireciona para a dashboard
-      router.push('/dashboard');
+      router.push('/terminate');
     } else {
       // Caso não haja token, manda de volta para o login
       router.push('/login');

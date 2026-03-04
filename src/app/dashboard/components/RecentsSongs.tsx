@@ -4,8 +4,8 @@ import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { useMoodProfile } from "../hooks/useMoodProfile";
 import Image from "next/image";
-import { EmotionalChart } from "@/shared/components/EmotionalCharts";
 import { EmotionalVector, Track } from "../types/music";
+import { MoodCard } from "@/shared/components/MoodCard";
 
 export const emotionStyles: Record<string, string> = {
     "Euforia Ativa": 'bg-orange-500/20 text-orange-200 border-orange-500/30',
@@ -127,7 +127,7 @@ function TrackDrawer({ track, onClose }: { track: Track; onClose: () => void }) 
 
                 {/* Conteúdo scrollável */}
                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-8 custom-scrollbar">
-                    <EmotionalChart coreAxes={track.coreAxes} />
+                    <MoodCard data={track}  mode="track"/>
                     <div className="border-t border-white/5 pt-6">
                         <EmotionalVectorBars vector={track.emotionalVector} />
                     </div>
@@ -185,7 +185,7 @@ export default function RecentSongs() {
 
                                 {expandedId === song.id && (
                                     <div className="mx-2 p-4 rounded-b-xl border border-t-0 border-white/10 bg-white/3">
-                                        <EmotionalChart coreAxes={song.coreAxes} />
+                                        <MoodCard data={data} />
                                     </div>
                                 )}
                             </div>

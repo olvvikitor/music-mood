@@ -8,7 +8,7 @@ import { useMoodProfile } from "../hooks/useMoodProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRefreshProfile } from "../services/getRefreshProfileService";
 import NProgress from "nprogress";
-import { EmotionalChart } from "@/shared/components/EmotionalCharts";
+import { MoodCard } from "@/shared/components/MoodCard";
 
 
 export default function Profile() {
@@ -35,11 +35,6 @@ export default function Profile() {
         touchStartX.current = null;
     };
 
-    // Arrow keys
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "ArrowRight") setSlide(prev => Math.min(prev + 1, totalSlides - 1));
-        if (e.key === "ArrowLeft")  setSlide(prev => Math.max(prev - 1, 0));
-    }; // 0 = GIF, 1 = gráfico
 
     const { mutate: refreshUser, isPending } = useMutation({
         mutationFn: getRefreshProfile,
@@ -91,14 +86,6 @@ export default function Profile() {
             </div>
 
             {/* CARROSSEL */}
-            <div
-                className="relative z-10 flex flex-col items-center gap-3 outline-none"
-                tabIndex={0}
-                onKeyDown={handleKeyDown}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-            >
-
                 {/* Slides */}
                 <div className="relative w-full overflow-hidden h-80">
                     <div
@@ -115,32 +102,6 @@ export default function Profile() {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Slide 1 — Gráfico 2D */}
-                        <div className="w-full h-full shrink-0 px-2 overflow-y-auto">
-                            <EmotionalChart coreAxes={mood.coreAxes} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Indicadores / navegação */}
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setSlide(0)}
-                        className={`transition-all duration-300 rounded-full ${
-                            slide === 0
-                                ? "w-5 h-1.5 bg-emerald-400"
-                                : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
-                        }`}
-                    />
-                    <button
-                        onClick={() => setSlide(1)}
-                        className={`transition-all duration-300 rounded-full ${
-                            slide === 1
-                                ? "w-5 h-1.5 bg-emerald-400"
-                                : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
-                        }`}
-                    />
                 </div>
             </div>
 

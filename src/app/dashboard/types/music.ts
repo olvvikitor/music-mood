@@ -1,24 +1,24 @@
 
 export type Mood =
-  // 🔥 Positivo + Alta Energia
-  | 'EuforiaAtiva'
-  | 'ConfiancaDominante'
+    // 🔥 Positivo + Alta Energia
+    | 'EuforiaAtiva'
+    | 'ConfiancaDominante'
 
-  // 🌤 Positivo + Baixa Energia
-  | 'Serenidade'
-  | 'ConexaoAfetiva'
+    // 🌤 Positivo + Baixa Energia
+    | 'Serenidade'
+    | 'ConexaoAfetiva'
 
-  // 🌙 Reflexivo
-  | 'NostalgiaProfunda'
-  | 'Contemplacao'
+    // 🌙 Reflexivo
+    | 'NostalgiaProfunda'
+    | 'Contemplacao'
 
-  // ⚡ Negativo + Alta Energia
-  | 'IrritacaoAtiva'
-  | 'RaivaExplosiva'
+    // ⚡ Negativo + Alta Energia
+    | 'IrritacaoAtiva'
+    | 'RaivaExplosiva'
 
-  // 🌧 Negativo + Baixa Energia
-  | 'Desanimo'
-  | 'VulnerabilidadeEmocional';
+    // 🌧 Negativo + Baixa Energia
+    | 'Desanimo'
+    | 'VulnerabilidadeEmocional';
 
 export type CoreAxes = {
     polaridade: number;
@@ -40,12 +40,12 @@ export type EmotionalVector = {
 };
 
 export type Track = {
-    id: string;
-    music: string;
-    artist: string;
-    img_url: string;
-    dominantSentiment: string;
-    moodScore: number;
-    coreAxes: CoreAxes;
-    emotionalVector: EmotionalVector;
+    music: string,
+    id: string,
+    img_url: string
+    artist: string,
+    emotionalVector: EmotionalVector,
+    moodScore: number,
+    dominantSentiment: string,
+    coreAxes: CoreAxes
 };

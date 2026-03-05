@@ -68,8 +68,6 @@ export function OrbitalCore({ variant = "login" }: Props) {
                 />
             ))}
 
-            {/* Núcleo */}
-            <CoreEmoji />
 
             {/* Satélites */}
 
@@ -84,24 +82,5 @@ export function OrbitalCore({ variant = "login" }: Props) {
 
         </div>
     );
-}
 
-/** Núcleo brilhante com emoji 🎵 – reutilizado nas duas variantes */
-export function CoreEmoji({ size = "md" }: { size?: "md" | "lg" }) {
-    const outer = size === "lg" ? "w-24 h-24" : "w-20 h-20";
-    const inner = size === "lg" ? "w-16 h-16" : "w-13 h-13";
-    const emoji = size === "lg" ? "text-3xl" : "text-2xl";
-
-    return (
-        <div
-            className={`relative z-10 ${outer} rounded-full bg-[#080808] border border-emerald-500/25 flex items-center justify-center`}
-            style={{ animation: "coreGlow 4s ease-in-out infinite" }}
-        >
-            <div
-                className={`${inner} rounded-full bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center`}
-            >
-                <span className={emoji}></span>
-            </div>
-        </div>
-    );
 }

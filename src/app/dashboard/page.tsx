@@ -7,10 +7,10 @@ import { EmotionalCardChart } from './components/EmotionalCardGraphicChart'
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-[#050505] text-slate-200 selection:bg-emerald-500/30 font-sans antialiased">
+    <div className="min-h-screen bg-[#000f06] text-slate-200 selection:bg-emerald-500/30 font-sans antialiased">
       <div className="max-w-350 mx-auto flex flex-col gap-6 mr-5 ml-5">
         {/* HEADER */}
-        <header className="sticky top-0 z-60 py-4 bg-[#050505]/50 backdrop-blur-md  flex justify-between items-center">
+        <header className="sticky top-0 z-60 py-4 bg-[#000f06]/50 backdrop-blur-md  flex justify-between items-center">
           <div className="flex items-center group cursor-default">
             <div className="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20 group-hover:border-emerald-500/40 transition-colors">
               <LayoutDashboard className="w-5 h-5 text-emerald-500" />

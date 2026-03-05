@@ -33,14 +33,12 @@ export default function OnboardingPage() {
     if (token) {
       // 1. Salva o token
       localStorage.setItem('auth_token', token);
-
     } else {
       // Caso não haja token, manda de volta para o login
       router.push('/login');
     }
   }, [searchParams, router]);
   
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const queryCliente = useQueryClient();
 
   const { data, isLoading, isError } = usePlataformProfile();

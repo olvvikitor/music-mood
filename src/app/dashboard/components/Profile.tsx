@@ -8,8 +8,6 @@ import { useMoodProfile } from "../hooks/useMoodProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRefreshProfile } from "../services/getRefreshProfileService";
 import NProgress from "nprogress";
-import { MoodCard } from "@/shared/components/MoodCard";
-
 
 export default function Profile() {
     const { data: profile, isLoading: profileLoading, isError: profileError } = useProfile();
@@ -18,7 +16,6 @@ export default function Profile() {
     const [slide, setSlide] = useState(0);
     const totalSlides = 2;
 
-    // Touch swipe
     const touchStartX = useRef<number | null>(null);
     const handleTouchStart = (e: React.TouchEvent) => {
         touchStartX.current = e.touches[0].clientX;
@@ -35,7 +32,6 @@ export default function Profile() {
         touchStartX.current = null;
     };
 
-
     const { mutate: refreshUser, isPending } = useMutation({
         mutationFn: getRefreshProfile,
         onMutate: () => { NProgress.start(); },
@@ -49,26 +45,26 @@ export default function Profile() {
     if (moodError || profileError || !mood || !profile) return <ErrorComponent type="profile" />;
 
     return (
-        <div className="glass-card p-6 md:p-7 flex flex-col gap-6 relative overflow-hidden group h-fit shadow-2xl">
+        <div className="glass-card p-2 md:p-7 flex flex-col relative overflow-hidden group shadow-2xl">
 
             {/* Brilho de fundo */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-[80px] rounded-full -mr-16 -mt-16" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-[80px] rounded-full -mr-16 -mt-16 pointer-events-none" />
 
             {/* HEADER */}
             <div className="flex justify-between items-center relative z-10">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-emerald-500/20 p-0.5">
+                    <div className="w-10 h-10 rounded-full border border-emerald-500/20 p-0.5 shrink-0">
                         <img src={profile.img_profile} className="w-full h-full rounded-full object-cover" alt="Avatar" />
                     </div>
-                    <div className="flex flex-col">
-                        <h2 className="text-xs font-bold text-white/90 truncate max-w-30">{profile.display_name}</h2>
+                    <div className="flex flex-col min-w-0">
+                        <h2 className="text-xs font-bold text-white/90 truncate max-w-[120px]">{profile.display_name}</h2>
                         <p className="text-[9px] text-emerald-500 font-black uppercase tracking-widest">Premium</p>
                     </div>
                 </div>
 
                 <button
                     onClick={() => refreshUser()}
-                    className="p-2 rounded-lg border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all active:scale-95"
+                    className="p-2 rounded-lg border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all active:scale-95 shrink-0"
                 >
                     <RotateCw className={`w-3.5 h-3.5 text-emerald-500 ${isPending ? 'animate-spin' : ''}`} />
                 </button>
@@ -86,25 +82,17 @@ export default function Profile() {
             </div>
 
             {/* CARROSSEL */}
-                {/* Slides */}
-                <div className="relative w-full overflow-hidden h-80">
-                    <div
-                        className="flex h-full transition-transform duration-500 ease-in-out"
-                        style={{ transform: `translateX(-${slide * 100}%)` }}
-                    >
-                        {/* Slide 0 — GIF */}
-                        <div className="w-full h-full shrink-0 flex justify-center items-center">
-                            <div className="relative group/gif">
-                                <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full scale-75 group-hover/gif:scale-95 transition-transform duration-700 opacity-50" />
-                                <div className="w-44 h-44 rounded-4xl overflow-hidden relative border border-white/10 shadow-xl transform transition-transform duration-500 group-hover/gif:-rotate-1">
-                                    <img src={mood.url_gif} className="w-full h-full object-cover" alt="GIF de Humor" />
-                                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
-                                </div>
-                            </div>
-                        </div>
+
+            {/* Slide 0 — GIF */}
+            <div className="w-full shrink-0 flex justify-center items-center py-4">
+                <div className="relative group/gif">
+                    <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full scale-75 group-hover/gif:scale-95 transition-transform duration-700 opacity-50" />
+                    <div className="w-44 h-44 rounded-4xl overflow-hidden relative border border-white/10 shadow-xl transform transition-transform duration-500 group-hover/gif:-rotate-1">
+                        <img src={mood.url_gif} className="w-full h-full object-cover" alt="GIF de Humor" />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent pointer-events-none" />
+                    </div>
                 </div>
             </div>
-
             {/* FOOTER */}
             <div className="pt-2 border-t border-white/5 flex justify-between items-center text-[9px] uppercase font-bold tracking-widest text-slate-500">
                 <span>Sincronizado</span>

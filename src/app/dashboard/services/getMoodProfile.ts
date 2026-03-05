@@ -9,6 +9,7 @@ export type MoodProfileResponse = {
     sentiment: string;
     url_gif: string,
     emotions: EmotionalVector;
+    reasoning:string;
     analyzedAt: Date;
     coreAxes:CoreAxes
     tracksAnalyzeds: {
@@ -18,6 +19,7 @@ export type MoodProfileResponse = {
         artist: string,
         emotionalVector: EmotionalVector,
         moodScore: number,
+        reasoning:string
         dominantSentiment: string,
         coreAxes:CoreAxes
     }[];

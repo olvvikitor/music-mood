@@ -44,6 +44,7 @@ export type Track = {
     id: string,
     img_url: string
     artist: string,
+    reasoning:string,
     emotionalVector: EmotionalVector,
     moodScore: number,
     dominantSentiment: string,

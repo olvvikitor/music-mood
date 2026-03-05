@@ -6,7 +6,7 @@ const PROVIDERS = [
     {
         id: "spotify",
         label: "Spotify",
-        href: "http://localhost:3000/auth/spotify/callback",
+        href: "http://192.168.1.5:3000/auth/spotify/callback",
         textColor: "text-[#1DB954]",
         borderColor: "border-[#1DB954]/30",
         hoverBg: "hover:bg-[#1DB954]/10",

@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
 import { Sparkles, Bell, Mail, BarChart3, Check, ChevronRight, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getRefreshProfile } from "../dashboard/services/getRefreshProfileService";
 import { usePlataformProfile } from "./hooks/useMoodProfile";
 import { updateProfileService } from "./services/updateProfileService";
@@ -43,6 +43,21 @@ export type FormAceptNotification = {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+
+    if (token) {
+      // 1. Salva o token
+      localStorage.setItem('auth_token', token);
+
+    } else {
+      // Caso não haja token, manda de volta para o login
+      router.push('/login');
+    }
+  }, [searchParams, router]);
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const queryCliente = useQueryClient();
 

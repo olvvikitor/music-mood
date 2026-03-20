@@ -1,196 +1,253 @@
 "use client"
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Loader2, KeyRound, Mail, ArrowRight, Music2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { loginWithEmail } from "./services/authApi";
 import { ParticleBackground } from "@/shared/components/orbital/ParticlesBackgorund";
 import { OrbitalCore } from "@/shared/components/orbital/orbitalCore";
-
+import { AppBrand } from "@/shared/components/AppBrand";
 
 const PROVIDERS = [
   {
     id: "spotify",
     label: "Spotify",
-    href: "http://localhost:3000/auth/spotify/callback",
-    textColor: "text-[#1DB954]",
-    borderColor: "border-[#1DB954]/30",
-    hoverBg: "hover:bg-[#1DB954]/10",
-    hoverBorder: "hover:border-[#1DB954]/60",
-    glowColor: "rgba(29,185,84,0.2)",
+    href: "/api/auth/spotify/callback",
+    color: "#1DB954",
     icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
         <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
       </svg>
     ),
   },
   {
-    id: "apple",
-    label: "Apple Music",
-    href: "/api/auth/apple",
-    textColor: "text-[#fc3c44]",
-    borderColor: "border-[#fc3c44]/30",
-    hoverBg: "hover:bg-[#fc3c44]/10",
-    hoverBorder: "hover:border-[#fc3c44]/60",
-    glowColor: "rgba(252,60,68,0.2)",
+    id: "youtube",
+    label: "YouTube",
+    href: "/api/auth/youtube",
+    color: "#FF0000",
     icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-        <path d="M18.151 0H5.847A5.847 5.847 0 0 0 0 5.847v12.306A5.847 5.847 0 0 0 5.847 24h12.304A5.847 5.847 0 0 0 24 18.153V5.847A5.847 5.847 0 0 0 18.151 0zm-3.14 16.992a3.3 3.3 0 0 1-1.618.43 3.274 3.274 0 0 1-3.27-3.271 3.274 3.274 0 0 1 3.27-3.27c.768 0 1.47.27 2.02.713V7.148a.497.497 0 0 1 .497-.497h1.356a.497.497 0 0 1 .497.497v8.883a4.778 4.778 0 0 1-2.752 1.961z" />
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+        <path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z" />
       </svg>
     ),
   },
   {
-    id: "youtube",
-    label: "YouTube Music",
-    href: "/api/auth/youtube",
-    textColor: "text-[#FF0000]",
-    borderColor: "border-[#FF0000]/30",
-    hoverBg: "hover:bg-[#FF0000]/10",
-    hoverBorder: "hover:border-[#FF0000]/60",
-    glowColor: "rgba(255,0,0,0.2)",
+    id: "apple",
+    label: "Apple",
+    href: "#",
+    color: "#f5f5f7",
     icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-        <path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z" />
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+        <path d="M18.151 0H5.847A5.847 5.847 0 0 0 0 5.847v12.306A5.847 5.847 0 0 0 5.847 24h12.304A5.847 5.847 0 0 0 24 18.153V5.847A5.847 5.847 0 0 0 18.151 0zm-3.14 16.992a3.3 3.3 0 0 1-1.618.43 3.274 3.274 0 0 1-3.27-3.271 3.274 3.274 0 0 1 3.27-3.27c.768 0 1.47.27 2.02.713V7.148a.497.497 0 0 1 .497-.497h1.356a.497.497 0 0 1 .497.497v8.883a4.778 4.778 0 0 1-2.752 1.961z" />
       </svg>
     ),
   },
 ];
 
-function LoginCard({ hoveredId, setHoveredId }: {
-  hoveredId: string | null;
-  setHoveredId: (id: string | null) => void;
-}) {
+function LoginCard() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const router = useRouter();
+
   return (
     <div
-      className="p-8 md:p-7 flex flex-col gap-5 border border-white/10 rounded-4xl backdrop-blur-xl"
-      style={{
-        background: "rgba(10,10,10,0.85)",
-        boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 32px 80px rgba(0,0,0,0.7)",
-      }}
+      className="glass-card w-full max-w-[360px] flex flex-col gap-0 overflow-hidden"
+      style={{ animation: "fadeSlideIn 0.6s 0.1s cubic-bezier(0.16,1,0.3,1) both" }}
     >
-      {/* Header */}
-      <div className="flex flex-col items-center gap-2">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <p className="text-[9px] uppercase font-black tracking-[0.3em] text-slate-500">Bem-vindo ao</p>
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-        </div>
-        <h1 className="text-4xl font-black italic tracking-tighter text-white uppercase leading-none">
-          Music<span className="text-emerald-500">Mood</span>
-        </h1>
-        <p className="text-[11px] text-slate-500 text-center leading-relaxed max-w-[210px]">
-          Conecte sua plataforma favorita e descubra seu universo emocional
+      {/* Header strip */}
+      <div
+        className="px-7 pt-7 pb-6 flex flex-col gap-1"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+      >
+        <AppBrand className="text-2xl" />
+        <p className="text-xs text-white/35 mt-1" style={{ fontFamily: "var(--font-body)" }}>
+          Desbloqueie seu universo emocional
         </p>
       </div>
 
-      <div className="h-px bg-white/5" />
+      {/* Form */}
+      <div className="px-7 py-6 flex flex-col gap-4">
+        {/* Email */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] uppercase tracking-[0.15em] font-700 text-white/30"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+            E-mail
+          </label>
+          <div className="relative">
+            <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors duration-200 ${focusedField === "email" ? "text-brand-primary" : "text-white/20"}`} />
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onFocus={() => setFocusedField("email")}
+              onBlur={() => setFocusedField(null)}
+              className="w-full text-sm text-white placeholder:text-white/20 pl-10 pr-4 py-3 rounded-xl outline-none transition-all duration-200"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: focusedField === "email"
+                  ? "1px solid rgba(0,255,179,0.35)"
+                  : "1px solid rgba(255,255,255,0.07)",
+                boxShadow: focusedField === "email" ? "0 0 0 3px rgba(0,255,179,0.06)" : "none",
+                fontFamily: "var(--font-body)",
+              }}
+            />
+          </div>
+        </div>
 
-      {/* Providers */}
-      <div className="flex flex-col gap-2">
-        {PROVIDERS.map((provider) => (
-          <a
-            key={provider.id}
-            href={provider.href}
-            onMouseEnter={() => setHoveredId(provider.id)}
-            onMouseLeave={() => setHoveredId(null)}
-            className={`
-              flex items-center gap-3 px-4 py-3 rounded-xl border
-              transition-all duration-300 bg-white/[0.02] active:scale-[0.98] cursor-pointer
-              ${provider.textColor} ${provider.borderColor}
-              ${provider.hoverBg} ${provider.hoverBorder}
-            `}
-            style={{
-              boxShadow: hoveredId === provider.id ? `0 0 20px ${provider.glowColor}` : "none",
-            }}
-          >
-            <span className="shrink-0">{provider.icon}</span>
-            <span className="flex-1 text-sm font-bold tracking-wide">Entrar com {provider.label}</span>
-            <span
-              className={`text-xs transition-all duration-300 ${
-                hoveredId === provider.id ? "opacity-100 translate-x-0.5" : "opacity-25"
-              }`}
-            >
-              →
-            </span>
-          </a>
-        ))}
+        {/* Password */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] uppercase tracking-[0.15em] font-700 text-white/30"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+            Senha
+          </label>
+          <div className="relative">
+            <KeyRound className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors duration-200 ${focusedField === "password" ? "text-brand-primary" : "text-white/20"}`} />
+            <input
+              type="password"
+              placeholder="••••••••"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              onFocus={() => setFocusedField("password")}
+              onBlur={() => setFocusedField(null)}
+              className="w-full text-sm text-white placeholder:text-white/20 pl-10 pr-4 py-3 rounded-xl outline-none transition-all duration-200"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: focusedField === "password"
+                  ? "1px solid rgba(0,255,179,0.35)"
+                  : "1px solid rgba(255,255,255,0.07)",
+                boxShadow: focusedField === "password" ? "0 0 0 3px rgba(0,255,179,0.06)" : "none",
+                fontFamily: "var(--font-body)",
+              }}
+            />
+          </div>
+        </div>
+
+        {error && (
+          <p className="text-[11px] text-rose-400 font-600 text-center"
+            style={{ fontFamily: "var(--font-body)" }}>
+            {error}
+          </p>
+        )}
+
+        {/* Submit */}
+        <button
+          onClick={async () => {
+            setError(null);
+            setLoading(true);
+            try {
+              const data = await loginWithEmail(email, password);
+              localStorage.setItem('auth_token', data.token);
+              router.push('/dashboard');
+            } catch (err: any) {
+              setError(err.message);
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-800 uppercase tracking-widest transition-all duration-300 active:scale-[0.98] disabled:opacity-50"
+          style={{
+            background: "linear-gradient(135deg, #00ffb3, #00d4a0)",
+            color: "#07070c",
+            boxShadow: "0 0 24px rgba(0,255,179,0.25)",
+            fontFamily: "var(--font-display)",
+            fontWeight: 800,
+          }}
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+          {loading ? "Entrando..." : "Entrar"}
+        </button>
       </div>
 
-      <p className="text-center text-[10px] text-slate-600">
-        Ao continuar, você concorda com os{" "}
-        <span className="text-slate-500 underline underline-offset-2 cursor-pointer hover:text-slate-300 transition-colors">
-          Termos de Uso
-        </span>
-      </p>
-    </div>
-  );
-}
+      {/* Providers */}
+      <div className="px-7 pb-7 flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+          <span className="text-[9px] uppercase tracking-[0.2em] text-white/20 shrink-0"
+            style={{ fontFamily: "var(--font-display)" }}>
+            ou conecte via
+          </span>
+          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+        </div>
 
-function OnlineStatus() {
-  return (
-    <div className="mt-3 flex items-center justify-center gap-2 text-[9px] uppercase font-bold tracking-widest text-slate-600">
-      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-      <span>Serviço online</span>
+        <div className="grid grid-cols-3 gap-2">
+          {PROVIDERS.map(p => (
+            <a
+              key={p.id}
+              href={p.href}
+              title={p.label}
+              className="flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all duration-200 active:scale-95"
+              style={{
+                background: "rgba(255,255,255,0.025)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                color: p.color,
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = `${p.color}12`;
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = `${p.color}35`;
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.025)";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.06)";
+              }}
+            >
+              {p.icon}
+              <span className="text-[9px] font-700 uppercase tracking-wider text-white/30"
+                style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+                {p.label}
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function LoginPage() {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
   return (
-    <div className="relative bg-black overflow-hidden h-screen flex flex-col md:block">
-      {/* Partículas + glow (gravity = true ativa a física orbital) */}
-      <ParticleBackground
-        count={350}
-        speed={0.4}
-        gravity={false}
-        glowSize={500}
-        glowPosition="left30"
-      />
+    <div className="relative h-screen overflow-hidden flex items-center justify-center">
 
-      {/* Sistema orbital */}
-      <OrbitalCore variant="login" />
+      {/* Particle background */}
+      <ParticleBackground count={250} speed={0.3} gravity={false} glowSize={500} glowPosition="left30" />
 
-      {/* ── MOBILE ── */}
-      <div
-        className="md:hidden relative z-20 flex flex-col items-center justify-center flex-1 px-5 gap-4"
-      >
-        <div
-          className="text-center select-none pointer-events-none"
-          style={{ animation: "fadeUp 0.7s 0.2s ease-out both" }}
-        >
-          <p className="text-[9px] uppercase font-black tracking-[0.35em] text-violet-500 mb-1">
-            Uma viagem pelo seu
-          </p>
-          <h2 className="text-xl font-black italic tracking-tighter uppercase leading-tight text-white">
-            universo sonoro
-          </h2>
-        </div>
-
-        <div className="w-full" style={{ animation: "fadeSlideIn 0.7s 0.1s ease-out both" }}>
-          <LoginCard hoveredId={hoveredId} setHoveredId={setHoveredId} />
-          <OnlineStatus />
-        </div>
+      {/* Orbital — visível no desktop */}
+      <div className="hidden lg:block">
+        <OrbitalCore variant="login" />
       </div>
 
-      {/* ── DESKTOP: texto canto superior esquerdo ── */}
+      {/* Left copy — desktop */}
       <div
-        className="hidden md:block absolute pointer-events-none select-none top-[12%] left-[5%]"
-        style={{ animation: "fadeUp 0.8s 0.3s ease-out both" }}
+        className="hidden lg:flex flex-col gap-3 absolute left-[8%] top-1/2 -translate-y-1/2 pointer-events-none select-none"
+        style={{ animation: "fadeUp 0.8s 0.4s ease-out both" }}
       >
-        <p className="text-[9px] uppercase font-black tracking-[0.35em] text-violet-500/50 mb-2">
-          Uma viagem pelo seu
+        <p className="text-[10px] uppercase tracking-[0.35em] font-800"
+          style={{ color: "#a259ff", fontFamily: "var(--font-display)", fontWeight: 800 }}>
+          Análise emocional de música
         </p>
-        <h2 className="text-5xl lg:text-6xl font-black italic tracking-tighter uppercase leading-[0.9] text-white/15">
-          universo<br />sonoro
+        <h2 className="text-6xl xl:text-7xl font-900 uppercase leading-[0.88] text-white/10"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 900 }}>
+          Sua<br />alma<br />em notas
         </h2>
       </div>
 
-      {/* ── DESKTOP: card direita ── */}
-      <div
-        className="hidden md:block absolute z-20 right-40 lg:right-64 top-1/2 -translate-y-1/2 w-90 h-90"
-        style={{ animation: "fadeSlideIn 0.1s 0.3s ease-out both" }}
-      >
-        <LoginCard hoveredId={hoveredId} setHoveredId={setHoveredId} />
-        <OnlineStatus />
+      {/* Card — centered on mobile, right on desktop */}
+      <div className="relative z-20 w-full max-w-[360px] px-4 lg:px-0 lg:absolute lg:right-[10%] lg:top-1/2 lg:-translate-y-1/2">
+        <LoginCard />
+
+        {/* Status */}
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[9px] uppercase tracking-[0.2em] text-white/20 font-700"
+            style={{ fontFamily: "var(--font-display)" }}>
+            Serviço online
+          </span>
+        </div>
       </div>
     </div>
   );

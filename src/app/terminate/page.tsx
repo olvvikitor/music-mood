@@ -1,192 +1,315 @@
-"use client"
-import { useEffect, useRef, useState } from "react";
-import { Sparkles, Bell, Mail, BarChart3, Check, ChevronRight, Loader2 } from "lucide-react";
+"use client";
+
+import { useEffect, useState, Suspense } from "react";
+import { Bell, Mail, BarChart3, ChevronRight, Loader2, Check, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getRefreshProfile } from "../dashboard/services/getRefreshProfileService";
 import { usePlataformProfile } from "./hooks/useMoodProfile";
 import { updateProfileService } from "./services/updateProfileService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ParticleBackground } from "@/shared/components/orbital/ParticlesBackgorund";
-
-type NotificationOption = {
-  id: "push" | "email" | "weekly";
-  label: string;
-  description: string;
-  icon: React.ReactNode;
-};
-
-const NOTIFICATION_OPTIONS: NotificationOption[] = [
-  { id: "push",   label: "Notificações Push", description: "Alertas em tempo real no seu navegador",        icon: <Bell className="w-3.5 h-3.5" /> },
-  { id: "email",  label: "E-mail",            description: "Receba insights no seu e-mail",                 icon: <Mail className="w-3.5 h-3.5" /> },
-  { id: "weekly", label: "Resumo Semanal",    description: "Um relatório do seu humor musical toda semana", icon: <BarChart3 className="w-3.5 h-3.5" /> },
-];
+import { AppBrand } from "@/shared/components/AppBrand";
+import { setPasswordService } from "./services/setPasswordService";
 
 export type FormAceptNotification = { push: boolean; email: boolean; weekly: boolean };
 
-export default function OnboardingPage() {
+const NOTIFICATION_OPTIONS = [
+  { id: "push" as const,   label: "Push",           description: "Alertas em tempo real",        icon: <Bell className="w-3 h-3" /> },
+  { id: "email" as const,  label: "E-mail",          description: "Insights no seu e-mail",       icon: <Mail className="w-3 h-3" /> },
+  { id: "weekly" as const, label: "Resumo semanal",  description: "Relatório toda semana",        icon: <BarChart3 className="w-3 h-3" /> },
+];
+
+// ── Toggle ─────────────────────────────────────────────────────────────────────
+function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      className="relative shrink-0 w-9 h-5 rounded-full transition-all duration-300 focus:outline-none"
+      style={{
+        background: checked
+          ? "linear-gradient(135deg, #00ffb3, #00c896)"
+          : "rgba(255,255,255,0.08)",
+        border: checked ? "1px solid rgba(0,255,179,0.4)" : "1px solid rgba(255,255,255,0.1)",
+        boxShadow: checked ? "0 0 12px rgba(0,255,179,0.3)" : "none",
+      }}
+    >
+      <span
+        className="absolute top-0.5 w-4 h-4 rounded-full transition-all duration-300"
+        style={{
+          left: checked ? "calc(100% - 18px)" : "2px",
+          background: checked ? "#07070c" : "rgba(255,255,255,0.3)",
+        }}
+      />
+    </button>
+  );
+}
+
+// ── Onboarding content ────────────────────────────────────────────────────────
+function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-
-    if (token) {
-      // 1. Salva o token
-      localStorage.setItem('auth_token', token);
-    } else {
-      // Caso não haja token, manda de volta para o login
-      router.push('/login');
-    }
+    const token = searchParams.get("token");
+    if (token) localStorage.setItem("auth_token", token);
+    else router.push("/login");
   }, [searchParams, router]);
-  
-  const queryCliente = useQueryClient();
 
   const { data, isLoading, isError } = usePlataformProfile();
-
   const [notifications, setNotifications] = useState<FormAceptNotification>({ push: false, email: false, weekly: false });
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [confirmed,  setConfirmed]  = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const toggleNotification = (id: keyof FormAceptNotification) =>
-    setNotifications(prev => ({ ...prev, [id]: !prev[id] }));
+  const passwordsMatch = password.length > 0 && password === confirmPassword;
 
   const { mutate: refreshUser } = useMutation({
     mutationFn: getRefreshProfile,
-    onMutate:   () => { router.push("/build-mood"); },
-    onSuccess:  async () => { await queryCliente.invalidateQueries({ queryKey: ["moodProfile"] }); },
-    onSettled:  () => { router.push("/dashboard"); },
+    onMutate: () => router.push("/build-mood"),
+    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["moodProfile"] }); },
+    onSettled: () => router.push("/dashboard"),
   });
 
   const handleConfirm = async () => {
+    if (password.length < 6) { setError("A senha deve ter pelo menos 6 caracteres."); return; }
+    if (!passwordsMatch) { setError("As senhas não coincidem."); return; }
     setConfirming(true);
+    setError(null);
     try {
       await updateProfileService(notifications);
-      refreshUser();
+      await setPasswordService(password);
       setConfirmed(true);
-    } catch {
+      refreshUser();
+    } catch (err: any) {
+      setError(err.message || "Ocorreu um erro ao salvar.");
       setConfirming(false);
     }
   };
 
+  const inputStyle = (field: string) => ({
+    background: "rgba(255,255,255,0.03)",
+    border: focusedField === field
+      ? "1px solid rgba(0,255,179,0.35)"
+      : "1px solid rgba(255,255,255,0.07)",
+    boxShadow: focusedField === field ? "0 0 0 3px rgba(0,255,179,0.06)" : "none",
+    fontFamily: "var(--font-body)",
+    transition: "all 0.2s ease",
+    color: "white",
+  });
+
   return (
-    <div className="relative bg-black overflow-hidden h-screen flex items-center justify-center">
-      <ParticleBackground count={200} speed={0.3} />
+    <div
+      className="glass-card w-full overflow-hidden"
+      style={{ animation: "scaleIn 0.5s cubic-bezier(0.16,1,0.3,1) both" }}
+    >
+      {/* Header */}
+      <div className="px-6 pt-6 pb-5 flex flex-col items-center gap-1 text-center"
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        <p className="text-[9px] uppercase tracking-[0.3em] font-700 text-white/25"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+          Quase lá
+        </p>
+        <AppBrand className="text-xl mt-0.5" />
+        <p className="text-[11px] text-white/30 mt-0.5" style={{ fontFamily: "var(--font-body)" }}>
+          Configure sua conta para continuar
+        </p>
+      </div>
 
-      {/* card — largura fixa 320px */}
-      <div className="relative z-10 w-[320px]" style={{ animation: "scaleIn 0.5s ease-out both" }}>
-        <div
-          className="flex flex-col gap-3 border border-white/10 rounded-2xl backdrop-blur-xl p-4"
-          style={{
-            background: "rgba(10,10,10,0.88)",
-            boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 24px 60px rgba(0,0,0,0.7)",
-          }}
-        >
-          {/* Header */}
-          <div className="flex flex-col items-center gap-0.5 text-center">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <p className="text-[8px] uppercase font-black tracking-[0.3em] text-slate-500">Quase lá</p>
-              <Sparkles className="w-3 h-3 text-amber-400" />
+      {/* Profile preview */}
+      <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        {isLoading ? (
+          <div className="flex items-center gap-3 animate-pulse">
+            <div className="w-10 h-10 rounded-full bg-white/8 shrink-0" />
+            <div className="flex flex-col gap-1.5 flex-1">
+              <div className="h-3 bg-white/8 rounded-md w-28" />
+              <div className="h-2 bg-white/5 rounded-md w-40" />
             </div>
-            <h1 className="text-xl font-black italic tracking-tighter text-white uppercase leading-none mt-0.5">
-              Music<span className="text-emerald-500">Mood</span>
-            </h1>
-            <p className="text-[10px] text-slate-500 mt-0.5">
-              Confirme suas informações para continuar
-            </p>
           </div>
-
-          <div className="h-px bg-white/5" />
-
-          {/* Perfil */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-2">
-              <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
+        ) : isError || !data ? (
+          <p className="text-[11px] text-rose-400 text-center">Não foi possível carregar o perfil.</p>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full shrink-0 p-0.5"
+              style={{ background: "linear-gradient(135deg, #00ffb3, #a259ff)" }}>
+              <img src={data.img_profile} alt="Avatar"
+                className="w-full h-full rounded-full object-cover"
+                style={{ border: "1.5px solid #07070c" }} />
             </div>
-          ) : isError || !data ? (
-            <p className="text-[10px] text-rose-400 text-center py-1">Não foi possível carregar seu perfil.</p>
-          ) : (
-            <div
-              className="flex items-center gap-3 p-2.5 rounded-xl border border-white/10 bg-white/[0.02]"
-              style={{ animation: "fadeUp 0.5s 0.2s ease-out both", opacity: 0 }}
-            >
-              <div className="relative shrink-0">
-                <img src={data.img_profile} alt={data.display_name}
-                  className="w-9 h-9 rounded-full object-cover border border-emerald-500/20" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-black flex items-center justify-center">
-                  <Check className="w-1.5 h-1.5 text-black" strokeWidth={3} />
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-xs truncate">{data.display_name}</p>
-                <p className="text-slate-400 text-[10px] truncate">{data.email}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[8px] uppercase font-black tracking-widest text-emerald-500/70 border border-emerald-500/20 rounded-full px-1.5 py-px">
-                    {data.provider}
-                  </span>
-                  <span className="text-[8px] text-slate-600 font-mono">{data.country}</span>
-                </div>
-              </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-700 text-white truncate"
+                style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+                {data.display_name}
+              </span>
+              <span className="text-[11px] text-white/30 truncate">{data.email}</span>
             </div>
-          )}
-
-          <div className="h-px bg-white/5" />
-
-          {/* Notificações */}
-          <div className="flex flex-col gap-1.5" style={{ animation: "fadeUp 0.5s 0.35s ease-out both", opacity: 0 }}>
-            <p className="text-[8px] uppercase font-black tracking-[0.2em] text-slate-500">Notificações</p>
-            {NOTIFICATION_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                onClick={() => toggleNotification(opt.id)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-300 text-left
-                  ${notifications[opt.id]
-                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                    : "border-white/10 bg-white/[0.02] text-slate-400 hover:border-white/20"
-                  }`}
-              >
-                <span className={`shrink-0 transition-colors duration-300 ${notifications[opt.id] ? "text-emerald-400" : "text-slate-600"}`}>
-                  {opt.icon}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold leading-tight">{opt.label}</p>
-                  <p className="text-[9px] text-slate-500">{opt.description}</p>
-                </div>
-                <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300
-                  ${notifications[opt.id] ? "bg-emerald-500 border-emerald-500" : "border-white/20"}`}>
-                  {notifications[opt.id] && <Check className="w-2 h-2 text-black" strokeWidth={3} />}
-                </div>
-              </button>
-            ))}
+            <div className="ml-auto shrink-0 px-2 py-0.5 rounded-full text-[9px] font-700 uppercase tracking-wider"
+              style={{
+                background: "rgba(0,255,179,0.08)",
+                border: "1px solid rgba(0,255,179,0.2)",
+                color: "#00ffb3",
+                fontFamily: "var(--font-display)",
+              }}>
+              {data.provider}
+            </div>
           </div>
+        )}
+      </div>
 
-          <div className="h-px bg-white/5" />
+      {/* Security section */}
+      <div className="px-6 py-5 flex flex-col gap-3"
+        style={{
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          animation: "fadeUp 0.5s 0.15s ease-out both",
+          opacity: 0,
+        }}>
+        <div className="flex items-center gap-2 mb-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-white/20" />
+          <span className="text-[10px] uppercase tracking-[0.15em] font-700 text-white/25"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+            Segurança
+          </span>
+        </div>
 
-          {/* Botão */}
-          <button
-            onClick={handleConfirm}
-            disabled={confirming || confirmed || isLoading || isError}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-xs tracking-wide transition-all duration-300
-              ${confirmed
-                ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 cursor-default"
-                : "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 active:scale-[0.98]"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            style={{ animation: "fadeUp 0.5s 0.45s ease-out both", opacity: 0 }}
-          >
-            {confirmed ? (
-              <><Check className="w-3.5 h-3.5" />Tudo certo! Redirecionando...</>
-            ) : confirming ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <>Confirmar e começar<ChevronRight className="w-3.5 h-3.5" /></>
-            )}
+        {/* Password */}
+        <div className="relative">
+          <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors ${focusedField === "pw" ? "text-brand-primary" : "text-white/20"}`} />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Crie uma senha"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            onFocus={() => setFocusedField("pw")}
+            onBlur={() => setFocusedField(null)}
+            className="w-full text-sm pl-10 pr-10 py-3 rounded-xl outline-none placeholder:text-white/20"
+            style={inputStyle("pw")}
+          />
+          <button type="button" onClick={() => setShowPassword(v => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/60 transition-colors">
+            {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
           </button>
         </div>
 
-        {/* Status */}
-        <div className="mt-2 flex items-center justify-center gap-1.5 text-[8px] uppercase font-bold tracking-widest text-slate-600">
-          <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Serviço online</span>
+        {/* Confirm */}
+        <div className="relative">
+          <Check className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors ${passwordsMatch ? "text-brand-primary" : "text-white/20"}`} />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Confirme a senha"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            onFocus={() => setFocusedField("cpw")}
+            onBlur={() => setFocusedField(null)}
+            className="w-full text-sm pl-10 pr-4 py-3 rounded-xl outline-none placeholder:text-white/20"
+            style={inputStyle("cpw")}
+          />
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="px-6 py-5 flex flex-col gap-2.5"
+        style={{
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          animation: "fadeUp 0.5s 0.25s ease-out both",
+          opacity: 0,
+        }}>
+        <div className="flex items-center gap-2 mb-1">
+          <Bell className="w-3.5 h-3.5 text-white/20" />
+          <span className="text-[10px] uppercase tracking-[0.15em] font-700 text-white/25"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+            Notificações
+          </span>
+        </div>
+
+        {NOTIFICATION_OPTIONS.map(opt => (
+          <div key={opt.id} className="flex items-center justify-between gap-3 py-1">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="text-white/20 shrink-0">{opt.icon}</span>
+              <div className="min-w-0">
+                <p className="text-[12px] font-600 text-white/70 truncate"
+                  style={{ fontFamily: "var(--font-body)", fontWeight: 600 }}>
+                  {opt.label}
+                </p>
+                <p className="text-[10px] text-white/25 truncate">{opt.description}</p>
+              </div>
+            </div>
+            <Toggle
+              checked={notifications[opt.id]}
+              onChange={() => setNotifications(p => ({ ...p, [opt.id]: !p[opt.id] }))}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Error + CTA */}
+      <div className="px-6 pb-6 pt-4 flex flex-col gap-3"
+        style={{ animation: "fadeUp 0.5s 0.35s ease-out both", opacity: 0 }}>
+        {error && (
+          <p className="text-[11px] text-rose-400 text-center font-500"
+            style={{ fontFamily: "var(--font-body)" }}>
+            {error}
+          </p>
+        )}
+        <button
+          onClick={handleConfirm}
+          disabled={confirming || confirmed || isLoading}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-800 uppercase tracking-widest transition-all duration-300 active:scale-[0.98] disabled:opacity-50"
+          style={{
+            background: confirmed
+              ? "rgba(0,255,179,0.1)"
+              : "linear-gradient(135deg, #00ffb3, #00c896)",
+            color: confirmed ? "#00ffb3" : "#07070c",
+            border: confirmed ? "1px solid rgba(0,255,179,0.3)" : "none",
+            boxShadow: confirmed ? "none" : "0 0 24px rgba(0,255,179,0.25)",
+            fontFamily: "var(--font-display)",
+            fontWeight: 800,
+          }}>
+          {confirmed ? (
+            <><Check className="w-4 h-4" /> Tudo certo!</>
+          ) : confirming ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>Começar <ChevronRight className="w-4 h-4" /></>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+export default function OnboardingPage() {
+  return (
+    <div className="relative min-h-screen overflow-hidden flex items-center justify-center px-4"
+      style={{ background: "#07070c" }}>
+      <ParticleBackground count={150} speed={0.25} />
+
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(0,255,179,0.04), transparent 65%)" }} />
+      </div>
+
+      <div className="relative z-10 w-full max-w-[360px] flex flex-col gap-3">
+        <Suspense fallback={
+          <div className="glass-card p-8 flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#00ffb3" }} />
+          </div>
+        }>
+          <OnboardingContent />
+        </Suspense>
+
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[9px] uppercase tracking-[0.2em] text-white/20 font-700"
+            style={{ fontFamily: "var(--font-display)" }}>
+            Serviço online
+          </span>
         </div>
       </div>
     </div>

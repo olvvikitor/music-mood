@@ -1,133 +1,57 @@
 @import "tailwindcss";
-/* IMPORTANTE: Adicione esta linha no topo */
-
 @import "nprogress/nprogress.css";
 
-/* 1. DEFINIÇÃO DE TOKENS (Sua paleta de cores personalizada) */
+/* ── TOKENS ────────────────────────────────────────────────────────────────── */
 @theme {
-  --color-brand-primary: #22c55e; /* Mudando para verde para combinar com seu gradiente */
-  --color-brand-secondary: #a855f7;
-  
-  /* SURFACE: Agora um preto profundo com 40% de opacidade */
-  --color-surface: rgba(0, 0, 0, 0.4); 
-  
-  /* BORDER: Mais sutil, para não criar aquele "contorno de giz" */
-  --color-border-glass: rgba(255, 255, 255, 0.05);
-  
-  --color-text-main: #f4f4f5;
-  --color-text-muted: #71717a;
-}
-@theme {
-  /* Se estiver usando v4, você pode definir variáveis de animação aqui */
-  --animate-fade-in-up: fadeInUp 0.5s ease-out forwards;
+  --color-brand-primary:   #00ffb3;
+  --color-brand-secondary: #ff2d87;
+  --color-brand-accent:    #a259ff;
 
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+  --color-surface:         rgba(12, 12, 16, 0.70);
+  --color-surface-hover:   rgba(20, 20, 28, 0.85);
+
+  --color-border-glass:    rgba(255, 255, 255, 0.06);
+  --color-border-hover:    rgba(255, 255, 255, 0.14);
+
+  --color-text-main:  #f0f0f5;
+  --color-text-muted: #8888a0;
+
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
 }
 
-/* 2. ESTILOS GLOBAIS */
-@layer base {
-  body {
-    /* Gradiente mais suave e profundo, estilo Dashboard Premium */
-    @apply bg-[#09090b] bg-gradient-to-br from-[#09090b] via-[#0e2e0a] to-[#003d07] 
-           min-h-screen text-text-main antialiased;
-  }
+/* ── KEYFRAMES ─────────────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-/* 3. UTILIDADES CUSTOMIZADAS */
-@utility glass-card {
-  /* 1. Fundo preto translúcido 
-     2. Blur forte para dar sensação de vidro
-     3. Borda sutil apenas no topo e esquerda (simula luz batendo)
-  */
-  @apply bg-surface backdrop-blur-2xl border border-white/5
-           shadow-[0_4px_24px_-1px_rgba(0,0,0,0.5)] 
-           rounded-2xl transition-all duration-500 ease-out;
-
-  /* Efeito de "Inner Glow" (Brilho interno) para dar volume */
-  position: relative;
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px; /* Espessura da borda de luz */
-    background: linear-gradient(
-      135deg, 
-      rgba(255,255,255,0.1), 
-      transparent 40%, 
-      transparent 60%, 
-      rgba(255,255,255,0.02)
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
-@utility custom-scrollbar {
-  &::-webkit-scrollbar {
-    width: 5px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
-  }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-@utility badge-pro {
-  @apply bg-brand-primary/10 text-brand-primary border border-brand-primary/20 
-         px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider;
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
-
-
-/* ... suas definições de @theme e @layer base ... */
-
-/* 4. CONFIGURAÇÃO NPROGRESS */
-#nprogress {
-  pointer-events: none;
+@keyframes bouncyScale {
+  0%   { transform: scale(0.94); opacity: 0; }
+  60%  { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
 }
-
-#nprogress .bar {
-  background: #22c55e !important; /* Verde neon */
-  position: fixed;
-  z-index: 99999;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px !important; /* Um pouco mais fina fica mais elegante */
-  
-  /* Efeito de brilho nas bordas */
-  box-shadow: 0 0 10px #22c55e, 0 0 5px #22c55e !important;
+@keyframes ringPulse {
+  0%, 100% { opacity: 0.06; }
+  50%       { opacity: 0.22; }
 }
-
-/* Opcional: Estiliza o "peg" (a pontinha da barra que brilha enquanto corre) */
-#nprogress .peg {
-  display: block;
-  position: absolute;
-  right: 0px;
-  width: 100px;
-  height: 100%;
-  box-shadow: 0 0 10px #22c55e, 0 0 5px #22c55e !important;
-  opacity: 1.0;
-  transform: rotate(3deg) translate(0px, -4px);
+@keyframes fadeMsg {
+  0%   { opacity: 0; transform: translateY(6px); }
+  15%  { opacity: 1; transform: translateY(0); }
+  85%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
 }
-
-/* ─── MusicMood – Shared Keyframes ───────────────────────────────────────────
-   Adicione este bloco ao seu globals.css existente
-   ──────────────────────────────────────────────────────────────────────────── */
-
 @keyframes orbit1 {
   from { transform: rotate(0deg)   translateX(150px) rotate(0deg); }
   to   { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
@@ -141,36 +65,164 @@
   to   { transform: rotate(600deg) translateX(275px) rotate(-600deg); }
 }
 @keyframes coreGlow {
-  0%, 100% { box-shadow: 0 0 40px rgba(16,185,129,0.12), 0 0 80px rgba(16,185,129,0.05); }
-  50%      { box-shadow: 0 0 80px rgba(16,185,129,0.28), 0 0 160px rgba(16,185,129,0.08); }
+  0%, 100% { box-shadow: 0 0 40px rgba(0,255,179,0.10), 0 0 80px rgba(0,255,179,0.04); }
+  50%       { box-shadow: 0 0 80px rgba(0,255,179,0.26), 0 0 160px rgba(0,255,179,0.08); }
 }
-@keyframes coreGlowStrong {
-  0%, 100% { box-shadow: 0 0 40px rgba(16,185,129,0.15), 0 0 80px rgba(16,185,129,0.06); }
-  50%      { box-shadow: 0 0 80px rgba(16,185,129,0.35), 0 0 160px rgba(16,185,129,0.12); }
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
 }
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateX(32px); }
-  to   { opacity: 1; transform: translateX(0); }
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
 }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%;   }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%;   }
 }
-@keyframes fadeUpSlow {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+
+/* ── BASE ───────────────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: #07070c;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% -10%,  rgba(0,255,179,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%,  rgba(255,45,135,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 50% 50%,   rgba(162,89,255,0.03) 0%, transparent 70%);
+    min-height: 100vh;
+    color: var(--color-text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: rgba(255, 45, 135, 0.30);
+    color: #fff;
+  }
 }
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+
+/* ── UTILITIES ──────────────────────────────────────────────────────────────── */
+
+/* Glass card — material base */
+@utility glass-card {
+  background: var(--color-surface);
+  backdrop-filter: blur(48px) saturate(160%);
+  -webkit-backdrop-filter: blur(48px) saturate(160%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 1px 0 0 rgba(255,255,255,0.05) inset,
+    0 -1px 0 0 rgba(0,0,0,0.4) inset,
+    0 20px 60px -12px rgba(0,0,0,0.6);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
 }
-@keyframes ringPulse {
-  0%, 100% { opacity: 0.06; }
-  50%      { opacity: 0.18; }
+
+/* Subtle inner highlight */
+@utility glass-card {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.06) 0%,
+      rgba(255,255,255,0.01) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
 }
-@keyframes fadeMsg {
-  0%   { opacity: 0; transform: translateY(6px); }
-  15%  { opacity: 1; transform: translateY(0); }
-  85%  { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-6px); }
+
+/* Hover elevation */
+@utility glass-card-hover {
+  cursor: default;
+  &:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-border-hover);
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 0 0 rgba(255,255,255,0.07) inset,
+      0 -1px 0 0 rgba(0,0,0,0.5) inset,
+      0 30px 80px -12px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(0,255,179,0.06);
+  }
+  &:active {
+    transform: translateY(0) scale(0.99);
+  }
+}
+
+/* Glow border accent on hover */
+@utility glass-card-glow {
+  &:hover {
+    box-shadow:
+      0 0 0 1px rgba(0,255,179,0.2),
+      0 20px 60px -12px rgba(0,255,179,0.12),
+      0 0 80px -20px rgba(0,255,179,0.08);
+  }
+}
+
+/* Scrollbar */
+@utility custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+  &::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+}
+
+/* PRO badge */
+@utility badge-pro {
+  background: rgba(0,255,179,0.10);
+  color: var(--color-brand-primary);
+  border: 1px solid rgba(0,255,179,0.25);
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-family: var(--font-display);
+  box-shadow: 0 0 12px rgba(0,255,179,0.15);
+}
+
+/* Section divider */
+@utility divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.08) 60%, transparent);
+}
+
+/* ── NPROGRESS ──────────────────────────────────────────────────────────────── */
+#nprogress { pointer-events: none; }
+#nprogress .bar {
+  background: var(--color-brand-primary) !important;
+  position: fixed;
+  z-index: 99999;
+  top: 0; left: 0;
+  width: 100%; height: 2px !important;
+  box-shadow: 0 0 12px var(--color-brand-primary), 0 0 4px var(--color-brand-primary) !important;
+}
+#nprogress .peg {
+  display: block; position: absolute; right: 0;
+  width: 100px; height: 100%; opacity: 1;
+  box-shadow: 0 0 10px var(--color-brand-primary), 0 0 5px var(--color-brand-primary) !important;
+  transform: rotate(3deg) translate(0, -4px);
 }

@@ -196,7 +196,7 @@ const animeSearchMap: Record<string, string[]> = {
         "demon slayer nezuko vulnerable moment",
     ],
     Ambivalencia: [
-        "neon genesis evangelion rei expressionless",
+        "neon genesis evangelion expressionless",
         "oregairu hachiman staring window",
         "monogatari series ambiguous expression",
         "tatami galaxy loop confusion",
@@ -212,6 +212,17 @@ const animeSearchMap: Record<string, string[]> = {
 };
 
 const gf = new GiphyFetch(process.env.NEXT_PUBLIC_GIPHY_API_KEY!)
+
+function resolveSentimentKey(sentiment: string): string {
+    if (animeSearchMap[sentiment]) return sentiment;
+
+    const normalized = sentiment?.trim().toLowerCase();
+    const mappedInternalKey = Object.entries(moodDisplayName).find(
+        ([, display]) => display.toLowerCase() === normalized,
+    )?.[0];
+
+    return mappedInternalKey ?? sentiment;
+}
 
 export const EMOTIONAL_DIMENSIONS = [
     "Valencia",
@@ -248,13 +259,14 @@ export async function getMoodProfile(): Promise<MoodProfileResponse> {
     };
 }
 
-async function getGifByMood(sentiment: string): Promise<string> {
-    const searchTerms = animeSearchMap[sentiment] ?? ["anime aesthetic"];
+export async function getGifByMood(sentiment: string): Promise<string> {
+    const sentimentKey = resolveSentimentKey(sentiment);
+    const searchTerms = animeSearchMap[sentimentKey] ?? ["anime aesthetic"];
     const randomTag = searchTerms[Math.floor(Math.random() * searchTerms.length)];
 
     const { data: results } = await gf.search(randomTag, {
         sort: 'relevant',
-        limit: 1,
+        limit: 5,
         type: "gifs",
         rating: "pg-13",
     });

@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProfile } from "../services/getProfileService";
 import { getMoodProfile } from "../services/getMoodProfile";
 
-export function useMoodProfile(){
+export function useMoodProfile() {
     return useQuery({
-        queryKey:["moodProfile"],
+        queryKey: ["moodProfile"],
         queryFn: getMoodProfile,
-        staleTime:Infinity
-    })
+        staleTime: 10 * 60 * 1000, // 10 minutos
+        refetchOnWindowFocus: false,
+    });
 }

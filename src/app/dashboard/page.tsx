@@ -2,92 +2,96 @@
 import RecentSongs from './components/RecentsSongs'
 import Profile from './components/Profile'
 import { Header } from './components/Header'
-import { LayoutDashboard, LineChart, PieChart, Sparkles } from 'lucide-react'
+import { Zap, Sparkles, Radio } from 'lucide-react'
 import { EmotionalCardChart } from './components/EmotionalCardGraphicChart'
+import { AppBrand } from '@/shared/components/AppBrand'
+import { SectionCard } from '@/shared/components/SectionCard'
+import { InsightsSection } from './components/InsightsSection'
+import { NowPlayingCard } from './components/NowPlayingCard'
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-[#000f06] text-slate-200 selection:bg-emerald-500/30 font-sans antialiased">
-      <div className="max-w-350 mx-auto flex flex-col gap-6 mr-5 ml-5">
-        {/* HEADER */}
-        <header className="sticky top-0 z-60 py-4 bg-[#000f06]/50 backdrop-blur-md  flex justify-between items-center">
-          <div className="flex items-center group cursor-default">
-            <div className="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20 group-hover:border-emerald-500/40 transition-colors">
-              <LayoutDashboard className="w-5 h-5 text-emerald-500" />
-            </div>
-            <h1 className="text-xl md:text-2xl font-black tracking-tighter italic uppercase">
-              Music<span className="text-emerald-500">Mood</span>
-            </h1>
-          </div>
-          <Header />
-        </header>
+    <div className="min-h-screen text-white/90 antialiased" style={{ fontFamily: "var(--font-body)" }}>
 
-        <main className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          {/* COLUNA ESQUERDA — só o Profile */}
-          <aside className="lg:col-span-4 xl:col-span-3 lg:sticky lg:top-28 self-start">
-            <Profile />
-          </aside>
-
-          {/* COLUNA DIREITA — conteúdo principal */}
-          <section className="lg:col-span-8 xl:col-span-9 flex flex-col gap-8 lg:gap-10">
-            {/* 1. EMOTIONAL CHART — destaque total */}
-            <div className="glass-card p-6 flex flex-col">
-              <div className="flex items-center gap-3 mb-6">
-                <PieChart className="w-4 h-4 text-purple-500" />
-                <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-500">Mix Emocional</h3>
-              </div>
-              <div className="border-t border-white/5 pt-4">
-                <EmotionalCardChart />
-              </div>
-            </div>
-
-            {/* 2. MÚSICAS RECENTES — lista compacta */}
-            <div className="w-full min-w-0">
-              <RecentSongs compact />
-            </div>
-
-            {/* 3. EVOLUÇÃO SEMANAL */}
-            <div className="glass-card p-6 flex flex-col min-h-70">
-              <div className="flex items-center gap-3 mb-6">
-                <LineChart className="w-4 h-4 text-emerald-500" />
-                <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-500">Evolução Semanal</h3>
-              </div>
-              <div className="flex-1 border-t border-white/5 pt-4 flex items-center justify-center italic text-slate-700 text-xs">
-                Aguardando dados...
-              </div>
-            </div>
-
-            {/* 3. INSIGHTS */}
-            <div className="glass-card p-8 md:p-10 relative overflow-hidden group">
-              <div className="absolute -right-20 -top-20 w-96 h-96 bg-emerald-500/3 blur-[120px] rounded-full pointer-events-none" />
-
-              <div className="flex items-center gap-4 mb-8 relative z-10">
-                <div className="bg-amber-500/10 p-3 rounded-2xl border border-amber-500/20">
-                  <Sparkles className="w-6 h-6 text-amber-500" />
-                </div>
-                <div>
-                  <h3 className="font-black text-xl tracking-tight">AI Insights</h3>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Real-time Analysis</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
-                <div className="p-6 rounded-2xl bg-black/40 border border-white/5 hover:border-emerald-500/30 transition-all">
-                  <p className="text-slate-300 leading-relaxed text-sm">
-                    Sua tarde indica uma tendência <span className="text-emerald-400 font-bold">Contemplativa</span>. O foco aumentou em 22% com as últimas faixas.
-                  </p>
-                </div>
-                <div className="p-6 rounded-2xl bg-black/40 border border-white/5 hover:border-rose-500/30 transition-all">
-                  <p className="text-slate-300 leading-relaxed text-sm">
-                    Padrão de <span className="text-rose-400 font-bold">Alta Tensão</span> detectado. Que tal uma pausa com sons ambientes?
-                  </p>
-                </div>
-              </div>
-            </div>
-
-          </section>
-        </main>
+      {/* ── Ambient background blobs ── */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-[0.04]"
+          style={{ background: "radial-gradient(circle, #00ffb3, transparent 70%)" }} />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full opacity-[0.04]"
+          style={{ background: "radial-gradient(circle, #ff2d87, transparent 70%)" }} />
+        <div className="absolute top-[40%] left-[40%] w-[400px] h-[400px] rounded-full opacity-[0.025]"
+          style={{ background: "radial-gradient(circle, #a259ff, transparent 70%)" }} />
       </div>
+
+      {/* ── HEADER ── */}
+      <header className="sticky top-0 z-50 flex justify-between items-center px-5 md:px-8 py-3.5"
+        style={{
+          background: "rgba(7,7,12,0.75)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+        }}>
+        <AppBrand className="text-xl" />
+        <Header />
+      </header>
+
+      {/* ── MAIN ── */}
+      <main className="max-w-[1380px] mx-auto px-4 md:px-8 py-6 md:py-8">
+
+        {/* ── BENTO GRID ── */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5">
+
+          {/* 1 — Coluna relevante: perfil + música atual */}
+          <div className="col-span-1 md:col-span-12 lg:col-span-5 order-1">
+            <div className="grid grid-cols-1 gap-4 md:gap-5 h-full">
+              <div className="min-h-[300px]">
+                <Profile />
+              </div>
+
+              <SectionCard
+                title="Tocando Agora"
+                icon={<Radio />}
+                iconColor="text-brand-primary"
+                accentColor="#00ffb3"
+                className="min-h-[220px]"
+                noPadding
+              >
+                <NowPlayingCard />
+              </SectionCard>
+
+              <div>
+                <InsightsSection />
+              </div>
+            </div>
+          </div>
+
+          {/* 2 — Últimas faixas à direita no desktop */}
+          <div className="col-span-1 md:col-span-12 lg:col-span-7 order-2">
+            <SectionCard
+              title="Últimas Faixas"
+              icon={<Zap fill="currentColor" />}
+              iconColor="text-brand-primary"
+              accentColor="#00ffb3"
+              className="h-full min-h-[560px]"
+            >
+              <RecentSongs compact />
+            </SectionCard>
+          </div>
+
+          {/* 3 — Mix emocional */}
+          <div className="col-span-1 md:col-span-12 lg:col-span-12 order-3">
+            <SectionCard
+              icon={<Sparkles />}
+              title="Mix Emocional"
+              iconColor="text-brand-secondary"
+              accentColor="#ff2d87"
+              className="h-full min-h-[380px]"
+            >
+              <EmotionalCardChart />
+            </SectionCard>
+          </div>
+
+        </div>
+      </main>
     </div>
   )
 }

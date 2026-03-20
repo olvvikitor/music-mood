@@ -1,10 +1,2 @@
-import { useQuery } from "@tanstack/react-query";
-import { getInfoUserPlataform} from "../services/getProfileService";
-
-export function usePlataformProfile(){
-    return useQuery({
-        queryKey:["userPlataformProfile"],
-        queryFn: getInfoUserPlataform,
-        staleTime:Infinity
-    })
-}
+// Re-exporta do shared — a fonte da verdade é useProfile em @/shared/services/useProfile
+export { useProfile as usePlataformProfile } from "@/shared/services/useProfile";

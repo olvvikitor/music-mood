@@ -1,10 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { X, Instagram, Download, Sparkles, Music2 } from 'lucide-react';
-import { MoodProfileResponse } from '../services/getMoodProfile';
-import { UserResponseDto } from '@/shared/services/userService';
-import { emotionStyles } from '@/shared/lib/moodHelpers';
-import * as htmlToImage from 'html-to-image';
+"use client";
+import React, { useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { X, Download, Check, Play } from "lucide-react";
+import * as htmlToImage from "html-to-image";
+import { MoodProfileResponse } from "../services/getMoodProfile";
+import { UserResponseDto } from "@/shared/services/userService";
 
 interface ShareModalProps {
     isOpen: boolean;
@@ -13,206 +13,401 @@ interface ShareModalProps {
     profile: UserResponseDto;
 }
 
+// ---------------------------------------------------------------------------
+// Descrições por sentiment
+// ---------------------------------------------------------------------------
 const sentimentDescriptionMap: Record<string, string> = {
-    "tô voando": "Hoje sua playlist esta no maximo: energia alta, confianca la em cima e zero freio.",
-    "na minha era": "Mood de protagonismo total. Tudo que toca vira trilha de main character.",
-    "adrenalina pura": "Seu som veio acelerado, intenso e pronto para virar o volume no talo.",
-    "caos controlado": "Mente criativa em modo turbo: tensao boa, foco forte e muita expressao.",
-    "apaixonadx": "Clima doce e envolvente. Dia de trilha romatica e coracao quentinho.",
-    "no calor do abraço": "Sua vibe pede conexao real: musicas de afeto, colo e proximidade.",
-    "saudade boa": "Nostalgia leve, sorriso no canto e lembrancas que batem no tempo certo.",
-    "na paz": "Dia de calma elegante: som limpo, respiracao funda e mente alinhada.",
-    "zerado": "Estado zen ativado. Playlist serena para desacelerar sem perder a vibe.",
-    "viajando": "Seu humor ta contemplativo: trilha para pensar longe e sentir fundo.",
-    "pressentindo": "Tem suspense no ar. Sua trilha mistura tensao e expectativa.",
-    "engolindo seco": "Sentimento travado no peito, com batidas que seguram a emocao.",
-    "tô no limite": "Nervos a flor da pele. Seu som entrega intensidade e impulso.",
-    "surtando": "Energia explosiva no topo. Dia de descarregar tudo na musica.",
-    "chorando no banheiro": "Melancolia profunda, introspectiva e honesta. Dia de sentir sem filtro.",
-    "apagado": "Vibe baixa e cansada. Playlist de acolhimento para recarregar.",
-    "alma aberta": "Momento vulneravel e verdadeiro. Sensibilidade guiando suas escolhas.",
-    "tô confuso": "Sentimentos misturados. Sua trilha alterna entre luz e sombra.",
-    "travado": "Modo pausa emocional. Som minimalista para organizar o que esta por dentro.",
+    "pilhado":               "Energia no talo. Sua playlist veio acelerada, confiante e sem freio.",
+    "ta numa marra ein?":    "Mood de protagonismo total. Tudo que toca vira trilha de main character.",
+    "adrenalina pura":       "Som intenso, rápido e pronto para virar o volume no talo.",
+    "caos controlado":       "Mente criativa em modo turbo: tensão boa, foco forte e muita expressão.",
+    "apaixonadx":            "Clima doce e envolvente. Dia de trilha romântica e coração quentinho.",
+    "love love":             "Sua vibe pede conexão real: músicas de afeto, colo e proximidade.",
+    "saudade boa":           "Nostalgia leve, sorriso no canto e lembranças que batem no tempo certo.",
+    "de boa":                "Dia de calma elegante: som limpo, respiração funda e mente alinhada.",
+    "zerado":                "Estado zen ativado. Playlist serena para desacelerar sem perder a vibe.",
+    "viajando":              "Seu humor tá contemplativo: trilha para pensar longe e sentir fundo.",
+    "pressentindo":          "Tem suspense no ar. Sua trilha mistura tensão e expectativa.",
+    "de cara":               "Sentimento travado no peito, com batidas que seguram a emoção.",
+    "p da vida":             "Nervos à flor da pele. Seu som entrega intensidade e impulso.",
+    "surtando":              "Energia explosiva no topo. Dia de descarregar tudo na música.",
+    "chorando no banheiro":  "Melancolia profunda, introspectiva e honesta. Dia de sentir sem filtro.",
+    "quebrado":              "Vibe baixa e cansada. Playlist de acolhimento para recarregar.",
+    "delulu":                "Momento vulnerável e verdadeiro. Sensibilidade guiando suas escolhas.",
+    "tô confuso":            "Sentimentos misturados. Sua trilha alterna entre luz e sombra.",
+    "travado":               "Modo pausa emocional. Som minimalista para organizar o que está por dentro.",
 };
 
-export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) {
-    const posterRef = useRef<HTMLDivElement>(null);
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [mounted, setMounted] = useState(false);
+// ---------------------------------------------------------------------------
+// Paleta de acento por sentiment
+// ---------------------------------------------------------------------------
+const moodAccent: Record<string, string> = {
+    "pilhado":              "#ffaa00",
+    "ta numa marra ein?":   "#a259ff",
+    "adrenalina pura":      "#ff3c00",
+    "caos controlado":      "#00b4ff",
+    "apaixonadx":           "#ff6b9d",
+    "love love":            "#ff80c0",
+    "saudade boa":          "#7b9fff",
+    "de boa":               "#00ffb3",
+    "zerado":               "#00e5a0",
+    "viajando":             "#8ab4ff",
+    "pressentindo":         "#ffcc44",
+    "de cara":              "#ff6060",
+    "p da vida":            "#ff4500",
+    "surtando":             "#ff00cc",
+    "chorando no banheiro": "#4080ff",
+    "quebrado":             "#888888",
+    "delulu":               "#d580ff",
+    "tô confuso":           "#aaaaaa",
+    "travado":              "#666666",
+};
 
+// ---------------------------------------------------------------------------
+// Detecção de plataforma
+// ---------------------------------------------------------------------------
+type Platform = "ios-safari" | "ios-other" | "android" | "desktop";
+
+function detectPlatform(): Platform {
+    if (typeof navigator === "undefined") return "desktop";
+    const ua = navigator.userAgent;
+    const isIOS = /iphone|ipad|ipod/i.test(ua);
+    const isSafari = /safari/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
+    const isAndroid = /android/i.test(ua);
+    if (isIOS && isSafari) return "ios-safari";
+    if (isIOS) return "ios-other";
+    if (isAndroid) return "android";
+    return "desktop";
+}
+
+const platformHint: Record<Platform, { dot: string; text: string }> = {
+    "ios-safari": {
+        dot: "#00ffb3",
+        text: "iOS Safari — Story abre direto no share sheet nativo.",
+    },
+    "ios-other": {
+        dot: "#ffaa00",
+        text: "iOS Chrome — Story baixa a imagem. Abra o Instagram e poste como Story.",
+    },
+    android: {
+        dot: "#ffaa00",
+        text: "Android — Story baixa a imagem. Poste no Instagram em seguida.",
+    },
+    desktop: {
+        dot: "#4488ff",
+        text: "Desktop — Baixe o poster e publique no Instagram manualmente.",
+    },
+};
+
+// ---------------------------------------------------------------------------
+// htmlToImage com retry (CORS do Giphy pode falhar na 1ª passagem)
+// ---------------------------------------------------------------------------
+async function generatePosterPng(el: HTMLDivElement): Promise<string | null> {
+    const options: Parameters<typeof htmlToImage.toPng>[1] = {
+        quality: 1,
+        pixelRatio: 2,
+        fetchRequestInit: { cache: "no-cache" },
+    };
+    try {
+        return await htmlToImage.toPng(el, options);
+    } catch {
+        try {
+            return await htmlToImage.toPng(el, options);
+        } catch (err) {
+            console.error("[ShareModal] htmlToImage falhou:", err);
+            return null;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Componente
+// ---------------------------------------------------------------------------
+type BtnState = "idle" | "loading" | "success" | "error";
+
+export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) {
+    const posterRef                     = useRef<HTMLDivElement>(null);
+    const [mounted, setMounted]         = useState(false);
+    const [dlState, setDlState]         = useState<BtnState>("idle");
+    const [storyState, setStoryState]   = useState<BtnState>("idle");
+
+    const platform  = detectPlatform();
+    const hint      = platformHint[platform];
+
+    useEffect(() => { setMounted(true); }, []);
     useEffect(() => {
-        setMounted(true);
-    }, []);
+        if (!isOpen) { setDlState("idle"); setStoryState("idle"); }
+    }, [isOpen]);
 
     if (!isOpen || !mounted) return null;
 
-    const sentimentDisplay = mood.sentiment || "Minha Vibe";
-    const sentimentKey = mood.sentiment?.toLowerCase() || "alma aberta";
-    const badgeStyle = emotionStyles[sentimentKey] || emotionStyles["alma aberta"];
-    const sentimentDescription = sentimentDescriptionMap[sentimentKey] ||
-        "Seu som do dia mistura emocao e movimento. Compartilhe essa fase da sua trilha.";
+    const sentimentKey  = mood.sentiment?.toLowerCase() ?? "de boa";
+    const description   = sentimentDescriptionMap[sentimentKey]
+        ?? "Sua vibe do dia em forma de trilha sonora.";
+    const accent        = moodAccent[sentimentKey] ?? "#a259ff";
+    const score         = Math.round((mood.moodScore ?? 0) * 100);
+    const moodWords     = (mood.sentiment ?? "—").split(" ");
+    const isBusy        = dlState === "loading" || storyState === "loading";
 
-    const bgMatch = badgeStyle.match(/bg-([^\s\/]+)/);
-    const glowColorClass = bgMatch ? `bg-${bgMatch[1]}` : "bg-brand-primary";
-
-    const generateImage = async (): Promise<string | null> => {
+    async function buildImage(): Promise<string | null> {
         if (!posterRef.current) return null;
-        setIsGenerating(true);
-        try {
-            return await htmlToImage.toPng(posterRef.current, {
-                quality: 1,
-                pixelRatio: 2,
-            });
-        } catch (error) {
-            console.error('Erro ao gerar imagem:', error);
-            return null;
-        } finally {
-            setIsGenerating(false);
-        }
-    };
+        return generatePosterPng(posterRef.current);
+    }
 
-    const downloadImage = async () => {
-        const dataUrl = await generateImage();
-        if (!dataUrl) return;
-        const link = document.createElement('a');
-        link.download = `musicmood-${profile.display_name.toLowerCase().replace(/\s+/g, '-')}.png`;
-        link.href = dataUrl;
-        link.click();
-    };
+    function triggerDownload(dataUrl: string) {
+        const a = document.createElement("a");
+        a.download = `musicmood-${profile.display_name.toLowerCase().replace(/\s+/g, "-")}.png`;
+        a.href = dataUrl;
+        a.click();
+    }
 
-    const shareToInstagram = async () => {
-        const dataUrl = await generateImage();
-        if (!dataUrl) return;
+    async function handleDownload() {
+        setDlState("loading");
+        const dataUrl = await buildImage();
+        if (!dataUrl) { setDlState("error"); return; }
+        triggerDownload(dataUrl);
+        setDlState("success");
+        setTimeout(() => setDlState("idle"), 2500);
+    }
 
-        // Converte dataUrl para Blob e tenta Web Share API (suportado em mobile)
-        const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], 'musicmood.png', { type: 'image/png' });
+    async function handleStory() {
+        setStoryState("loading");
+        const dataUrl = await buildImage();
+        if (!dataUrl) { setStoryState("error"); return; }
 
-        if (navigator.canShare?.({ files: [file] })) {
+        if (platform === "ios-safari" && navigator.canShare) {
             try {
-                await navigator.share({
-                    files: [file],
-                    title: 'Minha Vibe no MusicMood',
-                });
+                const blob = await (await fetch(dataUrl)).blob();
+                const file = new File([blob], "musicmood.png", { type: "image/png" });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: "Minha Vibe no MusicMood" });
+                    setStoryState("success");
+                    setTimeout(() => setStoryState("idle"), 2500);
+                    return;
+                }
             } catch {
-                // Usuário cancelou o share — baixa como fallback
-                downloadImage();
+                // Usuário cancelou
+                setStoryState("idle");
+                return;
             }
-        } else {
-            // Desktop: baixa a imagem para o usuário postar manualmente
-            await downloadImage();
-            alert('Imagem baixada! Abra o Instagram e poste como Story.');
         }
-    };
+
+        // Android / iOS Chrome / Desktop → download direto
+        triggerDownload(dataUrl);
+        setStoryState("success");
+        setTimeout(() => setStoryState("idle"), 2500);
+    }
+
+    // Helpers de label/ícone por estado
+    const dlLabel       = dlState === "loading" ? "Gerando..." : dlState === "success" ? "Baixado!" : "Baixar";
+    const storyLabel    = storyState === "loading" ? "Gerando..." : storyState === "success" ? "Pronto!" : "Story";
 
     return createPortal(
-        <div className="fixed inset-0 z-100 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300 overflow-y-auto">
-            <div className="fixed inset-0 min-h-full" onClick={onClose} />
-
-            <div className="min-h-dvh w-full flex items-start sm:items-center justify-center p-3 sm:p-5 lg:p-8">
+        <div
+            className="fixed inset-0 z-[100] flex items-center sm:items-center justify-center bg-black/80 backdrop-blur-xl overflow-y-auto"
+            onClick={onClose}
+        >
+            <div
+                className="relative w-full max-w-sm mx-auto rounded-t-[28px] sm:rounded-[28px] overflow-hidden"
+                style={{ background: "#0e0e0e", border: "1px solid rgba(255,255,255,0.1)" }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Fechar */}
                 <button
                     onClick={onClose}
-                    className="fixed top-3.5 right-3.5 sm:top-4 sm:right-4 z-110 p-2.5 sm:p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors backdrop-blur-md"
+                    className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ background: "rgba(255,255,255,0.08)" }}
                 >
-                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <X className="w-4 h-4 text-white/60" />
                 </button>
 
-                <div className="relative w-full max-w-5xl grid grid-cols-1 lg:grid-cols-[minmax(280px,360px)_minmax(320px,1fr)] gap-4 lg:gap-6 items-start">
-                    <div className="mx-auto w-full max-w-85 lg:max-w-90">
-                        {/* THE POSTER (9:16) */}
-                        <div
-                            ref={posterRef}
-                            className={`w-full aspect-9/16 rounded-4xl overflow-hidden relative flex flex-col p-4 sm:p-5 lg:p-6 shadow-2xl ${glowColorClass}/20 border border-white/20`}
-                            style={{ background: 'linear-gradient(to bottom right, #050505, #121212)' }}
+                {/* ── POSTER capturado pelo htmlToImage ── */}
+                <div
+                    ref={posterRef}
+                    className="w-full relative overflow-hidden flex flex-col"
+                    style={{ aspectRatio: "9/16", maxHeight: 360, background: "#05050a" }}
+                >
+                    {/* GIF */}
+                    <img
+                        src={mood.url_gif}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{ opacity: 0.75 }}
+                        crossOrigin="anonymous"
+                    />
+
+                    {/* Overlay escuro */}
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            background:
+                                "linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 38%, transparent 52%, rgba(0,0,0,.88) 100%)",
+                        }}
+                    />
+
+                    {/* Glow de acento por mood */}
+                    <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                            background: `radial-gradient(ellipse 60% 40% at 80% 15%, ${accent}33 0%, transparent 60%)`,
+                        }}
+                    />
+
+                    {/* Topo */}
+                    <div className="relative z-10 flex items-center gap-2 px-5 pt-5">
+                        <img
+                            src={profile.img_profile}
+                            alt=""
+                            className="w-8 h-8 rounded-full object-cover shrink-0"
+                            style={{ border: "1.5px solid rgba(255,255,255,.25)" }}
+                            crossOrigin="anonymous"
+                        />
+                        <span
+                            className="flex-1 text-[11px] uppercase tracking-[.12em] truncate"
+                            style={{ color: "rgba(255,255,255,.6)" }}
                         >
-                            <div className={`absolute top-0 right-0 w-64 h-64 ${glowColorClass}/30 blur-[80px] rounded-full mix-blend-screen pointer-events-none`} />
-                            <div className={`absolute bottom-0 left-0 w-64 h-64 ${glowColorClass}/20 blur-[80px] rounded-full mix-blend-screen pointer-events-none`} />
+                            {profile.display_name}
+                        </span>
+                        <span
+                            className="text-[10px] uppercase tracking-[.18em]"
+                            style={{ color: "rgba(255,255,255,.28)" }}
+                        >
+                            MusicMood
+                        </span>
+                    </div>
 
-                            <div className="flex justify-between items-start relative z-10 w-full mb-3 sm:mb-4 gap-2">
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                    <img src={profile.img_profile} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-white/20 shadow-lg object-cover shrink-0" alt="Avatar" />
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-white/60 text-[8px] sm:text-[9px] uppercase tracking-widest font-black truncate">Trilha de hoje no MusicMood</span>
-                                        <span className="text-white font-black italic tracking-tight text-sm sm:text-base truncate">{profile.display_name}</span>
-                                    </div>
-                                </div>
-                                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 opacity-40 text-white shrink-0" />
+                    {/* Base */}
+                    <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-5">
+                        <p
+                            className="text-[9px] uppercase tracking-[.22em] mb-2"
+                            style={{ color: "rgba(255,255,255,.38)" }}
+                        >
+                            vibe atual
+                        </p>
+
+                        <p
+                            className="font-black italic leading-[.92] tracking-tight"
+                            style={{
+                                fontSize: "clamp(32px, 9vw, 44px)",
+                                color: "#fff",
+                                textShadow: "0 2px 24px rgba(0,0,0,.8)",
+                            }}
+                        >
+                            {moodWords.map((w, i) => (
+                                <span key={i} style={{ display: "block" }}>{w}</span>
+                            ))}
+                        </p>
+
+                        <div className="flex items-center gap-3 mt-3">
+                            <div
+                                className="flex items-center gap-2 rounded-full px-3 py-1"
+                                style={{
+                                    background: "rgba(255,255,255,.1)",
+                                    border: "1px solid rgba(255,255,255,.15)",
+                                }}
+                            >
+                                <span className="text-[12px] font-bold text-white">{score}%</span>
+                                <span
+                                    className="text-[10px] uppercase tracking-[.1em]"
+                                    style={{ color: "rgba(255,255,255,.4)" }}
+                                >
+                                    score
+                                </span>
                             </div>
 
-                            <div className="flex-1 w-full relative rounded-3xl overflow-hidden my-2 shadow-2xl border border-white/10 group">
-                                <img
-                                    src={mood.url_gif}
-                                    alt="Universe"
-                                    className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-[2s] group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-black/20" />
-
-                                <div className="absolute bottom-3 sm:bottom-5 left-3 right-3 sm:left-5 sm:right-5">
-                                    <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full bg-black/35 border border-white/20 backdrop-blur-sm max-w-full">
-                                        <Music2 className="w-3 h-3 text-white/80 shrink-0" />
-                                        <h3 className="text-white/70 font-black uppercase text-[8px] sm:text-[10px] tracking-[0.2em] truncate">
-                                            Sentimento Sonoro
-                                        </h3>
-                                    </div>
-                                    <h2 className="text-[28px] sm:text-4xl md:text-5xl font-black italic text-white uppercase leading-[0.95] drop-shadow-2xl font-sans tracking-tighter text-balance" style={{ textShadow: "0 0 40px rgba(0,0,0,0.8)" }}>
-                                        {sentimentDisplay}
-                                    </h2>
-                                </div>
-                            </div>
-
-                            <div className="relative z-10 w-full mt-3 sm:mt-4 flex items-center justify-between gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-                                <div className="flex flex-col gap-1.5 w-full min-w-0">
-                                    <span className="text-[9px] sm:text-[10px] text-white/50 uppercase tracking-[0.16em] font-bold">Descricao do sentimento do dia</span>
-                                    <p className="text-[11px] sm:text-xs leading-relaxed text-white/80 line-clamp-4">
-                                        {sentimentDescription}
-                                    </p>
-                                </div>
-
-                                <div className="shrink-0 text-[11px] sm:text-[12px] font-black italic tracking-tighter text-white">
-                                    MUSIC<span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-cyan-400">MOOD</span>
-                                </div>
+                            {/* Equalizer estático (htmlToImage não anima) */}
+                            <div className="flex items-end gap-[3px]" style={{ height: 16 }}>
+                                {[38, 80, 100, 62, 88].map((h, i) => (
+                                    <div
+                                        key={i}
+                                        style={{
+                                            width: 3,
+                                            height: `${h}%`,
+                                            borderRadius: "2px 2px 0 0",
+                                            background: accent,
+                                            opacity: 0.8,
+                                        }}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div className="w-full lg:self-stretch flex flex-col gap-3 sm:gap-4">
-                        <div className="glass-card border border-white/10 rounded-3xl p-4 sm:p-5">
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 mb-2" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-                                Compartilhar no Instagram
-                            </p>
-                            <h4 className="text-lg sm:text-xl text-white font-800 leading-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>
-                                Poster pronto para Story com o sentimento musical do dia.
-                            </h4>
-                            <p className="mt-2 text-sm text-white/65 leading-relaxed">
-                                No celular, use o botao <span className="text-white/85 font-semibold">Story</span> para compartilhar direto.
-                                No desktop, baixe a arte e publique no Instagram manualmente.
-                            </p>
-                        </div>
+                {/* ── ACTIONS ── */}
+                <div className="flex flex-col gap-3 px-5 py-5">
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3">
-                            <button
-                                onClick={downloadImage}
-                                disabled={isGenerating}
-                                className="w-full bg-white/10 hover:bg-white/20 active:bg-white/5 border border-white/20 text-white font-bold uppercase tracking-widest text-[10px] md:text-[11px] py-3.5 md:py-4 rounded-xl md:rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                            >
-                                {isGenerating ? (
-                                    <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                                ) : (
-                                    <Download className="w-4 h-4" />
-                                )}
-                                {isGenerating ? "Gerando..." : "Baixar Poster"}
-                            </button>
-
-                            <button
-                                onClick={shareToInstagram}
-                                disabled={isGenerating}
-                                className="w-full bg-linear-to-tr from-pink-500 via-rose-500 to-orange-500 hover:opacity-90 active:scale-95 text-white font-black uppercase tracking-widest text-[10px] md:text-[11px] py-3.5 md:py-4 rounded-xl md:rounded-2xl transition-all shadow-[0_0_20px_rgba(236,72,153,0.4)] flex items-center justify-center gap-2 disabled:opacity-50"
-                            >
-                                <Instagram className="w-4 h-4" />
-                                Story
-                            </button>
-                        </div>
+                    {/* Platform hint */}
+                    <div
+                        className="flex items-start gap-3 rounded-2xl px-4 py-3"
+                        style={{
+                            background: "rgba(255,255,255,.04)",
+                            border: "1px solid rgba(255,255,255,.08)",
+                        }}
+                    >
+                        <div
+                            className="shrink-0 w-2 h-2 rounded-full mt-[5px]"
+                            style={{ background: hint.dot }}
+                        />
+                        <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,.5)" }}>
+                            {hint.text}
+                        </p>
                     </div>
+
+                    {/* Botões */}
+                    <div className="grid grid-cols-2 gap-3">
+
+                        {/* Download */}
+                        <button
+                            onClick={handleDownload}
+                            disabled={isBusy}
+                            className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[.1em] transition-all active:scale-95 disabled:opacity-50"
+                            style={{
+                                background: dlState === "success" ? "rgba(0,255,179,.12)" : "rgba(255,255,255,.08)",
+                                border: `1px solid ${dlState === "success" ? "rgba(0,255,179,.3)" : "rgba(255,255,255,.12)"}`,
+                                color: dlState === "success" ? "#00ffb3" : "rgba(255,255,255,.8)",
+                            }}
+                        >
+                            {dlState === "loading"
+                                ? <div className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "rgba(255,255,255,.3)", borderTopColor: "#fff" }} />
+                                : dlState === "success"
+                                    ? <Check className="w-4 h-4" />
+                                    : <Download className="w-4 h-4" />
+                            }
+                            {dlLabel}
+                        </button>
+
+                        {/* Story */}
+                        <button
+                            onClick={handleStory}
+                            disabled={isBusy}
+                            className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[.1em] transition-all active:scale-95 disabled:opacity-60"
+                            style={{
+                                background: storyState === "success"
+                                    ? "rgba(0,255,179,.12)"
+                                    : "linear-gradient(135deg, #f72585, #ff6b35)",
+                                border: storyState === "success" ? "1px solid rgba(0,255,179,.3)" : "none",
+                                color: storyState === "success" ? "#00ffb3" : "#fff",
+                                boxShadow: storyState !== "success" ? "0 4px 20px rgba(247,37,133,.35)" : "none",
+                            }}
+                        >
+                            {storyState === "loading"
+                                ? <div className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: "rgba(255,255,255,.3)", borderTopColor: "#fff" }} />
+                                : storyState === "success"
+                                    ? <Check className="w-4 h-4" />
+                                    : <Play className="w-4 h-4 fill-white" />
+                            }
+                            {storyLabel}
+                        </button>
+                    </div>
+
+                    {/* Descrição do mood */}
+                    <p
+                        className="text-[11px] leading-relaxed text-center px-1"
+                        style={{ color: "rgba(255,255,255,.28)" }}
+                    >
+                        {description}
+                    </p>
                 </div>
             </div>
         </div>,

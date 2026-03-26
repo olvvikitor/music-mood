@@ -17,50 +17,50 @@ interface ShareModalProps {
 // Descrições por sentiment
 // ---------------------------------------------------------------------------
 const sentimentDescriptionMap: Record<string, string> = {
-    "pilhado":               "Energia no talo. Sua playlist veio acelerada, confiante e sem freio.",
-    "ta numa marra ein?":    "Mood de protagonismo total. Tudo que toca vira trilha de main character.",
-    "adrenalina pura":       "Som intenso, rápido e pronto para virar o volume no talo.",
-    "caos controlado":       "Mente criativa em modo turbo: tensão boa, foco forte e muita expressão.",
-    "apaixonadx":            "Clima doce e envolvente. Dia de trilha romântica e coração quentinho.",
-    "love love":             "Sua vibe pede conexão real: músicas de afeto, colo e proximidade.",
-    "saudade boa":           "Nostalgia leve, sorriso no canto e lembranças que batem no tempo certo.",
-    "de boa":                "Dia de calma elegante: som limpo, respiração funda e mente alinhada.",
-    "zerado":                "Estado zen ativado. Playlist serena para desacelerar sem perder a vibe.",
-    "viajando":              "Seu humor tá contemplativo: trilha para pensar longe e sentir fundo.",
-    "pressentindo":          "Tem suspense no ar. Sua trilha mistura tensão e expectativa.",
-    "de cara":               "Sentimento travado no peito, com batidas que seguram a emoção.",
-    "p da vida":             "Nervos à flor da pele. Seu som entrega intensidade e impulso.",
-    "surtando":              "Energia explosiva no topo. Dia de descarregar tudo na música.",
-    "chorando no banheiro":  "Melancolia profunda, introspectiva e honesta. Dia de sentir sem filtro.",
-    "quebrado":              "Vibe baixa e cansada. Playlist de acolhimento para recarregar.",
-    "delulu":                "Momento vulnerável e verdadeiro. Sensibilidade guiando suas escolhas.",
-    "tô confuso":            "Sentimentos misturados. Sua trilha alterna entre luz e sombra.",
-    "travado":               "Modo pausa emocional. Som minimalista para organizar o que está por dentro.",
+    "pilhado": "Energia no talo. Sua playlist veio acelerada, confiante e sem freio.",
+    "ta numa marra ein?": "Mood de protagonismo total. Tudo que toca vira trilha de main character.",
+    "adrenalina pura": "Som intenso, rápido e pronto para virar o volume no talo.",
+    "caos controlado": "Mente criativa em modo turbo: tensão boa, foco forte e muita expressão.",
+    "apaixonadx": "Clima doce e envolvente. Dia de trilha romântica e coração quentinho.",
+    "love love": "Sua vibe pede conexão real: músicas de afeto, colo e proximidade.",
+    "saudade boa": "Nostalgia leve, sorriso no canto e lembranças que batem no tempo certo.",
+    "de boa": "Dia de calma elegante: som limpo, respiração funda e mente alinhada.",
+    "zerado": "Estado zen ativado. Playlist serena para desacelerar sem perder a vibe.",
+    "viajando": "Seu humor tá contemplativo: trilha para pensar longe e sentir fundo.",
+    "pressentindo": "Tem suspense no ar. Sua trilha mistura tensão e expectativa.",
+    "de cara": "Sentimento travado no peito, com batidas que seguram a emoção.",
+    "p da vida": "Nervos à flor da pele. Seu som entrega intensidade e impulso.",
+    "surtando": "Energia explosiva no topo. Dia de descarregar tudo na música.",
+    "chorando no banheiro": "Melancolia profunda, introspectiva e honesta. Dia de sentir sem filtro.",
+    "quebrado": "Vibe baixa e cansada. Playlist de acolhimento para recarregar.",
+    "delulu": "Momento vulnerável e verdadeiro. Sensibilidade guiando suas escolhas.",
+    "tô confuso": "Sentimentos misturados. Sua trilha alterna entre luz e sombra.",
+    "travado": "Modo pausa emocional. Som minimalista para organizar o que está por dentro.",
 };
 
 // ---------------------------------------------------------------------------
 // Paleta de acento por sentiment
 // ---------------------------------------------------------------------------
 const moodAccent: Record<string, string> = {
-    "pilhado":              "#ffaa00",
-    "ta numa marra ein?":   "#a259ff",
-    "adrenalina pura":      "#ff3c00",
-    "caos controlado":      "#00b4ff",
-    "apaixonadx":           "#ff6b9d",
-    "love love":            "#ff80c0",
-    "saudade boa":          "#7b9fff",
-    "de boa":               "#00ffb3",
-    "zerado":               "#00e5a0",
-    "viajando":             "#8ab4ff",
-    "pressentindo":         "#ffcc44",
-    "de cara":              "#ff6060",
-    "p da vida":            "#ff4500",
-    "surtando":             "#ff00cc",
+    "pilhado": "#ffaa00",
+    "ta numa marra ein?": "#a259ff",
+    "adrenalina pura": "#ff3c00",
+    "caos controlado": "#00b4ff",
+    "apaixonadx": "#ff6b9d",
+    "love love": "#ff80c0",
+    "saudade boa": "#7b9fff",
+    "de boa": "#00ffb3",
+    "zerado": "#00e5a0",
+    "viajando": "#8ab4ff",
+    "pressentindo": "#ffcc44",
+    "de cara": "#ff6060",
+    "p da vida": "#ff4500",
+    "surtando": "#ff00cc",
     "chorando no banheiro": "#4080ff",
-    "quebrado":             "#888888",
-    "delulu":               "#d580ff",
-    "tô confuso":           "#aaaaaa",
-    "travado":              "#666666",
+    "quebrado": "#888888",
+    "delulu": "#d580ff",
+    "tô confuso": "#aaaaaa",
+    "travado": "#666666",
 };
 
 // ---------------------------------------------------------------------------
@@ -126,13 +126,13 @@ async function generatePosterPng(el: HTMLDivElement): Promise<string | null> {
 type BtnState = "idle" | "loading" | "success" | "error";
 
 export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) {
-    const posterRef                     = useRef<HTMLDivElement>(null);
-    const [mounted, setMounted]         = useState(false);
-    const [dlState, setDlState]         = useState<BtnState>("idle");
-    const [storyState, setStoryState]   = useState<BtnState>("idle");
+    const posterRef = useRef<HTMLDivElement>(null);
+    const [mounted, setMounted] = useState(false);
+    const [dlState, setDlState] = useState<BtnState>("idle");
+    const [storyState, setStoryState] = useState<BtnState>("idle");
 
-    const platform  = detectPlatform();
-    const hint      = platformHint[platform];
+    const platform = detectPlatform();
+    const hint = platformHint[platform];
 
     useEffect(() => { setMounted(true); }, []);
     useEffect(() => {
@@ -141,13 +141,13 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
 
     if (!isOpen || !mounted) return null;
 
-    const sentimentKey  = mood.sentiment?.toLowerCase() ?? "de boa";
-    const description   = sentimentDescriptionMap[sentimentKey]
+    const sentimentKey = mood.sentiment?.toLowerCase() ?? "de boa";
+    const description = sentimentDescriptionMap[sentimentKey]
         ?? "Sua vibe do dia em forma de trilha sonora.";
-    const accent        = moodAccent[sentimentKey] ?? "#a259ff";
-    const score         = Math.round((mood.moodScore ?? 0) * 100);
-    const moodWords     = (mood.sentiment ?? "—").split(" ");
-    const isBusy        = dlState === "loading" || storyState === "loading";
+    const accent = moodAccent[sentimentKey] ?? "#a259ff";
+    const score = Math.round((mood.moodScore ?? 0) * 100);
+    const moodWords = (mood.sentiment ?? "—").split(" ");
+    const isBusy = dlState === "loading" || storyState === "loading";
 
     async function buildImage(): Promise<string | null> {
         if (!posterRef.current) return null;
@@ -199,13 +199,14 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
     }
 
     // Helpers de label/ícone por estado
-    const dlLabel       = dlState === "loading" ? "Gerando..." : dlState === "success" ? "Baixado!" : "Baixar";
-    const storyLabel    = storyState === "loading" ? "Gerando..." : storyState === "success" ? "Pronto!" : "Story";
+    const dlLabel = dlState === "loading" ? "Gerando..." : dlState === "success" ? "Baixado!" : "Baixar";
+    const storyLabel = storyState === "loading" ? "Gerando..." : storyState === "success" ? "Pronto!" : "Story";
 
     return createPortal(
         <div
             className="fixed inset-0 z-[100] flex items-center sm:items-center justify-center bg-black/80 backdrop-blur-xl overflow-y-auto"
-            onClick={onClose}
+              onClick={onClose}
+
         >
             <div
                 className="relative w-full max-w-sm mx-auto rounded-t-[28px] sm:rounded-[28px] overflow-hidden"
@@ -213,13 +214,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Fechar */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(255,255,255,0.08)" }}
-                >
-                    <X className="w-4 h-4 text-white/60" />
-                </button>
+
 
                 {/* ── POSTER capturado pelo htmlToImage ── */}
                 <div
@@ -229,7 +224,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                 >
                     {/* GIF */}
                     <img
-                        src={mood.url_gif}
+                        src={mood.image_mood}
                         alt=""
                         className="absolute inset-0 w-full h-full object-cover"
                         style={{ opacity: 0.75 }}
@@ -274,6 +269,14 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                         >
                             MusicMood
                         </span>
+                        <button
+                            onClick={onClose}
+
+                            className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+                            style={{ background: "rgba(255,255,255,0.08)" }}
+                        >
+                            <X className="w-4 h-4 text-white/60" />
+                        </button>
                     </div>
 
                     {/* Base */}

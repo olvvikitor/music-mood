@@ -3,10 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import {
     Users, UserPlus, Search, Check, X, UserMinus,
-    Clock, Radio, Smile, BarChart2, ChevronDown, Loader2,
+    Clock, Radio, BarChart2, Loader2, Music2,
 } from "lucide-react";
 import { AppBrand } from "@/shared/components/AppBrand";
-import { SectionCard } from "@/shared/components/SectionCard";
+import { MoodBadge } from "@/shared/components/MoodBadge";
 import {
     searchUsers, sendFriendRequest, respondFriendRequest,
     getFriends, getPendingRequests, removeFriend,
@@ -19,17 +19,14 @@ import Image from "next/image";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 type Tab = "friends" | "requests" | "search";
-type FriendPanel = "mood" | "listening" | "compare" | null;
+type FriendPanel = "listening" | "compare" | null;
 
-// ─── Helpers visuais ─────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function Avatar({ src, name, size = 10 }: { src: string; name: string; size?: number }) {
-    return (
-        <img
-            src={src} alt={name}
-            className={`w-${size} h-${size} rounded-full object-cover shrink-0 ring-1 ring-white/10`}
-        />
-    );
+function moodColor(score: number) {
+    if (score >= 0.7) return "#00ffb3";
+    if (score >= 0.4) return "#a259ff";
+    return "#ff2d87";
 }
 
 function ActionBtn({ onClick, disabled, children, variant = "ghost" }: {
@@ -51,89 +48,14 @@ function ActionBtn({ onClick, disabled, children, variant = "ghost" }: {
     );
 }
 
-function MoodScore({ score, label }: { score: number; label: string }) {
-    const pct = Math.round(score * 100);
-    const color = pct >= 70 ? "#00ffb3" : pct >= 40 ? "#a259ff" : "#ff2d87";
-    return (
-        <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center">
-                <span className="text-[10px] uppercase tracking-widest text-white/40" style={{ fontFamily: "var(--font-display)" }}>{label}</span>
-                <span className="text-sm font-black" style={{ color, fontFamily: "var(--font-display)" }}>{pct}%</span>
-            </div>
-            <div className="h-1 rounded-full w-full" style={{ background: "rgba(255,255,255,0.07)" }}>
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: color }} />
-            </div>
-        </div>
-    );
-}
-
-function EmotionBar({ label, value }: { label: string; value: number }) {
-    const pct = Math.round(value * 100);
-    return (
-        <div className="flex items-center gap-2">
-            <span className="text-[10px] text-white/35 w-24 shrink-0 truncate capitalize">{label}</span>
-            <div className="flex-1 h-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }}>
-                <div className="h-full rounded-full" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#00ffb3,#a259ff)" }} />
-            </div>
-            <span className="text-[10px] text-white/30 w-7 text-right shrink-0">{pct}</span>
-        </div>
-    );
-}
-
-function PanelSkeleton() {
-    return (
-        <div className="flex flex-col gap-3 animate-pulse pt-3">
-            {[80, 55, 70].map((w, i) => (
-                <div key={i} className="h-2.5 rounded-full bg-white/[0.06]" style={{ width: `${w}%` }} />
-            ))}
-        </div>
-    );
-}
-
-// ─── Painel: Mood do amigo ────────────────────────────────────────────────────
-
-function FriendMoodPanel({ friendId }: { friendId: string }) {
-    const [data, setData] = useState<MoodData>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-
-    useEffect(() => {
-        setLoading(true); setError(false);
-        getFriendMood(friendId)
-            .then(setData)
-            .catch(() => setError(true))
-            .finally(() => setLoading(false));
-    }, [friendId]);
-
-    if (loading) return <PanelSkeleton />;
-    if (error || !data) return <p className="text-xs text-white/30 py-4 text-center">Mood não disponível.</p>;
-
-    const emotions = Object.entries(data.emotions ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 6);
-
-    return (
-        <div className="flex flex-col gap-4 pt-3">
-            <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl p-3 flex flex-col gap-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                    <span className="text-[9px] uppercase tracking-widest text-white/35" style={{ fontFamily: "var(--font-display)" }}>Mood Score</span>
-                    <span className="text-lg font-black" style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>{Math.round(data.moodScore * 100)}%</span>
-                </div>
-                <div className="rounded-xl p-3 flex flex-col gap-1" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                    <span className="text-[9px] uppercase tracking-widest text-white/35" style={{ fontFamily: "var(--font-display)" }}>Sentimento</span>
-                    <span className="text-sm font-bold text-white/80 truncate" style={{ fontFamily: "var(--font-display)" }}>{data.sentiment}</span>
-                </div>
-            </div>
-            <div className="flex flex-col gap-2.5">
-                <span className="text-[9px] uppercase tracking-widest text-white/30" style={{ fontFamily: "var(--font-display)" }}>Emoções</span>
-                {emotions.map(([key, val]) => <EmotionBar key={key} label={key} value={val} />)}
-            </div>
-        </div>
-    );
+function Skeleton({ className = "" }: { className?: string }) {
+    return <div className={`rounded-lg bg-white/[0.06] animate-pulse ${className}`} />;
 }
 
 // ─── Painel: Tocando agora ────────────────────────────────────────────────────
 
-function FriendListeningPanel({ friendId }: { friendId: string }) {
-    const [data, setData] = useState<ListeningNowData>(null);
+function ListeningPanel({ friendId, friendName }: { friendId: string; friendName: string }) {
+    const [data, setData] = useState<ListeningNowData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -145,28 +67,75 @@ function FriendListeningPanel({ friendId }: { friendId: string }) {
             .finally(() => setLoading(false));
     }, [friendId]);
 
-    if (loading) return <PanelSkeleton />;
-    if (error || !data?.tracks?.length) return <p className="text-xs text-white/30 py-4 text-center">Nenhuma música tocando agora.</p>;
+    // Loading
+    if (loading) return (
+        <div className="flex items-center gap-3 p-4 animate-pulse">
+            <Skeleton className="w-14 h-14 rounded-xl shrink-0" />
+            <div className="flex flex-col gap-2 flex-1">
+                <Skeleton className="h-3 w-40" />
+                <Skeleton className="h-2.5 w-24" />
+                <Skeleton className="h-2 w-32" />
+            </div>
+        </div>
+    );
 
+    // Erro de rede
+    if (error) return (
+        <div className="flex items-center gap-3 p-4 text-white/25 text-xs">
+            <Music2 className="w-4 h-4 shrink-0" />
+            Não foi possível carregar.
+        </div>
+    );
+
+    // Fallback: nada tocando (isPlaying: false ou null)
+    if (!data || !data.isPlaying) return (
+        <div className="flex flex-col items-center gap-3 py-6 px-4">
+            <div className="relative flex items-center justify-center w-14 h-14 rounded-full"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {/* barrinhas pausadas */}
+                <div className="flex items-end gap-0.5 h-6">
+                    {[4, 7, 5, 9, 6].map((h, i) => (
+                        <div key={i} className="w-1 rounded-full opacity-25"
+                            style={{ height: `${h * 2}px`, background: "linear-gradient(180deg,#00ffb3,#a259ff)" }} />
+                    ))}
+                </div>
+            </div>
+            <div className="text-center">
+                <p className="text-xs font-semibold text-white/50" style={{ fontFamily: "var(--font-display)" }}>
+                    {friendName} não está ouvindo nada
+                </p>
+                <p className="text-[10px] text-white/25 mt-0.5">Player pausado ou offline</p>
+            </div>
+        </div>
+    );
+
+    // Tocando!
     const track = data.tracks[0];
 
     return (
-        <div className="flex items-center gap-4 pt-3">
-            {track.img_url && (
+        <div className="flex items-center gap-3 p-4">
+            {track.img_url ? (
                 <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 ring-1 ring-white/10">
-                    <Image src={track.img_url} alt={track.music} fill className="object-cover" sizes="56px" />
+                    <Image src={track.img_url} alt={track.music} fill sizes="56px" className="object-cover" />
+                </div>
+            ) : (
+                <div className="w-14 h-14 rounded-xl shrink-0 flex items-center justify-center"
+                    style={{ background: "rgba(255,255,255,0.06)" }}>
+                    <Music2 className="w-5 h-5 text-white/20" />
                 </div>
             )}
-            <div className="flex-1 min-w-0 flex flex-col gap-1">
+            <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-white/90 truncate" style={{ fontFamily: "var(--font-display)" }}>{track.music}</p>
-                <p className="text-xs text-white/40 truncate">{track.artist}</p>
-                <div className="flex items-center gap-2 mt-1">
-                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#00ffb3" }} />
-                    <span className="text-[10px] text-white/40">{track.dominantSentiment}</span>
-                    <span className="text-[10px] text-white/25 ml-auto">mood {Math.round(track.moodScore * 100)}%</span>
+                <p className="text-xs text-white/45 truncate mt-0.5">{track.artist}</p>
+                <div className="flex items-center gap-2 mt-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ background: "#00ffb3" }} />
+                    <span className="text-[10px] text-white/40 truncate">{track.dominantSentiment}</span>
+                    <span className="text-[10px] font-bold ml-auto shrink-0" style={{ color: moodColor(track.moodScore) }}>
+                        {Math.round(track.moodScore * 100)}%
+                    </span>
                 </div>
                 {track.reasoning && (
-                    <p className="text-[10px] text-white/30 italic line-clamp-1 mt-0.5">"{track.reasoning}"</p>
+                    <p className="text-[10px] text-white/25 italic line-clamp-1 mt-1">"{track.reasoning}"</p>
                 )}
             </div>
         </div>
@@ -175,53 +144,55 @@ function FriendListeningPanel({ friendId }: { friendId: string }) {
 
 // ─── Painel: Comparar mood ────────────────────────────────────────────────────
 
-function CompareMoodPanel({ friendId, friendName }: { friendId: string; friendName: string }) {
+function ComparePanel({ friendId, friendName }: { friendId: string; friendName: string }) {
     const [data, setData] = useState<CompareMoodData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
     useEffect(() => {
         setLoading(true); setError(false);
-        compareMood(friendId)
-            .then(setData)
-            .catch(() => setError(true))
-            .finally(() => setLoading(false));
+        compareMood(friendId).then(setData).catch(() => setError(true)).finally(() => setLoading(false));
     }, [friendId]);
 
-    if (loading) return <PanelSkeleton />;
-    if (error || !data?.me || !data?.friend) return <p className="text-xs text-white/30 py-4 text-center">Dados de comparação não disponíveis.</p>;
+    if (loading) return (
+        <div className="flex flex-col gap-3 p-4 animate-pulse">
+            <Skeleton className="h-12 w-full rounded-xl" />
+            <div className="grid grid-cols-2 gap-2">
+                <Skeleton className="h-16 rounded-xl" />
+                <Skeleton className="h-16 rounded-xl" />
+            </div>
+            {[1,2,3].map(i => <Skeleton key={i} className="h-2 w-full" />)}
+        </div>
+    );
+
+    if (error || !data?.me || !data?.friend) return (
+        <p className="text-xs text-white/30 p-4 text-center">Dados de comparação não disponíveis.</p>
+    );
 
     const { me, friend } = data;
-    const myPct    = Math.round(me.moodScore * 100);
-    const themPct  = Math.round(friend.moodScore * 100);
-    const diff     = Math.abs(myPct - themPct);
-    const harmony  = 100 - diff;
+    const myPct   = Math.round((me.moodScore ?? 0) * 100);
+    const themPct = Math.round((friend.moodScore ?? 0) * 100);
+    const harmony = 100 - Math.abs(myPct - themPct);
+    const harmonyColor = harmony >= 70 ? "#00ffb3" : harmony >= 40 ? "#a259ff" : "#ff2d87";
 
-    // Emoções em comum — top 4 das minhas vs top 4 deles
-    const myTop    = Object.entries(me.emotions ?? {}).sort((a,b) => b[1]-a[1]).slice(0,4).map(([k]) => k);
-    const themTop  = Object.entries(friend.emotions ?? {}).sort((a,b) => b[1]-a[1]).slice(0,4).map(([k]) => k);
-    const shared   = myTop.filter(k => themTop.includes(k));
-
-    // Todas as emoções para comparação lado-a-lado
-    const allKeys  = Array.from(new Set([...myTop, ...themTop]));
+    const myTop   = Object.entries(me.emotions ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => k);
+    const themTop = Object.entries(friend.emotions ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => k);
+    const shared  = myTop.filter(k => themTop.includes(k));
+    const allKeys = Array.from(new Set([...myTop, ...themTop])).slice(0, 6);
 
     return (
-        <div className="flex flex-col gap-4 pt-3">
-
-            {/* Harmonia */}
+        <div className="flex flex-col gap-3 p-4">
             <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <div className="flex justify-between items-center mb-2">
                     <span className="text-[9px] uppercase tracking-widest text-white/35" style={{ fontFamily: "var(--font-display)" }}>Harmonia emocional</span>
-                    <span className="text-sm font-black" style={{ color: harmony >= 70 ? "#00ffb3" : harmony >= 40 ? "#a259ff" : "#ff2d87", fontFamily: "var(--font-display)" }}>{harmony}%</span>
+                    <span className="text-sm font-black" style={{ color: harmonyColor, fontFamily: "var(--font-display)" }}>{harmony}%</span>
                 </div>
-                <div className="h-1.5 rounded-full w-full" style={{ background: "rgba(255,255,255,0.07)" }}>
+                <div className="h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }}>
                     <div className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${harmony}%`, background: "linear-gradient(90deg,#00ffb3,#a259ff)" }} />
+                        style={{ width: `${harmony}%`, background: `linear-gradient(90deg, #00ffb3, ${harmonyColor})` }} />
                 </div>
             </div>
-
-            {/* Scores lado a lado */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-xl p-3 flex flex-col gap-1" style={{ background: "rgba(0,255,179,0.05)", border: "1px solid rgba(0,255,179,0.12)" }}>
                     <span className="text-[9px] uppercase tracking-widest" style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>Você</span>
                     <span className="text-xl font-black" style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>{myPct}%</span>
@@ -233,133 +204,161 @@ function CompareMoodPanel({ friendId, friendName }: { friendId: string; friendNa
                     <span className="text-[10px] text-white/40 truncate">{friend.sentiment}</span>
                 </div>
             </div>
-
-            {/* Emoções compartilhadas */}
             {shared.length > 0 && (
-                <div>
-                    <span className="text-[9px] uppercase tracking-widest text-white/30 block mb-2" style={{ fontFamily: "var(--font-display)" }}>
-                        Em sintonia ({shared.length})
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                        {shared.map(e => (
-                            <span key={e} className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                                style={{ background: "rgba(0,255,179,0.1)", color: "#00ffb3", border: "1px solid rgba(0,255,179,0.2)" }}>
-                                {e}
-                            </span>
-                        ))}
-                    </div>
+                <div className="flex flex-wrap gap-1.5">
+                    {shared.map(e => (
+                        <span key={e} className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                            style={{ background: "rgba(0,255,179,0.1)", color: "#00ffb3", border: "1px solid rgba(0,255,179,0.2)" }}>
+                            {e}
+                        </span>
+                    ))}
                 </div>
             )}
-
-            {/* Barras comparativas */}
-            <div className="flex flex-col gap-2">
-                <span className="text-[9px] uppercase tracking-widest text-white/30 block" style={{ fontFamily: "var(--font-display)" }}>Comparação</span>
-                {allKeys.slice(0, 6).map(key => {
-                    const myVal    = (me.emotions?.[key] ?? 0) * 100;
-                    const themVal  = (friend.emotions?.[key] ?? 0) * 100;
+            <div className="flex flex-col gap-2.5">
+                {allKeys.map(key => {
+                    const myVal   = (me.emotions?.[key] ?? 0) * 100;
+                    const themVal = (friend.emotions?.[key] ?? 0) * 100;
                     return (
-                        <div key={key} className="flex flex-col gap-0.5">
-                            <span className="text-[10px] text-white/30 capitalize">{key}</span>
-                            <div className="flex items-center gap-2">
-                                {/* Barra você */}
-                                <div className="flex-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <div key={key}>
+                            <span className="text-[10px] text-white/30 capitalize block mb-1">{key}</span>
+                            <div className="flex flex-col gap-0.5">
+                                <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
                                     <div className="h-full rounded-full" style={{ width: `${myVal}%`, background: "#00ffb3" }} />
                                 </div>
-                                {/* Barra amigo */}
-                                <div className="flex-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+                                <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
                                     <div className="h-full rounded-full" style={{ width: `${themVal}%`, background: "#a259ff" }} />
                                 </div>
                             </div>
                         </div>
                     );
                 })}
-                <div className="flex gap-4 mt-1">
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full" style={{ background: "#00ffb3" }} />
-                        <span className="text-[9px] text-white/30">Você</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full" style={{ background: "#a259ff" }} />
-                        <span className="text-[9px] text-white/30">{friendName}</span>
-                    </div>
+                <div className="flex gap-4 pt-1">
+                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ background: "#00ffb3" }} /><span className="text-[9px] text-white/30">Você</span></div>
+                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ background: "#a259ff" }} /><span className="text-[9px] text-white/30">{friendName}</span></div>
                 </div>
             </div>
         </div>
     );
 }
 
-// ─── Card de amigo expandível ─────────────────────────────────────────────────
+// ─── FriendCard ───────────────────────────────────────────────────────────────
 
 function FriendCard({ friend, onRemove, actionLoading }: {
     friend: Friend;
     onRemove: (id: string) => void;
     actionLoading: string | null;
 }) {
-    const [expanded, setExpanded] = useState(false);
+    const [mood, setMood] = useState<MoodData>(null);
+    const [moodLoading, setMoodLoading] = useState(true);
     const [panel, setPanel] = useState<FriendPanel>(null);
 
-    const panels = [
-        { key: "mood" as FriendPanel,      icon: <Smile className="w-3 h-3" />,    label: "Mood"       },
-        { key: "listening" as FriendPanel, icon: <Radio className="w-3 h-3" />,    label: "Ouvindo"    },
-        { key: "compare" as FriendPanel,   icon: <BarChart2 className="w-3 h-3" />, label: "Comparar"  },
-    ];
+    useEffect(() => {
+        getFriendMood(friend.id).then(setMood).catch(() => {}).finally(() => setMoodLoading(false));
+    }, [friend.id]);
 
-    function togglePanel(key: FriendPanel) {
-        if (panel === key) { setPanel(null); }
-        else { setPanel(key); setExpanded(true); }
+    const score       = mood?.moodScore ?? 0;
+    const color       = moodColor(score);
+    const pct         = Math.round(score * 100);
+    const topEmotions = Object.entries(mood?.emotions ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const firstName   = friend.display_name.split(" ")[0];
+
+    function togglePanel(p: FriendPanel) {
+        setPanel(prev => prev === p ? null : p);
     }
 
     return (
-        <li className="flex flex-col rounded-2xl overflow-hidden transition-all duration-300"
-            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <li className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
 
-            {/* Linha principal */}
-            <div className="flex items-center gap-3 px-4 py-3">
-                <Avatar src={friend.img_profile} name={friend.display_name} size={10} />
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white/90 truncate" style={{ fontFamily: "var(--font-display)" }}>
-                        {friend.display_name}
-                    </p>
-                    <p className="text-xs text-white/30">{friend.country}</p>
-                </div>
+            {/* Topo */}
+            <div className="relative">
+                <div className="absolute inset-0 pointer-events-none"
+                    style={{ background: `radial-gradient(ellipse at 30% 0%, ${color}18 0%, transparent 70%)` }} />
 
-                <ActionBtn variant="danger" onClick={() => onRemove(friend.friendshipId)} disabled={actionLoading === friend.friendshipId}>
-                    <UserMinus className="w-3 h-3" />
-                </ActionBtn>
-
-                <button
-                    onClick={() => setExpanded(p => !p)}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg transition-all text-white/30 hover:text-white/70"
-                    style={{ background: "rgba(255,255,255,0.05)" }}
-                >
-                    <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300"
-                        style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }} />
-                </button>
-            </div>
-
-            {/* Área expandida */}
-            {expanded && (
-                <div className="px-4 pb-4" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                    {/* Botões de painel */}
-                    <div className="flex gap-1.5 pt-3">
-                        {panels.map(p => (
-                            <button key={p.key as string}
-                                onClick={() => togglePanel(p.key)}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
-                                style={{
-                                    background: panel === p.key ? "rgba(0,255,179,0.1)" : "rgba(255,255,255,0.04)",
-                                    border: panel === p.key ? "1px solid rgba(0,255,179,0.25)" : "1px solid rgba(255,255,255,0.07)",
-                                    color: panel === p.key ? "#00ffb3" : "rgba(255,255,255,0.45)",
-                                }}>
-                                {p.icon}{p.label}
-                            </button>
-                        ))}
+                <div className="relative flex items-start gap-4 p-4">
+                    <div className="relative shrink-0">
+                        <div className="absolute inset-0 rounded-full blur-md opacity-50"
+                            style={{ background: color, transform: "scale(1.15)" }} />
+                        <img src={friend.img_profile} alt={friend.display_name}
+                            className="relative w-16 h-16 rounded-full object-cover"
+                            style={{ boxShadow: `0 0 0 2px ${color}60` }} />
+                        <div className="absolute -bottom-1 -right-1 rounded-full px-1.5 py-0.5 text-[9px] font-black"
+                            style={{ background: color, color: "#07070c", fontFamily: "var(--font-display)" }}>
+                            {pct}
+                        </div>
                     </div>
 
-                    {/* Conteúdo do painel */}
-                    {panel === "mood"      && <FriendMoodPanel      friendId={friend.id} />}
-                    {panel === "listening" && <FriendListeningPanel  friendId={friend.id} />}
-                    {panel === "compare"   && <CompareMoodPanel      friendId={friend.id} friendName={friend.display_name.split(" ")[0]} />}
+                    <div className="flex-1 min-w-0 pt-0.5">
+                        <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                                <p className="text-base font-black text-white truncate leading-tight"
+                                    style={{ fontFamily: "var(--font-display)" }}>{friend.display_name}</p>
+                                <p className="text-xs text-white/35 mt-0.5">{friend.country}</p>
+                            </div>
+                            <button onClick={() => onRemove(friend.friendshipId)}
+                                disabled={actionLoading === friend.friendshipId}
+                                className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-all text-white/20 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30">
+                                <UserMinus className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+
+                        {moodLoading ? (
+                            <div className="flex items-center gap-2 mt-2">
+                                <Skeleton className="h-5 w-20 rounded-full" />
+                                <Skeleton className="h-2.5 w-32" />
+                            </div>
+                        ) : mood ? (
+                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                <MoodBadge mood={mood.sentiment} size="sm" />
+                                <div className="flex gap-1 flex-wrap">
+                                    {topEmotions.map(([k, v]) => (
+                                        <span key={k} className="text-[9px] px-1.5 py-0.5 rounded-full"
+                                            style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>
+                                            {k} {Math.round(v * 100)}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+
+                        {!moodLoading && mood && (
+                            <div className="mt-3 flex items-center gap-2">
+                                <div className="flex-1 h-1 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }}>
+                                    <div className="h-full rounded-full transition-all duration-700"
+                                        style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
+                                </div>
+                                <span className="text-[10px] font-bold shrink-0" style={{ color, fontFamily: "var(--font-display)" }}>{pct}%</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Botões */}
+            <div className="flex gap-px" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                {([
+                    { key: "listening" as FriendPanel, icon: <Radio className="w-3.5 h-3.5" />, label: "Ouvindo agora" },
+                    { key: "compare"   as FriendPanel, icon: <BarChart2 className="w-3.5 h-3.5" />, label: "Comparar" },
+                ] as const).map(btn => (
+                    <button key={btn.key} onClick={() => togglePanel(btn.key)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-all"
+                        style={{
+                            color:      panel === btn.key ? color : "rgba(255,255,255,0.35)",
+                            background: panel === btn.key ? `${color}10` : "transparent",
+                        }}>
+                        {btn.icon}{btn.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* Painéis */}
+            {panel === "listening" && (
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                    <ListeningPanel friendId={friend.id} friendName={firstName} />
+                </div>
+            )}
+            {panel === "compare" && (
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                    <ComparePanel friendId={friend.id} friendName={firstName} />
                 </div>
             )}
         </li>
@@ -368,20 +367,23 @@ function FriendCard({ friend, onRemove, actionLoading }: {
 
 // ─── Skeletons & Empty ────────────────────────────────────────────────────────
 
-function FriendsSkeleton() {
+function FriendCardSkeleton() {
     return (
-        <ul className="flex flex-col gap-2 animate-pulse">
-            {[1, 2, 3].map(i => (
-                <li key={i} className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                    <div className="w-10 h-10 rounded-full bg-white/[0.07]" />
-                    <div className="flex-1 flex flex-col gap-1.5">
-                        <div className="h-3 bg-white/[0.07] rounded-full w-36" />
-                        <div className="h-2 bg-white/[0.04] rounded-full w-20" />
-                    </div>
-                    <div className="h-7 w-7 bg-white/[0.05] rounded-lg" />
-                </li>
-            ))}
-        </ul>
+        <li className="rounded-2xl overflow-hidden animate-pulse" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="flex items-start gap-4 p-4">
+                <div className="w-16 h-16 rounded-full bg-white/[0.07] shrink-0" />
+                <div className="flex-1 flex flex-col gap-2.5 pt-1">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-2.5 w-20" />
+                    <Skeleton className="h-5 w-24 rounded-full" />
+                    <Skeleton className="h-1 w-full rounded-full" />
+                </div>
+            </div>
+            <div className="flex" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <Skeleton className="flex-1 h-10 rounded-none" />
+                <Skeleton className="flex-1 h-10 rounded-none" />
+            </div>
+        </li>
     );
 }
 
@@ -390,7 +392,7 @@ function EmptyState({ icon, message, sub, action }: {
     action?: { label: string; onClick: () => void };
 }) {
     return (
-        <div className="flex flex-col items-center py-10 gap-3 text-center">
+        <div className="flex flex-col items-center py-12 gap-3 text-center">
             <div className="text-white/15">{icon}</div>
             <p className="text-sm font-semibold text-white/50">{message}</p>
             <p className="text-xs text-white/25">{sub}</p>
@@ -406,21 +408,18 @@ function EmptyState({ icon, message, sub, action }: {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function FriendsPage() {
-    const [tab, setTab] = useState<Tab>("friends");
-    const [friends, setFriends] = useState<Friend[]>([]);
+    const [tab, setTab]           = useState<Tab>("friends");
+    const [friends, setFriends]   = useState<Friend[]>([]);
     const [requests, setRequests] = useState<PendingRequest[]>([]);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery]     = useState("");
     const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
-    const [loadingFriends, setLoadingFriends] = useState(true);
+    const [loadingFriends, setLoadingFriends]   = useState(true);
     const [loadingRequests, setLoadingRequests] = useState(true);
-    const [loadingSearch, setLoadingSearch] = useState(false);
-    const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [loadingSearch, setLoadingSearch]     = useState(false);
+    const [actionLoading, setActionLoading]     = useState<string | null>(null);
     const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
-    const notify = (msg: string, ok = true) => {
-        setToast({ msg, ok });
-        setTimeout(() => setToast(null), 3000);
-    };
+    const notify = (msg: string, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3000); };
 
     useEffect(() => {
         getFriends().then(setFriends).catch(() => notify("Erro ao carregar amigos.", false)).finally(() => setLoadingFriends(false));
@@ -438,11 +437,8 @@ export default function FriendsPage() {
 
     const handleSendRequest = useCallback(async (userId: string) => {
         setActionLoading(userId);
-        try {
-            await sendFriendRequest(userId);
-            setSearchResults(prev => prev.map(u => u.id === userId ? { ...u, friendshipStatus: "PENDING" as const } : u));
-            notify("Solicitação enviada!");
-        } catch { notify("Não foi possível enviar a solicitação.", false); }
+        try { await sendFriendRequest(userId); setSearchResults(prev => prev.map(u => u.id === userId ? { ...u, friendshipStatus: "PENDING" as const } : u)); notify("Solicitação enviada!"); }
+        catch { notify("Não foi possível enviar a solicitação.", false); }
         finally { setActionLoading(null); }
     }, []);
 
@@ -459,18 +455,15 @@ export default function FriendsPage() {
 
     const handleRemoveFriend = useCallback(async (friendshipId: string) => {
         setActionLoading(friendshipId);
-        try {
-            await removeFriend(friendshipId);
-            setFriends(prev => prev.filter(f => f.friendshipId !== friendshipId));
-            notify("Amigo removido.");
-        } catch { notify("Erro ao remover amigo.", false); }
+        try { await removeFriend(friendshipId); setFriends(prev => prev.filter(f => f.friendshipId !== friendshipId)); notify("Amigo removido."); }
+        catch { notify("Erro ao remover amigo.", false); }
         finally { setActionLoading(null); }
     }, []);
 
     const tabs = [
-        { key: "friends"  as Tab, label: "Amigos",       icon: <Users className="w-3.5 h-3.5" />  },
-        { key: "requests" as Tab, label: "Solicitações",  icon: <Clock className="w-3.5 h-3.5" />, badge: requests.length },
-        { key: "search"   as Tab, label: "Buscar",        icon: <Search className="w-3.5 h-3.5" /> },
+        { key: "friends"  as Tab, label: "Amigos",      icon: <Users className="w-3.5 h-3.5" />, badge: 0 },
+        { key: "requests" as Tab, label: "Solicitações", icon: <Clock className="w-3.5 h-3.5" />, badge: requests.length },
+        { key: "search"   as Tab, label: "Buscar",       icon: <Search className="w-3.5 h-3.5" />, badge: 0 },
     ];
 
     return (
@@ -488,111 +481,120 @@ export default function FriendsPage() {
                 <Link href="/dashboard" className="text-xs text-white/40 hover:text-white/70 transition-colors">← Dashboard</Link>
             </header>
 
-            <main className="max-w-[640px] mx-auto px-4 md:px-6 py-8">
+            <main className="max-w-[600px] mx-auto px-4 md:px-6 py-8">
                 <div className="mb-6">
                     <h1 className="text-2xl font-black uppercase tracking-tight text-white" style={{ fontFamily: "var(--font-display)" }}>Amigos</h1>
                     <p className="text-sm text-white/40 mt-1">Veja o que seus amigos estão ouvindo.</p>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <div className="flex gap-1 p-1 rounded-xl mb-6"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     {tabs.map(t => (
                         <button key={t.key} onClick={() => setTab(t.key)}
                             className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${tab === t.key ? "bg-white/[0.08] text-white" : "text-white/40 hover:text-white/70"}`}>
                             {t.icon}{t.label}
-                            {t.badge && t.badge > 0 ? (
+                            {t.badge > 0 && (
                                 <span className="absolute top-1 right-2 w-4 h-4 rounded-full bg-[#ff2d87] text-white text-[9px] font-black flex items-center justify-center">{t.badge}</span>
-                            ) : null}
+                            )}
                         </button>
                     ))}
                 </div>
 
-                {/* ── FRIENDS ── */}
+                {/* ── AMIGOS ── */}
                 {tab === "friends" && (
-                    <SectionCard title="Seus Amigos" icon={<Users />} accentColor="#00ffb3" iconColor="text-[#00ffb3]">
-                        {loadingFriends ? <FriendsSkeleton /> : friends.length === 0 ? (
-                            <EmptyState icon={<UserPlus className="w-8 h-8" />} message="Nenhum amigo ainda."
-                                sub="Busque pessoas pelo nome e envie uma solicitação."
-                                action={{ label: "Buscar amigos", onClick: () => setTab("search") }} />
-                        ) : (
-                            <ul className="flex flex-col gap-2">
-                                {friends.map(f => (
-                                    <FriendCard key={f.friendshipId} friend={f} onRemove={handleRemoveFriend} actionLoading={actionLoading} />
-                                ))}
-                            </ul>
-                        )}
-                    </SectionCard>
+                    loadingFriends ? (
+                        <ul className="flex flex-col gap-3">{[1,2,3].map(i => <FriendCardSkeleton key={i} />)}</ul>
+                    ) : friends.length === 0 ? (
+                        <EmptyState icon={<Users className="w-10 h-10" />} message="Nenhum amigo ainda."
+                            sub="Busque pessoas pelo nome e envie uma solicitação."
+                            action={{ label: "Buscar amigos", onClick: () => setTab("search") }} />
+                    ) : (
+                        <ul className="flex flex-col gap-3">
+                            {friends.map(f => <FriendCard key={f.friendshipId} friend={f} onRemove={handleRemoveFriend} actionLoading={actionLoading} />)}
+                        </ul>
+                    )
                 )}
 
-                {/* ── REQUESTS ── */}
+                {/* ── SOLICITAÇÕES ── */}
                 {tab === "requests" && (
-                    <SectionCard title="Solicitações" icon={<Clock />} accentColor="#ff2d87" iconColor="text-[#ff2d87]">
-                        {loadingRequests ? <FriendsSkeleton /> : requests.length === 0 ? (
+                    <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                        {loadingRequests ? (
+                            <div className="flex flex-col divide-y divide-white/[0.05] animate-pulse">
+                                {[1,2].map(i => (
+                                    <div key={i} className="flex items-center gap-3 p-4">
+                                        <Skeleton className="w-12 h-12 rounded-full shrink-0" />
+                                        <div className="flex-1 flex flex-col gap-2"><Skeleton className="h-3 w-32" /><Skeleton className="h-2.5 w-20" /></div>
+                                        <Skeleton className="h-7 w-16 rounded-lg" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : requests.length === 0 ? (
                             <EmptyState icon={<Check className="w-8 h-8" />} message="Nenhuma solicitação pendente." sub="Quando alguém te adicionar, vai aparecer aqui." />
                         ) : (
-                            <ul className="flex flex-col divide-y divide-white/[0.04]">
+                            <ul className="divide-y divide-white/[0.05]">
                                 {requests.map(r => (
-                                    <li key={r.id} className="flex items-center gap-3 py-3">
-                                        <Avatar src={r.requester.img_profile} name={r.requester.display_name} size={10} />
+                                    <li key={r.id} className="flex items-center gap-3 p-4">
+                                        <img src={r.requester.img_profile} alt={r.requester.display_name}
+                                            className="w-12 h-12 rounded-full object-cover shrink-0 ring-1 ring-white/10" />
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold text-white/90 truncate">{r.requester.display_name}</p>
+                                            <p className="text-sm font-semibold text-white/90 truncate" style={{ fontFamily: "var(--font-display)" }}>{r.requester.display_name}</p>
                                             <p className="text-xs text-white/30">{r.requester.country}</p>
                                         </div>
                                         <div className="flex gap-2">
-                                            <ActionBtn variant="success" onClick={() => handleRespond(r.id, true)} disabled={actionLoading === r.id}><Check className="w-3 h-3" /></ActionBtn>
+                                            <ActionBtn variant="success" onClick={() => handleRespond(r.id, true)} disabled={actionLoading === r.id}><Check className="w-3 h-3" />Aceitar</ActionBtn>
                                             <ActionBtn variant="danger"  onClick={() => handleRespond(r.id, false)} disabled={actionLoading === r.id}><X className="w-3 h-3" /></ActionBtn>
                                         </div>
                                     </li>
                                 ))}
                             </ul>
                         )}
-                    </SectionCard>
+                    </div>
                 )}
 
-                {/* ── SEARCH ── */}
+                {/* ── BUSCAR ── */}
                 {tab === "search" && (
-                    <SectionCard title="Buscar Pessoas" icon={<Search />} accentColor="#a259ff" iconColor="text-[#a259ff]">
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl mb-4"
-                            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
+                            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)" }}>
                             <Search className="w-4 h-4 text-white/30 shrink-0" />
-                            <input autoFocus type="text" value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
+                            <input autoFocus type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                                 placeholder="Buscar pelo nome..."
                                 className="flex-1 bg-transparent text-sm text-white/90 placeholder-white/30 outline-none" />
                             {loadingSearch && <Loader2 className="w-4 h-4 text-white/30 animate-spin shrink-0" />}
                         </div>
-
                         {searchQuery.trim().length < 2 ? (
-                            <p className="text-xs text-white/30 text-center py-6">Digite pelo menos 2 caracteres para buscar.</p>
+                            <EmptyState icon={<Search className="w-8 h-8" />} message="Busque por nome" sub="Digite pelo menos 2 caracteres para encontrar pessoas." />
                         ) : searchResults.length === 0 && !loadingSearch ? (
-                            <p className="text-xs text-white/30 text-center py-6">Nenhum usuário encontrado.</p>
+                            <EmptyState icon={<Users className="w-8 h-8" />} message="Nenhum resultado." sub="Tente um nome diferente." />
                         ) : (
-                            <ul className="flex flex-col divide-y divide-white/[0.04]">
-                                {searchResults.map(u => (
-                                    <li key={u.id} className="flex items-center gap-3 py-3">
-                                        <Avatar src={u.img_profile} name={u.display_name} size={10} />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold text-white/90 truncate">{u.display_name}</p>
-                                            <p className="text-xs text-white/30">{u.country}</p>
-                                        </div>
-                                        {u.friendshipStatus === "ACCEPTED" ? (
-                                            <span className="text-xs text-[#00ffb3]/70 font-semibold">Amigos ✓</span>
-                                        ) : u.friendshipStatus === "PENDING" ? (
-                                            <span className="text-xs text-white/30 font-semibold">Pendente…</span>
-                                        ) : (
-                                            <ActionBtn variant="primary" onClick={() => handleSendRequest(u.id)} disabled={actionLoading === u.id}>
-                                                <UserPlus className="w-3 h-3" />Adicionar
-                                            </ActionBtn>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
+                            <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                                <ul className="divide-y divide-white/[0.05]">
+                                    {searchResults.map(u => (
+                                        <li key={u.id} className="flex items-center gap-3 p-4">
+                                            <img src={u.img_profile} alt={u.display_name}
+                                                className="w-12 h-12 rounded-full object-cover shrink-0 ring-1 ring-white/10" />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-semibold text-white/90 truncate" style={{ fontFamily: "var(--font-display)" }}>{u.display_name}</p>
+                                                <p className="text-xs text-white/30">{u.country}</p>
+                                            </div>
+                                            {u.friendshipStatus === "ACCEPTED" ? (
+                                                <span className="text-xs text-[#00ffb3]/70 font-semibold">Amigos ✓</span>
+                                            ) : u.friendshipStatus === "PENDING" ? (
+                                                <span className="text-xs text-white/30 font-semibold">Pendente…</span>
+                                            ) : (
+                                                <ActionBtn variant="primary" onClick={() => handleSendRequest(u.id)} disabled={actionLoading === u.id}>
+                                                    <UserPlus className="w-3 h-3" />Adicionar
+                                                </ActionBtn>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         )}
-                    </SectionCard>
+                    </div>
                 )}
             </main>
 
-            {/* Toast */}
             {toast && (
                 <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-xl z-50 ${toast.ok ? "bg-[#00ffb3]/10 border border-[#00ffb3]/30 text-[#00ffb3]" : "bg-red-500/10 border border-red-500/30 text-red-400"}`}>
                     {toast.ok ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}

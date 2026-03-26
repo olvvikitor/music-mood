@@ -188,7 +188,7 @@ export default function Profile() {
                 {!gifFailed ? (
                     <>
                         <img
-                            src={mood.url_gif}
+                            src={mood.image_mood}
                             alt="Mood GIF"
                             className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${gifLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
                             onLoad={() => setGifLoaded(true)}

@@ -11,6 +11,7 @@ export type MoodProfileResponse = {
     emotions: EmotionalVector;
     reasoning: string;
     analyzedAt: Date;
+    image_mood:string,
     coreAxes: CoreAxes;
     tracksAnalyzeds: {
         music: string;

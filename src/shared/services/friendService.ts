@@ -40,19 +40,23 @@ export type MoodData = {
     analyzedAt: string;
 } | null;
 
-export type ListeningNowData = {
-    moodScore: number;
-    dominantSentiment: string;
-    tracks: {
-        music: string;
-        artist: string;
-        img_url: string;
+// isPlaying: false → nada tocando; isPlaying: true → dados completos
+export type ListeningNowData =
+    | { isPlaying: false }
+    | {
+        isPlaying: true;
         moodScore: number;
         dominantSentiment: string;
-        reasoning: string;
-        coreAxes: Record<string, number>;
-    }[];
-} | null;
+        tracks: {
+            music: string;
+            artist: string;
+            img_url: string;
+            moodScore: number;
+            dominantSentiment: string;
+            reasoning: string;
+            coreAxes: Record<string, number>;
+        }[];
+    };
 
 export type CompareMoodData = {
     me: MoodData;

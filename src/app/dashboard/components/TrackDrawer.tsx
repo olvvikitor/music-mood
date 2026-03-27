@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Track } from "../types/music";
 import { X, Music2 } from "lucide-react";
 import Image from "next/image";
+import { createPortal } from "react-dom";
 import { EmotionalVectorBars } from "@/shared/components/EmotionalVectorBars";
 import { MoodBadge } from "@/shared/components/MoodBadge";
 import { emotionStyles } from "@/shared/lib/moodHelpers";
@@ -16,15 +17,27 @@ interface TrackDrawerProps {
 
 export function TrackDrawer({ track, onClose }: TrackDrawerProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const overlayRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        setMounted(true);
         const t = setTimeout(() => setIsOpen(true), 10);
-        // Trap scroll
+
+        // Trap body scroll without causing layout shift when scrollbar disappears.
+        const originalOverflow = document.body.style.overflow;
+        const originalPaddingRight = document.body.style.paddingRight;
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
         document.body.style.overflow = "hidden";
+        if (scrollbarWidth > 0) {
+            document.body.style.paddingRight = `${scrollbarWidth}px`;
+        }
+
         return () => {
             clearTimeout(t);
-            document.body.style.overflow = "";
+            document.body.style.overflow = originalOverflow;
+            document.body.style.paddingRight = originalPaddingRight;
         };
     }, []);
 
@@ -39,13 +52,15 @@ export function TrackDrawer({ track, onClose }: TrackDrawerProps) {
     const glowClass = bgMatch ? `bg-${bgMatch[1]}` : "bg-brand-primary";
     const clusterData = CLUSTER[sentimentKey];
 
-    return (
+    if (!mounted) return null;
+
+    return createPortal(
         <>
             {/* Overlay */}
             <div
                 ref={overlayRef}
                 onClick={handleClose}
-                className="fixed inset-0 z-100 transition-all duration-350"
+                className="fixed inset-0 z-100 transition-all duration-300"
                 style={{
                     background: isOpen ? "rgba(0,0,0,0.65)" : "rgba(0,0,0,0)",
                     backdropFilter: isOpen ? "blur(8px)" : "blur(0px)",
@@ -187,6 +202,7 @@ export function TrackDrawer({ track, onClose }: TrackDrawerProps) {
                     </div>
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     );
 }

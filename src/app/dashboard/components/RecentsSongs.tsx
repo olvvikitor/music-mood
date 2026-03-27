@@ -21,8 +21,12 @@ export default function RecentSongs({ compact = false }: { compact?: boolean }) 
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <div
-                className="flex flex-col gap-0.5 overflow-y-visible md:overflow-y-auto custom-scrollbar h-auto md:h-full pr-1"
-                style={{ maxHeight: compact ? "none" : "520px" }}
+                className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar min-h-0 pr-1"
+                style={{
+                    maxHeight: compact ? "min(62vh, 560px)" : "520px",
+                    overscrollBehaviorY: "contain",
+                    WebkitOverflowScrolling: "touch",
+                }}
             >
                 {tracks.map((song, index) => (
                     <button

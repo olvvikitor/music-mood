@@ -83,15 +83,15 @@ function detectPlatform(): Platform {
 const platformHint: Record<Platform, { dot: string; text: string }> = {
     "ios-safari": {
         dot: "#00ffb3",
-        text: "iOS Safari — Story abre direto no share sheet nativo.",
+        text: "iOS Safari — Story abre o compartilhamento nativo (escolha Instagram).",
     },
     "ios-other": {
-        dot: "#ffaa00",
-        text: "iOS Chrome — Story baixa a imagem. Abra o Instagram e poste como Story.",
+        dot: "#00ffb3",
+        text: "iOS (Chrome/Outros) — Story tenta compartilhamento nativo; se falhar, baixa a imagem.",
     },
     android: {
-        dot: "#ffaa00",
-        text: "Android — Story baixa a imagem. Poste no Instagram em seguida.",
+        dot: "#00ffb3",
+        text: "Android — Story tenta compartilhamento nativo; se falhar, baixa a imagem.",
     },
     desktop: {
         dot: "#4488ff",
@@ -102,17 +102,43 @@ const platformHint: Record<Platform, { dot: string; text: string }> = {
 // ---------------------------------------------------------------------------
 // htmlToImage com retry (CORS do Giphy pode falhar na 1ª passagem)
 // ---------------------------------------------------------------------------
-async function generatePosterPng(el: HTMLDivElement): Promise<string | null> {
-    const options: Parameters<typeof htmlToImage.toPng>[1] = {
-        quality: 1,
-        pixelRatio: 2,
-        fetchRequestInit: { cache: "no-cache" },
+async function generatePosterImage(
+    el: HTMLDivElement,
+    format: "png" | "jpeg" = "png",
+): Promise<string | null> {
+    const commonOptions = {
+        fetchRequestInit: { cache: "no-cache" as RequestCache },
     };
+
     try {
-        return await htmlToImage.toPng(el, options);
+        if (format === "jpeg") {
+            return await htmlToImage.toJpeg(el, {
+                ...commonOptions,
+                quality: 0.9,
+                pixelRatio: 1.5,
+            });
+        }
+
+        return await htmlToImage.toPng(el, {
+            ...commonOptions,
+            quality: 1,
+            pixelRatio: 2,
+        });
     } catch {
         try {
-            return await htmlToImage.toPng(el, options);
+            if (format === "jpeg") {
+                return await htmlToImage.toJpeg(el, {
+                    ...commonOptions,
+                    quality: 0.86,
+                    pixelRatio: 1.25,
+                });
+            }
+
+            return await htmlToImage.toPng(el, {
+                ...commonOptions,
+                quality: 1,
+                pixelRatio: 1.6,
+            });
         } catch (err) {
             console.error("[ShareModal] htmlToImage falhou:", err);
             return null;
@@ -149,9 +175,9 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
     const moodWords = (mood.sentiment ?? "—").split(" ");
     const isBusy = dlState === "loading" || storyState === "loading";
 
-    async function buildImage(): Promise<string | null> {
+    async function buildImage(format: "png" | "jpeg" = "png"): Promise<string | null> {
         if (!posterRef.current) return null;
-        return generatePosterPng(posterRef.current);
+        return generatePosterImage(posterRef.current, format);
     }
 
     function triggerDownload(dataUrl: string) {
@@ -163,7 +189,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
 
     async function handleDownload() {
         setDlState("loading");
-        const dataUrl = await buildImage();
+        const dataUrl = await buildImage("png");
         if (!dataUrl) { setDlState("error"); return; }
         triggerDownload(dataUrl);
         setDlState("success");
@@ -172,23 +198,42 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
 
     async function handleStory() {
         setStoryState("loading");
-        const dataUrl = await buildImage();
+        const dataUrl = await buildImage("jpeg");
         if (!dataUrl) { setStoryState("error"); return; }
 
-        if (platform === "ios-safari" && navigator.canShare) {
+        if (platform !== "desktop" && typeof navigator !== "undefined" && typeof navigator.share === "function") {
             try {
                 const blob = await (await fetch(dataUrl)).blob();
-                const file = new File([blob], "musicmood.png", { type: "image/png" });
-                if (navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: "Minha Vibe no MusicMood" });
+                const file = new File([blob], "musicmood.jpg", { type: blob.type || "image/jpeg" });
+
+                const hasCanShare = typeof navigator.canShare === "function";
+                const canShareFile = hasCanShare ? navigator.canShare({ files: [file] }) : true;
+
+                if (canShareFile) {
+                    await navigator.share({
+                        files: [file],
+                        title: "Minha Vibe no MusicMood",
+                        text: "Compartilhando minha vibe do dia",
+                    });
                     setStoryState("success");
                     setTimeout(() => setStoryState("idle"), 2500);
                     return;
                 }
-            } catch {
-                // Usuário cancelou
-                setStoryState("idle");
+
+                // Alguns browsers falham no canShare/files; tenta abrir share sheet sem arquivo.
+                await navigator.share({
+                    title: "Minha Vibe no MusicMood",
+                    text: "Compartilhando minha vibe do dia",
+                });
+                setStoryState("success");
+                setTimeout(() => setStoryState("idle"), 2500);
                 return;
+            } catch (error) {
+                // Cancelamento manual do share sheet
+                if (error instanceof DOMException && error.name === "AbortError") {
+                    setStoryState("idle");
+                    return;
+                }
             }
         }
 
@@ -204,7 +249,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[100] flex items-center sm:items-center justify-center bg-black/80 backdrop-blur-xl overflow-y-auto"
+            className="fixed inset-0 z-100 flex items-center sm:items-center justify-center bg-black/80 backdrop-blur-xl overflow-y-auto"
               onClick={onClose}
 
         >
@@ -311,7 +356,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                             >
                                 <span className="text-[12px] font-bold text-white">{score}%</span>
                                 <span
-                                    className="text-[10px] uppercase tracking-[.1em]"
+                                    className="text-[10px] uppercase tracking-widest"
                                     style={{ color: "rgba(255,255,255,.4)" }}
                                 >
                                     score
@@ -319,7 +364,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                             </div>
 
                             {/* Equalizer estático (htmlToImage não anima) */}
-                            <div className="flex items-end gap-[3px]" style={{ height: 16 }}>
+                            <div className="flex items-end gap-0.75" style={{ height: 16 }}>
                                 {[38, 80, 100, 62, 88].map((h, i) => (
                                     <div
                                         key={i}
@@ -349,7 +394,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                         }}
                     >
                         <div
-                            className="shrink-0 w-2 h-2 rounded-full mt-[5px]"
+                            className="shrink-0 w-2 h-2 rounded-full mt-1.25"
                             style={{ background: hint.dot }}
                         />
                         <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,.5)" }}>
@@ -364,7 +409,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                         <button
                             onClick={handleDownload}
                             disabled={isBusy}
-                            className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[.1em] transition-all active:scale-95 disabled:opacity-50"
+                            className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
                             style={{
                                 background: dlState === "success" ? "rgba(0,255,179,.12)" : "rgba(255,255,255,.08)",
                                 border: `1px solid ${dlState === "success" ? "rgba(0,255,179,.3)" : "rgba(255,255,255,.12)"}`,
@@ -384,7 +429,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                         <button
                             onClick={handleStory}
                             disabled={isBusy}
-                            className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[.1em] transition-all active:scale-95 disabled:opacity-60"
+                            className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-60"
                             style={{
                                 background: storyState === "success"
                                     ? "rgba(0,255,179,.12)"

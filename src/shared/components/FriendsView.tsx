@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import {
     Clock, Radio, BarChart2, Loader2, Music2,
 } from "lucide-react";
 import { MoodBadge } from "@/shared/components/MoodBadge";
-import { getMoodTextColor } from "@/shared/lib/moodHelpers";
+import { getMoodDisplayName, getMoodTextColor } from "@/shared/lib/moodHelpers";
 import {
     searchUsers, sendFriendRequest, respondFriendRequest,
     getFriends, getPendingRequests, removeFriend,
@@ -16,16 +16,16 @@ import {
     type MoodData, type ListeningNowData, type CompareMoodData,
 } from "@/shared/services/friendService";
 
-// ─── Tipos internos ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Tipos internos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type FriendsTab = "friends" | "requests" | "search";
 type FriendPanel = "listening" | "compare" | null;
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function moodColor(score: number) {
-    if (score >= 0.7) return "#00ffb3";
-    if (score >= 0.4) return "#a259ff";
-    return "#ff2d87";
+    if (score >= 0.7) return "#6fae9b";
+    if (score >= 0.4) return "#8a7bb8";
+    return "#b06a85";
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
@@ -39,7 +39,7 @@ function ActionBtn({ onClick, disabled, children, variant = "ghost" }: {
 }) {
     const colors: Record<string, string> = {
         ghost:   "bg-white/[0.06] hover:bg-white/[0.10] text-white/60 hover:text-white/90",
-        primary: "bg-[#00ffb3]/10 hover:bg-[#00ffb3]/20 text-[#00ffb3] border border-[#00ffb3]/20",
+        primary: "bg-[#6fae9b]/10 hover:bg-[#6fae9b]/20 text-[#6fae9b] border border-[#6fae9b]/20",
         danger:  "bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20",
         success: "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20",
     };
@@ -61,15 +61,15 @@ function EmptyState({ icon, message, sub, action }: {
             <p className="text-sm font-semibold text-white/50">{message}</p>
             <p className="text-xs text-white/25">{sub}</p>
             {action && (
-                <button onClick={action.onClick} className="mt-2 text-xs font-semibold text-[#00ffb3] hover:text-[#00ffb3]/80 transition-colors">
-                    {action.label} →
+                <button onClick={action.onClick} className="mt-2 text-xs font-semibold text-[#6fae9b] hover:text-[#6fae9b]/80 transition-colors">
+                    {action.label} â†’
                 </button>
             )}
         </div>
     );
 }
 
-// ─── Painel: Tocando agora ────────────────────────────────────────────────────
+// â”€â”€â”€ Painel: Tocando agora â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ListeningPanel({ friendId, friendName }: { friendId: string; friendName: string }) {
     const [data, setData] = useState<ListeningNowData | null>(null);
@@ -90,7 +90,7 @@ function ListeningPanel({ friendId, friendName }: { friendId: string; friendName
 
     if (error) return (
         <div className="flex items-center gap-3 p-4 text-white/25 text-xs">
-            <Music2 className="w-4 h-4 shrink-0" />Não foi possível carregar.
+            <Music2 className="w-4 h-4 shrink-0" />Nao foi possivel carregar.
         </div>
     );
 
@@ -101,13 +101,13 @@ function ListeningPanel({ friendId, friendName }: { friendId: string; friendName
                 <div className="flex items-end gap-0.5 h-6">
                     {[4, 7, 5, 9, 6].map((h, i) => (
                         <div key={i} className="w-1 rounded-full opacity-25"
-                            style={{ height: `${h * 2}px`, background: "linear-gradient(180deg,#00ffb3,#a259ff)" }} />
+                            style={{ height: `${h * 2}px`, background: "linear-gradient(180deg,#6fae9b,#8a7bb8)" }} />
                     ))}
                 </div>
             </div>
             <div className="text-center">
                 <p className="text-xs font-semibold text-white/50" style={{ fontFamily: "var(--font-display)" }}>
-                    {friendName} não está ouvindo nada
+                    {friendName} nao esta ouvindo nada
                 </p>
                 <p className="text-[10px] text-white/25 mt-0.5">Player pausado ou offline</p>
             </div>
@@ -115,6 +115,7 @@ function ListeningPanel({ friendId, friendName }: { friendId: string; friendName
     );
 
     const track = data.tracks[0];
+    const listeningMoodLabel = getMoodDisplayName(track.dominantSentiment, track.dominantSentiment);
     return (
         <div className="flex items-center gap-3 p-4">
             {track.img_url ? (
@@ -130,8 +131,8 @@ function ListeningPanel({ friendId, friendName }: { friendId: string; friendName
                 <p className="text-sm font-bold text-white/90 truncate" style={{ fontFamily: "var(--font-display)" }}>{track.music}</p>
                 <p className="text-xs text-white/45 truncate mt-0.5">{track.artist}</p>
                 <div className="flex items-center gap-2 mt-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ background: "#00ffb3" }} />
-                    <span className="text-[10px] truncate" style={{ color: getMoodTextColor(track.dominantSentiment) }}>{track.dominantSentiment}</span>
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ background: "#6fae9b" }} />
+                    <span className="text-[10px] truncate" style={{ color: getMoodTextColor(listeningMoodLabel) }}>{listeningMoodLabel}</span>
                     <span className="text-[10px] font-bold ml-auto shrink-0" style={{ color: moodColor(track.moodScore) }}>
                         {Math.round(track.moodScore * 100)}%
                     </span>
@@ -142,7 +143,7 @@ function ListeningPanel({ friendId, friendName }: { friendId: string; friendName
     );
 }
 
-// ─── Painel: Comparar mood ────────────────────────────────────────────────────
+// Painel: Comparar mood
 
 function ComparePanel({ friendId, friendName }: { friendId: string; friendName: string }) {
     const [data, setData] = useState<CompareMoodData | null>(null);
@@ -162,14 +163,16 @@ function ComparePanel({ friendId, friendName }: { friendId: string; friendName: 
     );
 
     if (error || !data?.me || !data?.friend) return (
-        <p className="text-xs text-white/30 p-4 text-center">Dados de comparação não disponíveis.</p>
+        <p className="text-xs text-white/30 p-4 text-center">Dados de comparacao nao disponiveis.</p>
     );
 
     const { me, friend } = data;
+    const myMoodLabel = getMoodDisplayName(me.sentiment, me.sentiment);
+    const friendMoodLabel = getMoodDisplayName(friend.sentiment, friend.sentiment);
     const myPct   = Math.round((me.moodScore ?? 0) * 100);
     const themPct = Math.round((friend.moodScore ?? 0) * 100);
     const harmony = 100 - Math.abs(myPct - themPct);
-    const harmonyColor = harmony >= 70 ? "#00ffb3" : harmony >= 40 ? "#a259ff" : "#ff2d87";
+    const harmonyColor = harmony >= 70 ? "#6fae9b" : harmony >= 40 ? "#8a7bb8" : "#b06a85";
     const myTop   = Object.entries(me.emotions ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => k);
     const themTop = Object.entries(friend.emotions ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => k);
     const shared  = myTop.filter(k => themTop.includes(k));
@@ -184,26 +187,26 @@ function ComparePanel({ friendId, friendName }: { friendId: string; friendName: 
                 </div>
                 <div className="h-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.07)" }}>
                     <div className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${harmony}%`, background: `linear-gradient(90deg, #00ffb3, ${harmonyColor})` }} />
+                        style={{ width: `${harmony}%`, background: `linear-gradient(90deg, #6fae9b, ${harmonyColor})` }} />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl p-3 flex flex-col gap-1" style={{ background: "rgba(0,255,179,0.05)", border: "1px solid rgba(0,255,179,0.12)" }}>
-                    <span className="text-[9px] uppercase tracking-widest" style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>Você</span>
-                    <span className="text-xl font-black" style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>{myPct}%</span>
-                    <span className="text-[10px] truncate" style={{ color: getMoodTextColor(me.sentiment) }}>{me.sentiment}</span>
+                <div className="rounded-xl p-3 flex flex-col gap-1" style={{ background: "rgba(111,174,155,0.05)", border: "1px solid rgba(111,174,155,0.12)" }}>
+                    <span className="text-[9px] uppercase tracking-widest" style={{ color: "#6fae9b", fontFamily: "var(--font-display)" }}>Voce</span>
+                    <span className="text-xl font-black" style={{ color: "#6fae9b", fontFamily: "var(--font-display)" }}>{myPct}%</span>
+                    <span className="text-[10px] truncate" style={{ color: getMoodTextColor(myMoodLabel) }}>{myMoodLabel}</span>
                 </div>
-                <div className="rounded-xl p-3 flex flex-col gap-1" style={{ background: "rgba(162,89,255,0.05)", border: "1px solid rgba(162,89,255,0.12)" }}>
-                    <span className="text-[9px] uppercase tracking-widest" style={{ color: "#a259ff", fontFamily: "var(--font-display)" }}>{friendName}</span>
-                    <span className="text-xl font-black" style={{ color: "#a259ff", fontFamily: "var(--font-display)" }}>{themPct}%</span>
-                    <span className="text-[10px] truncate" style={{ color: getMoodTextColor(friend.sentiment) }}>{friend.sentiment}</span>
+                <div className="rounded-xl p-3 flex flex-col gap-1" style={{ background: "rgba(138,123,184,0.05)", border: "1px solid rgba(138,123,184,0.12)" }}>
+                    <span className="text-[9px] uppercase tracking-widest" style={{ color: "#8a7bb8", fontFamily: "var(--font-display)" }}>{friendName}</span>
+                    <span className="text-xl font-black" style={{ color: "#8a7bb8", fontFamily: "var(--font-display)" }}>{themPct}%</span>
+                    <span className="text-[10px] truncate" style={{ color: getMoodTextColor(friendMoodLabel) }}>{friendMoodLabel}</span>
                 </div>
             </div>
             {shared.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                     {shared.map(e => (
                         <span key={e} className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
-                            style={{ background: "rgba(0,255,179,0.1)", color: "#00ffb3", border: "1px solid rgba(0,255,179,0.2)" }}>
+                            style={{ background: "rgba(111,174,155,0.1)", color: "#6fae9b", border: "1px solid rgba(111,174,155,0.2)" }}>
                             {e}
                         </span>
                     ))}
@@ -218,25 +221,25 @@ function ComparePanel({ friendId, friendName }: { friendId: string; friendName: 
                             <span className="text-[10px] text-white/30 capitalize block mb-1">{key}</span>
                             <div className="flex flex-col gap-0.5">
                                 <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
-                                    <div className="h-full rounded-full" style={{ width: `${myVal}%`, background: "#00ffb3" }} />
+                                    <div className="h-full rounded-full" style={{ width: `${myVal}%`, background: "#6fae9b" }} />
                                 </div>
                                 <div className="h-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
-                                    <div className="h-full rounded-full" style={{ width: `${themVal}%`, background: "#a259ff" }} />
+                                    <div className="h-full rounded-full" style={{ width: `${themVal}%`, background: "#8a7bb8" }} />
                                 </div>
                             </div>
                         </div>
                     );
                 })}
                 <div className="flex gap-4 pt-1">
-                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ background: "#00ffb3" }} /><span className="text-[9px] text-white/30">Você</span></div>
-                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ background: "#a259ff" }} /><span className="text-[9px] text-white/30">{friendName}</span></div>
+                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ background: "#6fae9b" }} /><span className="text-[9px] text-white/30">Voce</span></div>
+                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full" style={{ background: "#8a7bb8" }} /><span className="text-[9px] text-white/30">{friendName}</span></div>
                 </div>
             </div>
         </div>
     );
 }
 
-// ─── FriendCard ───────────────────────────────────────────────────────────────
+// FriendCard
 
 function FriendCard({ friend, onRemove, actionLoading }: {
     friend: Friend;
@@ -349,7 +352,7 @@ function FriendCardSkeleton() {
     );
 }
 
-// ─── FriendsView (componente público reutilizável) ────────────────────────────
+// FriendsView (componente publico reutilizavel)
 
 export function FriendsView() {
     const [tab, setTab]           = useState<FriendsTab>("friends");
@@ -384,8 +387,8 @@ export function FriendsView() {
         try {
             await sendFriendRequest(userId);
             setSearchResults(prev => prev.map(u => u.id === userId ? { ...u, friendshipStatus: "PENDING" as const } : u));
-            notify("Solicitação enviada!");
-        } catch { notify("Não foi possível enviar.", false); }
+            notify("Solicitacao enviada!");
+        } catch { notify("Nao foi possivel enviar.", false); }
         finally { setActionLoading(null); }
     }, []);
 
@@ -395,7 +398,7 @@ export function FriendsView() {
             await respondFriendRequest(friendshipId, accept);
             setRequests(prev => prev.filter(r => r.id !== friendshipId));
             if (accept) { getFriends().then(setFriends).catch(() => {}); notify("Amizade aceita! 🎉"); }
-            else { notify("Solicitação recusada."); }
+            else { notify("Solicitacao recusada."); }
         } catch { notify("Erro ao responder.", false); }
         finally { setActionLoading(null); }
     }, []);
@@ -409,7 +412,7 @@ export function FriendsView() {
 
     const tabs = [
         { key: "friends"  as FriendsTab, label: "Amigos",      icon: <Users className="w-3.5 h-3.5" />, badge: 0 },
-        { key: "requests" as FriendsTab, label: "Solicitações", icon: <Clock className="w-3.5 h-3.5" />, badge: requests.length },
+        { key: "requests" as FriendsTab, label: "Solicitacoes", icon: <Clock className="w-3.5 h-3.5" />, badge: requests.length },
         { key: "search"   as FriendsTab, label: "Buscar",       icon: <Search className="w-3.5 h-3.5" />, badge: 0 },
     ];
 
@@ -423,19 +426,19 @@ export function FriendsView() {
                         className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${tab === t.key ? "bg-white/[0.08] text-white" : "text-white/40 hover:text-white/70"}`}>
                         {t.icon}{t.label}
                         {t.badge > 0 && (
-                            <span className="absolute top-1 right-2 w-4 h-4 rounded-full bg-[#ff2d87] text-white text-[9px] font-black flex items-center justify-center">{t.badge}</span>
+                            <span className="absolute top-1 right-2 w-4 h-4 rounded-full bg-[#b06a85] text-white text-[9px] font-black flex items-center justify-center">{t.badge}</span>
                         )}
                     </button>
                 ))}
             </div>
 
-            {/* ── AMIGOS ── */}
+            {/* AMIGOS */}
             {tab === "friends" && (
                 loadingFriends ? (
                     <ul className="flex flex-col gap-3">{[1, 2, 3].map(i => <FriendCardSkeleton key={i} />)}</ul>
                 ) : friends.length === 0 ? (
                     <EmptyState icon={<Users className="w-10 h-10" />} message="Nenhum amigo ainda."
-                        sub="Busque pessoas pelo nome e envie uma solicitação."
+                        sub="Busque pessoas pelo nome e envie uma solicitacao."
                         action={{ label: "Buscar amigos", onClick: () => setTab("search") }} />
                 ) : (
                     <ul className="flex flex-col gap-3">
@@ -444,7 +447,7 @@ export function FriendsView() {
                 )
             )}
 
-            {/* ── SOLICITAÇÕES ── */}
+            {/* SOLICITACOES */}
             {tab === "requests" && (
                 <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     {loadingRequests ? (
@@ -458,7 +461,7 @@ export function FriendsView() {
                             ))}
                         </div>
                     ) : requests.length === 0 ? (
-                        <EmptyState icon={<Check className="w-8 h-8" />} message="Nenhuma solicitação pendente." sub="Quando alguém te adicionar, vai aparecer aqui." />
+                        <EmptyState icon={<Check className="w-8 h-8" />} message="Nenhuma solicitacao pendente." sub="Quando alguem te adicionar, vai aparecer aqui." />
                     ) : (
                         <ul className="divide-y divide-white/[0.05]">
                             {requests.map(r => (
@@ -480,7 +483,7 @@ export function FriendsView() {
                 </div>
             )}
 
-            {/* ── BUSCAR ── */}
+            {/* BUSCAR */}
             {tab === "search" && (
                 <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
@@ -507,9 +510,9 @@ export function FriendsView() {
                                             <p className="text-xs text-white/30">{u.country}</p>
                                         </div>
                                         {u.friendshipStatus === "ACCEPTED" ? (
-                                            <span className="text-xs text-[#00ffb3]/70 font-semibold">Amigos ✓</span>
+                                            <span className="text-xs text-[#6fae9b]/70 font-semibold">Amigos ✓</span>
                                         ) : u.friendshipStatus === "PENDING" ? (
-                                            <span className="text-xs text-white/30 font-semibold">Pendente…</span>
+                                            <span className="text-xs text-white/30 font-semibold">Pendente...</span>
                                         ) : (
                                             <ActionBtn variant="primary" onClick={() => handleSendRequest(u.id)} disabled={actionLoading === u.id}>
                                                 <UserPlus className="w-3 h-3" />Adicionar
@@ -525,7 +528,7 @@ export function FriendsView() {
 
             {/* Toast */}
             {toast && (
-                <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-xl z-50 ${toast.ok ? "bg-[#00ffb3]/10 border border-[#00ffb3]/30 text-[#00ffb3]" : "bg-red-500/10 border border-red-500/30 text-red-400"}`}>
+                <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-xl z-50 ${toast.ok ? "bg-[#6fae9b]/10 border border-[#6fae9b]/30 text-[#6fae9b]" : "bg-red-500/10 border border-red-500/30 text-red-400"}`}>
                     {toast.ok ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                     {toast.msg}
                 </div>
@@ -533,3 +536,4 @@ export function FriendsView() {
         </div>
     );
 }
+

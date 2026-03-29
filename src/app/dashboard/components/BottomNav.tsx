@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
-import { Users, LayoutGrid, Radio, Sparkles, UserCircle } from "lucide-react";
+import { Users, LayoutGrid, Radio, Sparkles, UserCircle, Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getPendingRequests } from "@/shared/services/friendService";
+import { useTheme } from "@/shared/providers/ThemeProvider";
 
 export type DashTab = "feed" | "playing" | "mix" | "profile" | "friends";
 
@@ -12,27 +13,34 @@ interface BottomNavProps {
 }
 
 const TABS: { key: DashTab; icon: React.ReactNode; label: string }[] = [
-    { key: "feed",    icon: <LayoutGrid className="w-5 h-5" />,    label: "Feed"    },
-    { key: "playing", icon: <Radio className="w-5 h-5" />,         label: "Playing" },
-    { key: "mix",     icon: <Sparkles className="w-5 h-5" />,      label: "Mix"     },
-    { key: "friends", icon: <Users className="w-5 h-5" />,         label: "Amigos"  },
-    { key: "profile", icon: <UserCircle className="w-5 h-5" />,    label: "Perfil"  },
+    { key: "feed",    icon: <LayoutGrid className="w-5 h-5" />, label: "Feed"    },
+    { key: "playing", icon: <Radio className="w-5 h-5" />,      label: "Playing" },
+    { key: "mix",     icon: <Sparkles className="w-5 h-5" />,   label: "Mix"     },
+    { key: "friends", icon: <Users className="w-5 h-5" />,      label: "Amigos"  },
+    { key: "profile", icon: <UserCircle className="w-5 h-5" />, label: "Perfil"  },
 ];
 
 export function BottomNav({ active, onChange }: BottomNavProps) {
     const [pendingCount, setPendingCount] = useState(0);
+    const { theme, toggle } = useTheme();
+    const isLight = theme === "light";
 
     useEffect(() => {
         getPendingRequests().then(r => setPendingCount(r.length)).catch(() => {});
     }, []);
 
+    const navBg     = isLight ? "rgba(244,244,248,0.94)" : "rgba(7,7,12,0.92)";
+    const navBorder = isLight ? "rgba(0,0,0,0.08)"       : "rgba(255,255,255,0.07)";
+    const activeColor  = "#6fae9b";
+    const inactiveColor = isLight ? "rgba(15,15,20,0.35)" : "rgba(255,255,255,0.3)";
+
     return (
         <nav
             className="fixed bottom-0 left-0 right-0 z-50 flex items-center lg:hidden"
             style={{
-                background: "rgba(7,7,12,0.92)",
+                background: navBg,
                 backdropFilter: "blur(24px)",
-                borderTop: "1px solid rgba(255,255,255,0.07)",
+                borderTop: `1px solid ${navBorder}`,
                 paddingBottom: "env(safe-area-inset-bottom)",
             }}
         >
@@ -43,38 +51,51 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                         key={tab.key}
                         onClick={() => onChange(tab.key)}
                         className="relative flex-1 flex flex-col items-center gap-1 py-2.5 transition-all duration-200"
-                        style={{ color: isActive ? "#00ffb3" : "rgba(255,255,255,0.3)" }}
+                        style={{ color: isActive ? activeColor : inactiveColor }}
                     >
-                        {/* Ativo: dot + glow sutil */}
                         {isActive && (
                             <span
                                 className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full"
-                                style={{ background: "#00ffb3", boxShadow: "0 0 8px #00ffb3" }}
+                                style={{ background: activeColor, boxShadow: `0 0 8px ${activeColor}` }}
                             />
                         )}
-
                         <span className="relative">
                             {tab.icon}
-                            {/* Badge amigos */}
                             {tab.key === "friends" && pendingCount > 0 && (
-                                <span
-                                    className="absolute -top-1 -right-1.5 w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center text-black"
-                                    style={{ background: "#ff2d87" }}
-                                >
+                                <span className="absolute -top-1 -right-1.5 w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center text-white"
+                                    style={{ background: "#b06a85" }}>
                                     {pendingCount > 9 ? "9+" : pendingCount}
                                 </span>
                             )}
                         </span>
-
-                        <span
-                            className="text-[9px] uppercase tracking-widest font-semibold"
-                            style={{ fontFamily: "var(--font-display)" }}
-                        >
+                        <span className="text-[9px] uppercase tracking-widest font-semibold"
+                            style={{ fontFamily: "var(--font-display)" }}>
                             {tab.label}
                         </span>
                     </button>
                 );
             })}
+
+            {/* Botao de tema - canto direito acima da nav */}
+            <button
+                onClick={toggle}
+                className="absolute -top-10 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg"
+                style={{
+                    background: isLight ? "rgba(255,255,255,0.95)" : "rgba(20,20,30,0.95)",
+                    border: `1px solid ${navBorder}`,
+                    color: isLight ? "rgba(15,15,20,0.60)" : "rgba(255,255,255,0.55)",
+                    boxShadow: isLight
+                        ? "0 4px 12px rgba(0,0,0,0.12)"
+                        : "0 4px 12px rgba(0,0,0,0.5)",
+                }}
+                title={isLight ? "Tema escuro" : "Tema claro"}
+            >
+                {isLight
+                    ? <Moon className="w-3.5 h-3.5" />
+                    : <Sun className="w-3.5 h-3.5" />
+                }
+            </button>
         </nav>
     );
 }
+

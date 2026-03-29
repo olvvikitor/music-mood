@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import LoadingComponent from "@/shared/components/Loading";
@@ -15,7 +15,7 @@ export function NowPlayingCard() {
 
     if (isLoading || isFetching) return <LoadingComponent type="emotionalChart" />;
     if (isError || !data?.tracks?.length) {
-        return <ErrorComponent type="emotionalChart" message="Sem música tocando agora." />;
+        return <ErrorComponent type="emotionalChart" message="Sem musica tocando agora." />;
     }
 
     const track = data.tracks[0];
@@ -33,31 +33,31 @@ export function NowPlayingCard() {
     return (
         <div className="relative h-full min-h-55 rounded-2xl overflow-hidden p-4 md:p-5"
             style={{
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid var(--border-medium)",
                 background: "linear-gradient(145deg, rgba(5,9,15,0.95), rgba(18,7,24,0.92))",
             }}
         >
             <div
                 className="absolute -top-10 -left-10 w-48 h-48 rounded-full blur-3xl pointer-events-none"
-                style={{ background: `rgba(0,255,179,${glowOpacity})` }}
+                style={{ background: `rgba(111,174,155,${glowOpacity})` }}
             />
             <div
                 className="absolute -bottom-16 -right-10 w-56 h-56 rounded-full blur-3xl pointer-events-none"
-                style={{ background: `rgba(255,45,135,${0.1 + intensity * 0.12})` }}
+                style={{ background: `rgba(176,106,133,${0.1 + intensity * 0.12})` }}
             />
             <div className="absolute inset-0 pointer-events-none opacity-[0.15] mix-blend-screen now-noise" />
             <div
                 className="absolute inset-0 pointer-events-none rounded-2xl"
                 style={{
-                    border: "1px solid rgba(255,255,255,0.04)",
-                    boxShadow: `0 0 0 1px rgba(255,255,255,0.02) inset, 0 0 28px rgba(0,255,179,${0.06 + intensity * 0.12}) inset`,
+                    border: "1px solid var(--border-subtle)",
+                    boxShadow: `0 0 0 1px rgba(255,255,255,0.02) inset, 0 0 28px rgba(111,174,155,${0.06 + intensity * 0.12}) inset`,
                 }}
             />
 
             <div className="relative z-10 flex flex-col gap-4 h-full">
                 <div className="flex items-center justify-between gap-3">
                     <div className="inline-flex items-center gap-2 rounded-full px-2.5 py-1"
-                        style={{ border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.03)" }}>
+                        style={{ border: "1px solid var(--border-strong)", background: "var(--surface-card)" }}>
                         <span className="now-live-dot" style={{ animationDuration: pulseDuration }} />
                         <p className="text-[9px] uppercase tracking-[0.18em] text-white/60"
                             style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
@@ -91,7 +91,7 @@ export function NowPlayingCard() {
 
                         <div className="grid grid-cols-2 gap-2 pt-1">
                             <div className="rounded-xl px-3 py-2"
-                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
+                                style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}>
                                 <p className="text-[10px] uppercase tracking-[0.13em] text-white/40"
                                     style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
                                     Mood Score
@@ -102,7 +102,7 @@ export function NowPlayingCard() {
                             </div>
 
                             <div className="rounded-xl px-3 py-2"
-                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
+                                style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}>
                                 <p className="text-[10px] uppercase tracking-[0.13em] text-white/40"
                                     style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
                                     Energia
@@ -130,7 +130,7 @@ export function NowPlayingCard() {
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-[10px]"
                                         style={{
-                                            background: "linear-gradient(135deg, rgba(0,255,179,0.22), rgba(255,45,135,0.2))",
+                                            background: "linear-gradient(135deg, rgba(111,174,155,0.22), rgba(176,106,133,0.2))",
                                             color: "rgba(255,255,255,0.72)",
                                             fontFamily: "var(--font-display)",
                                             letterSpacing: "0.11em",
@@ -184,8 +184,8 @@ export function NowPlayingCard() {
                     height: 8px;
                     border-radius: 999px;
                     display: inline-block;
-                    background: #00ffb3;
-                    box-shadow: 0 0 12px rgba(0,255,179,0.9);
+                    background: #6fae9b;
+                    box-shadow: 0 0 12px rgba(111,174,155,0.9);
                     animation-name: livePulse;
                     animation-timing-function: ease-in-out;
                     animation-iteration-count: infinite;
@@ -194,9 +194,9 @@ export function NowPlayingCard() {
                 .now-vinyl-ring {
                     background: conic-gradient(
                         from 0deg,
-                        rgba(0,255,179,0.1),
-                        rgba(255,45,135,0.3),
-                        rgba(0,255,179,0.1)
+                        rgba(111,174,155,0.1),
+                        rgba(176,106,133,0.3),
+                        rgba(111,174,155,0.1)
                     );
                     filter: blur(0.2px);
                     animation-name: livePulse;
@@ -219,7 +219,7 @@ export function NowPlayingCard() {
                 .eq-bar {
                     width: 6px;
                     border-radius: 999px;
-                    background: linear-gradient(180deg, rgba(0,255,179,0.95), rgba(255,45,135,0.85));
+                    background: linear-gradient(180deg, rgba(111,174,155,0.95), rgba(176,106,133,0.85));
                     transform-origin: bottom center;
                     animation-name: eqBounce;
                     animation-timing-function: ease-in-out;
@@ -252,3 +252,4 @@ export function NowPlayingCard() {
         </div>
     );
 }
+

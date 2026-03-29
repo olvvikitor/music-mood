@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google' // Substituindo a SF Pro para web
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/shared/providers/QueryProvider'
-
+import { ThemeProvider } from '@/shared/providers/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,10 +17,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" data-theme="dark">
       <body className={inter.className}>
-      
-        <QueryProvider>{children}</QueryProvider>
+        <ThemeProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

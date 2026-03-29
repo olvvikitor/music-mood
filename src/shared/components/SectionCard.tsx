@@ -30,8 +30,8 @@ export function SectionCard({
                                 style={{
                                     background: accentColor
                                         ? `${accentColor}18`
-                                        : "rgba(255,255,255,0.04)",
-                                    border: `1px solid ${accentColor ? accentColor + "30" : "rgba(255,255,255,0.08)"}`,
+                                        : "var(--surface-card-alt)",
+                                    border: `1px solid ${accentColor ? accentColor + "30" : "var(--border-medium)"}`,
                                 }}
                             >
                                 <span className="w-3.5 h-3.5 flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5">
@@ -50,7 +50,8 @@ export function SectionCard({
                     </div>
                 </div>
             )}
-            <div className={`flex-1 relative min-h-0 ${title ? "border-t border-white/[0.05] pt-4" : ""}`}>
+            <div className={`flex-1 relative min-h-0 ${title ? "border-t pt-4" : ""}`}
+                style={title ? { borderColor: "var(--border-subtle)" } : undefined}>
                 {children}
             </div>
         </div>

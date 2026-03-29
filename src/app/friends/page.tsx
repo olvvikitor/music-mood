@@ -6,30 +6,47 @@ import Link from "next/link";
 
 export default function FriendsPage() {
     return (
-        <div className="min-h-screen text-white/90 antialiased" style={{ fontFamily: "var(--font-body)" }}>
+        <div className="min-h-screen antialiased" style={{ fontFamily: "var(--font-body)", color: "var(--text-primary)" }}>
 
-            {/* Background blobs */}
+            {/* Background */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-[0.04]"
-                    style={{ background: "radial-gradient(circle, #00ffb3, transparent 70%)" }} />
-                <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full opacity-[0.04]"
-                    style={{ background: "radial-gradient(circle, #ff2d87, transparent 70%)" }} />
+                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full"
+                    style={{ background: "radial-gradient(circle, var(--blob-1), transparent 70%)" }} />
+                <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full"
+                    style={{ background: "radial-gradient(circle, var(--blob-2), transparent 70%)" }} />
             </div>
 
-            <header className="sticky top-0 z-50 flex justify-between items-center px-5 md:px-8 py-3.5"
-                style={{ background: "rgba(7,7,12,0.75)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            <header
+                className="sticky top-0 z-50 flex justify-between items-center px-5 md:px-8 py-3.5"
+                style={{
+                    background: "var(--header-bg)",
+                    backdropFilter: "blur(20px)",
+                    borderBottom: "1px solid var(--border-subtle)",
+                }}
+            >
                 <AppBrand className="text-xl" />
-                <Link href="/dashboard" className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                <Link
+                    href="/dashboard"
+                    className="text-xs font-semibold transition-colors"
+                    style={{ color: "var(--text-muted)" }}
+                    onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-secondary)"}
+                    onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-muted)"}
+                >
                     ← Dashboard
                 </Link>
             </header>
 
             <main className="max-w-[600px] mx-auto px-4 md:px-6 py-8">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-black uppercase tracking-tight text-white" style={{ fontFamily: "var(--font-display)" }}>
+                    <h1
+                        className="text-2xl font-black uppercase tracking-tight"
+                        style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                    >
                         Amigos
                     </h1>
-                    <p className="text-sm text-white/40 mt-1">Veja o que seus amigos estão ouvindo.</p>
+                    <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+                        Veja o que seus amigos estão ouvindo.
+                    </p>
                 </div>
                 <FriendsView />
             </main>

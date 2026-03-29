@@ -6,6 +6,7 @@ export type UserResponseDto = {
     email: string;
     id: string;
     img_profile: string;
+    face_photo_path?: string | null;
     provider: string;
 };
 

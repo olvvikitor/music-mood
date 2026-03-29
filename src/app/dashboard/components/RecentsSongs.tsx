@@ -54,7 +54,7 @@ export default function RecentSongs({ compact = false }: { compact?: boolean }) 
 
                         {/* Cover */}
                         <div className={`relative shrink-0 rounded-lg overflow-hidden transition-transform duration-300 group-hover:scale-105 ${compact ? "w-9 h-9" : "w-10 h-10"}`}
-                            style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+                            style={{ border: "1px solid var(--border-medium)" }}>
                             <Image
                                 src={song.img_url ?? ""}
                                 alt={song.music}

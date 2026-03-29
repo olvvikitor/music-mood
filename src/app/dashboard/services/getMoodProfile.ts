@@ -1,6 +1,7 @@
 import api from "@/shared/services/apiService"
 import { GiphyFetch } from "@giphy/js-fetch-api"
-import { CoreAxes, Mood } from "../types/music";
+import { CoreAxes } from "../types/music";
+import { getMoodDisplayName } from "@/shared/lib/moodHelpers";
 
 export type MoodProfileResponse = {
     moodScore: number;
@@ -24,35 +25,6 @@ export type MoodProfileResponse = {
         dominantSentiment: string;
         coreAxes: CoreAxes;
     }[];
-}
-
-// ---------------------------------------------------------------------------
-// DISPLAY NAMES
-// ---------------------------------------------------------------------------
-export const moodDisplayName: Record<Mood, string> = {
-    EuforiaAtiva:             "pilhado",
-    ConfiancaDominante:       "ta numa marra ein?",
-    RockEletrizante:          "adrenalina pura",
-    TensaoCriativa:           "caos controlado",
-    AmorCalmo:                "apaixonadx",
-    ConexaoAfetiva:           "love love",
-    NostalgiaFeliz:           "saudade boa",
-    Serenidade:               "de boa",
-    PazInterior:              "zerado",
-    Contemplacao:             "viajando",
-    TensaoDramatica:          "pressentindo",
-    Frustracao:               "de cara",
-    IrritacaoAtiva:           "p da vida",
-    RaivaExplosiva:           "surtando",
-    NostalgiaProfunda:        "chorando no banheiro",
-    Desanimo:                 "quebrado",
-    VulnerabilidadeEmocional: "delulu",
-    Ambivalencia:             "tô confuso",
-    Estupor:                  "travado",
-};
-
-export function getDisplayName(sentiment: string): string {
-    return moodDisplayName[sentiment as Mood] ?? sentiment;
 }
 
 // ---------------------------------------------------------------------------
@@ -391,7 +363,7 @@ const animeQueryMap: Record<string, QueryPool> = {
         ],
     },
 
-    // ─── 🥺 VulnerabilidadeEmocional — delulu ────────────────────────────
+    // ─── 🥺 VulnerabilidadeEmocional — Deixa pra lá ────────────────────────────
     // Violet (Violet Evergarden), Nami (One Piece),
     // Tohru (Fruits Basket), Deku (MHA), Shoya (A Silent Voice)
     VulnerabilidadeEmocional: {
@@ -471,10 +443,10 @@ const gf = new GiphyFetch(process.env.NEXT_PUBLIC_GIPHY_API_KEY!);
 function resolveSentimentKey(sentiment: string): string {
     if (animeQueryMap[sentiment]) return sentiment;
 
-    const normalized = sentiment?.trim().toLowerCase();
-    const mappedKey = Object.entries(moodDisplayName).find(
-        ([, display]) => display.toLowerCase() === normalized,
-    )?.[0];
+    const displayName = getMoodDisplayName(sentiment, sentiment);
+    const mappedKey = Object.keys(animeQueryMap).find(
+        (key) => getMoodDisplayName(key, key).toLowerCase() === displayName.toLowerCase(),
+    );
 
     return mappedKey ?? sentiment;
 }
@@ -549,12 +521,12 @@ export async function getMoodProfile(): Promise<MoodProfileResponse> {
 
     const tracksAjustadas = data.tracksAnalyzeds.map((track) => ({
         ...track,
-        dominantSentiment: getDisplayName(track.dominantSentiment),
+        dominantSentiment: getMoodDisplayName(track.dominantSentiment, track.dominantSentiment),
     }));
 
     return {
         ...data,
-        sentiment:       getDisplayName(data.sentiment),
+        sentiment:       getMoodDisplayName(data.sentiment, data.sentiment),
         url_gif:         gifUrl,
         tracksAnalyzeds: tracksAjustadas,
     };

@@ -38,6 +38,10 @@ export type MoodData = {
     emotions: Record<string, number>;
     coreAxes: Record<string, number>;
     analyzedAt: string;
+    // Imagem gerada pelo provider de IA com base no mood
+    image_mood?: string;
+    // Reasoning gerado pela IA sobre o conjunto de músicas
+    reasoning?: string;
 } | null;
 
 // isPlaying: false → nada tocando; isPlaying: true → dados completos

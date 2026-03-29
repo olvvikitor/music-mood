@@ -1,0 +1,2 @@
+export const MOOD_IMAGE_ASPECT_RATIO = "4 / 3";
+export const MOOD_IMAGE_TARGET_RESOLUTION = "1200x900";

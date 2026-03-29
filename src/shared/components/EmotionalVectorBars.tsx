@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { EmotionalVector } from "@/app/dashboard/types/music";
@@ -40,7 +40,7 @@ export function EmotionalVectorBars({ vector, className = "" }: EmotionalVectorB
         <div ref={ref} className={`flex flex-col gap-3 ${className}`}>
             {sorted.map(([key, value], i) => {
                 const pct = Math.round(value * 100);
-                const hex = COLOR_HEX[key] ?? "#00ffb3";
+                const hex = COLOR_HEX[key] ?? "#6fae9b";
                 const label = DIMENSION_LABELS[key] ?? key;
 
                 return (
@@ -105,3 +105,4 @@ export function EmotionalVectorBars({ vector, className = "" }: EmotionalVectorB
         </div>
     );
 }
+

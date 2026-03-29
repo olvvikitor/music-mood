@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import { useState } from "react";
 import { Loader2, KeyRound, Mail, ArrowRight, Music2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -59,7 +59,7 @@ function LoginCard() {
       {/* Header strip */}
       <div
         className="px-7 pt-7 pb-6 flex flex-col gap-1"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+        style={{ borderBottom: "1px solid var(--border-subtle)" }}
       >
         <AppBrand className="text-2xl" />
         <p className="text-xs text-white/35 mt-1" style={{ fontFamily: "var(--font-body)" }}>
@@ -87,11 +87,11 @@ function LoginCard() {
               onBlur={() => setFocusedField(null)}
               className="w-full text-sm text-white placeholder:text-white/20 pl-10 pr-4 py-3 rounded-xl outline-none transition-all duration-200"
               style={{
-                background: "rgba(255,255,255,0.03)",
+                background: "var(--surface-input)",
                 border: focusedField === "email"
-                  ? "1px solid rgba(0,255,179,0.35)"
-                  : "1px solid rgba(255,255,255,0.07)",
-                boxShadow: focusedField === "email" ? "0 0 0 3px rgba(0,255,179,0.06)" : "none",
+                  ? "1px solid rgba(111,174,155,0.35)"
+                  : "1px solid var(--border-medium)",
+                boxShadow: focusedField === "email" ? "0 0 0 3px rgba(111,174,155,0.06)" : "none",
                 fontFamily: "var(--font-body)",
               }}
             />
@@ -108,7 +108,7 @@ function LoginCard() {
             <KeyRound className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors duration-200 ${focusedField === "password" ? "text-brand-primary" : "text-white/20"}`} />
             <input
               type="password"
-              placeholder="••••••••"
+              placeholder="********"
               required
               value={password}
               onChange={e => setPassword(e.target.value)}
@@ -116,11 +116,11 @@ function LoginCard() {
               onBlur={() => setFocusedField(null)}
               className="w-full text-sm text-white placeholder:text-white/20 pl-10 pr-4 py-3 rounded-xl outline-none transition-all duration-200"
               style={{
-                background: "rgba(255,255,255,0.03)",
+                background: "var(--surface-input)",
                 border: focusedField === "password"
-                  ? "1px solid rgba(0,255,179,0.35)"
-                  : "1px solid rgba(255,255,255,0.07)",
-                boxShadow: focusedField === "password" ? "0 0 0 3px rgba(0,255,179,0.06)" : "none",
+                  ? "1px solid rgba(111,174,155,0.35)"
+                  : "1px solid var(--border-medium)",
+                boxShadow: focusedField === "password" ? "0 0 0 3px rgba(111,174,155,0.06)" : "none",
                 fontFamily: "var(--font-body)",
               }}
             />
@@ -152,9 +152,9 @@ function LoginCard() {
           disabled={loading}
           className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-800 uppercase tracking-widest transition-all duration-300 active:scale-[0.98] disabled:opacity-50"
           style={{
-            background: "linear-gradient(135deg, #00ffb3, #00d4a0)",
+            background: "linear-gradient(135deg, #6fae9b, #5f9d8c)",
             color: "#07070c",
-            boxShadow: "0 0 24px rgba(0,255,179,0.25)",
+            boxShadow: "0 0 24px rgba(111,174,155,0.25)",
             fontFamily: "var(--font-display)",
             fontWeight: 800,
           }}
@@ -167,12 +167,12 @@ function LoginCard() {
       {/* Providers */}
       <div className="px-7 pb-7 flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+          <div className="flex-1 h-px" style={{ background: "var(--border-subtle)" }} />
           <span className="text-[9px] uppercase tracking-[0.2em] text-white/20 shrink-0"
             style={{ fontFamily: "var(--font-display)" }}>
             ou conecte via
           </span>
-          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+          <div className="flex-1 h-px" style={{ background: "var(--border-subtle)" }} />
         </div>
 
         <div className="grid grid-cols-3 gap-2">
@@ -183,8 +183,8 @@ function LoginCard() {
               title={p.label}
               className="flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all duration-200 active:scale-95"
               style={{
-                background: "rgba(255,255,255,0.025)",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--surface-card)",
+                border: "1px solid var(--border-medium)",
                 color: p.color,
               }}
               onMouseEnter={e => {
@@ -192,8 +192,8 @@ function LoginCard() {
                 (e.currentTarget as HTMLAnchorElement).style.borderColor = `${p.color}35`;
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.025)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.06)";
+                (e.currentTarget as HTMLAnchorElement).style.background = "var(--surface-card)";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--border-medium)";
               }}
             >
               {p.icon}
@@ -211,24 +211,25 @@ function LoginCard() {
 
 export default function LoginPage() {
   return (
-    <div className="relative h-screen overflow-hidden flex items-center justify-center">
+    <div className="relative h-screen overflow-hidden flex items-center justify-center"
+      style={{ background: "var(--bg-page)" }}>
 
       {/* Particle background */}
       <ParticleBackground count={250} speed={0.3} gravity={false} glowSize={500} glowPosition="left30" />
 
-      {/* Orbital — visível no desktop */}
+      {/* Orbital - visivel no desktop */}
       <div className="hidden lg:block">
         <OrbitalCore variant="login" />
       </div>
 
-      {/* Left copy — desktop */}
+      {/* Left copy - desktop */}
       <div
         className="hidden lg:flex flex-col gap-3 absolute left-[8%] top-1/2 -translate-y-1/2 pointer-events-none select-none"
         style={{ animation: "fadeUp 0.8s 0.4s ease-out both" }}
       >
         <p className="text-[10px] uppercase tracking-[0.35em] font-800"
-          style={{ color: "#a259ff", fontFamily: "var(--font-display)", fontWeight: 800 }}>
-          Análise emocional de música
+          style={{ color: "#8a7bb8", fontFamily: "var(--font-display)", fontWeight: 800 }}>
+          Analise emocional de musica
         </p>
         <h2 className="text-6xl xl:text-7xl font-900 uppercase leading-[0.88] text-white/10"
           style={{ fontFamily: "var(--font-display)", fontWeight: 900 }}>
@@ -236,7 +237,7 @@ export default function LoginPage() {
         </h2>
       </div>
 
-      {/* Card — centered on mobile, right on desktop */}
+      {/* Card - centered on mobile, right on desktop */}
       <div className="relative z-20 w-full max-w-[360px] px-4 lg:px-0 lg:absolute lg:right-[10%] lg:top-1/2 lg:-translate-y-1/2">
         <LoginCard />
 
@@ -245,10 +246,11 @@ export default function LoginPage() {
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[9px] uppercase tracking-[0.2em] text-white/20 font-700"
             style={{ fontFamily: "var(--font-display)" }}>
-            Serviço online
+            Servico online
           </span>
         </div>
       </div>
     </div>
   );
 }
+

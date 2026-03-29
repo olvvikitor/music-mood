@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -6,10 +6,10 @@ import { useMoodProfile } from "../dashboard/hooks/useMoodProfile"
 import { ParticleBackground } from "@/shared/components/orbital/ParticlesBackgorund"
 
 const PHASES = [
-  { label: "Analisando suas músicas",       pct: 20 },
-  { label: "Identificando padrões emocionais", pct: 40 },
+  { label: "Analisando suas musicas",       pct: 20 },
+  { label: "Identificando padroes emocionais", pct: 40 },
   { label: "Construindo seu perfil",         pct: 60 },
-  { label: "Calibrando dimensões",           pct: 80 },
+  { label: "Calibrando dimensoes",           pct: 80 },
   { label: "Quase pronto",                   pct: 95 },
 ]
 
@@ -41,9 +41,9 @@ export default function BuildingEmotionsPage() {
       {/* Ambient blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(0,255,179,0.05), transparent 65%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(111,174,155,0.05), transparent 65%)" }} />
         <div className="absolute top-1/4 right-1/4 w-[300px] h-[300px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(162,89,255,0.04), transparent 65%)" }} />
+          style={{ background: "radial-gradient(circle, rgba(138,123,184,0.04), transparent 65%)" }} />
       </div>
 
       {/* Content */}
@@ -63,7 +63,7 @@ export default function BuildingEmotionsPage() {
               style={{
                 width: 80 + i * 24,
                 height: 80 + i * 24,
-                borderColor: `rgba(0,255,179,${0.18 - i * 0.05})`,
+                borderColor: `rgba(111,174,155,${0.18 - i * 0.05})`,
                 animation: `ringPulse ${1.6 + i * 0.4}s ${i * 0.3}s ease-in-out infinite`,
               }}
             />
@@ -71,14 +71,14 @@ export default function BuildingEmotionsPage() {
           {/* Core */}
           <div className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center"
             style={{
-              background: "rgba(0,255,179,0.06)",
-              border: "1.5px solid rgba(0,255,179,0.25)",
-              boxShadow: "0 0 40px rgba(0,255,179,0.12)",
+              background: "rgba(111,174,155,0.06)",
+              border: "1.5px solid rgba(111,174,155,0.25)",
+              boxShadow: "0 0 40px rgba(111,174,155,0.12)",
             }}>
             <div className="w-3 h-3 rounded-full"
               style={{
-                background: "#00ffb3",
-                boxShadow: "0 0 16px #00ffb3",
+                background: "#6fae9b",
+                boxShadow: "0 0 16px #6fae9b",
                 animation: "ringPulse 1.2s ease-in-out infinite",
               }} />
           </div>
@@ -87,7 +87,7 @@ export default function BuildingEmotionsPage() {
         {/* Text block */}
         <div className="flex flex-col items-center gap-3">
           <p className="text-[10px] uppercase tracking-[0.3em] font-700"
-            style={{ color: "#a259ff", fontFamily: "var(--font-display)", fontWeight: 700 }}>
+            style={{ color: "#8a7bb8", fontFamily: "var(--font-display)", fontWeight: 700 }}>
             preparando sua jornada
           </p>
           <h1 className="text-4xl md:text-5xl font-900 uppercase leading-[0.9] text-white"
@@ -107,7 +107,7 @@ export default function BuildingEmotionsPage() {
               {phase.label}...
             </p>
             <span className="text-[11px] font-700 tabular-nums"
-              style={{ color: "#00ffb3", fontFamily: "var(--font-display)", fontWeight: 700 }}>
+              style={{ color: "#6fae9b", fontFamily: "var(--font-display)", fontWeight: 700 }}>
               {phase.pct}%
             </span>
           </div>
@@ -117,8 +117,8 @@ export default function BuildingEmotionsPage() {
               className="h-full rounded-full"
               style={{
                 width: `${phase.pct}%`,
-                background: "linear-gradient(90deg, #00ffb3, #a259ff)",
-                boxShadow: "0 0 12px rgba(0,255,179,0.4)",
+                background: "linear-gradient(90deg, #6fae9b, #8a7bb8)",
+                boxShadow: "0 0 12px rgba(111,174,155,0.4)",
                 transition: "width 1.2s cubic-bezier(0.16,1,0.3,1)",
               }}
             />
@@ -132,7 +132,7 @@ export default function BuildingEmotionsPage() {
               key={i}
               className="w-1.5 h-1.5 rounded-full"
               style={{
-                background: "#00ffb3",
+                background: "#6fae9b",
                 animation: `ringPulse 1s ${i * 0.18}s ease-in-out infinite`,
               }}
             />
@@ -142,3 +142,4 @@ export default function BuildingEmotionsPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -7,6 +7,7 @@ import { CLUSTER, intensityMeta, quadrantMeta, valenceMeta, activationMeta } fro
 import { MoodBadge } from "./MoodBadge";
 import { EmotionalVectorBars } from "./EmotionalVectorBars";
 import { Sparkles, Zap } from "lucide-react";
+import { getMoodDisplayName } from "@/shared/lib/moodHelpers";
 
 type MoodCardData = {
     dominantSentiment: string;
@@ -26,6 +27,7 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
     useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); }, []);
 
     const key = data.dominantSentiment?.toLowerCase() ?? "";
+    const dominantLabel = getMoodDisplayName(data.dominantSentiment, data.dominantSentiment);
     const cluster = CLUSTER[key];
     const { quadrante, polaridade, ativacao } = data.coreAxes;
     const quadrant  = quadrantMeta(quadrante);
@@ -33,16 +35,16 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
     const activation = activationMeta(ativacao);
     const intensity = intensityMeta(Math.abs(ativacao));
 
-    // ── TRACK mode (used in drawer inline) ──
+    // â”€â”€ TRACK mode (used in drawer inline) â”€â”€
     if (mode === "track") {
         return (
             <div className="flex flex-col gap-3 p-1">
                 {data.reasoning && (
                     <div className="px-3 py-2.5 rounded-xl"
                         style={{
-                            background: "rgba(255,45,135,0.05)",
-                            borderLeft: "2px solid rgba(255,45,135,0.3)",
-                            border: "1px solid rgba(255,45,135,0.08)",
+                            background: "rgba(176,106,133,0.05)",
+                            borderLeft: "2px solid rgba(176,106,133,0.3)",
+                            border: "1px solid rgba(176,106,133,0.08)",
                         }}>
                         <p className="text-[13px] italic leading-relaxed text-white/65"
                             style={{ fontFamily: "var(--font-body)" }}>
@@ -52,9 +54,9 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                 )}
                 <div className="flex flex-wrap gap-1.5">
                     {[
-                        { label: "Quadrante", value: quadrant.label, color: "#a259ff" },
+                        { label: "Quadrante", value: quadrant.label, color: "#8a7bb8" },
                         { label: "Intensidade", value: intensity.label, color: "#fb923c" },
-                        { label: "Score", value: `${Math.round(data.moodScore * 100)}%`, color: "#00ffb3" },
+                        { label: "Score", value: `${Math.round(data.moodScore * 100)}%`, color: "#6fae9b" },
                     ].map(item => (
                         <div key={item.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
                             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -71,8 +73,8 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
         );
     }
 
-    // ── HERO mode (dashboard mix emocional) ──
-    const accentColor = cluster?.color ?? "#00ffb3";
+    // â”€â”€ HERO mode (dashboard mix emocional) â”€â”€
+    const accentColor = cluster?.color ?? "#6fae9b";
 
     return (
         <div className="flex flex-col gap-4 h-full"
@@ -102,7 +104,7 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                         </p>
                         <h2 className="text-2xl font-900 uppercase leading-tight text-white"
                             style={{ fontFamily: "var(--font-display)", fontWeight: 900 }}>
-                            {data.dominantSentiment}
+                            {dominantLabel}
                         </h2>
                         {cluster?.phrase && (
                             <p className="text-[11px] italic font-500"
@@ -111,7 +113,7 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                             </p>
                         )}
                     </div>
-                    <MoodBadge mood={data.dominantSentiment} size="sm" label={data.dominantSentiment} />
+                    <MoodBadge mood={data.dominantSentiment} size="sm" label={dominantLabel} />
                 </div>
 
                 {/* Score bar */}
@@ -146,8 +148,8 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                 style={{ animation: mounted ? "fadeInUp 0.5s 0.1s cubic-bezier(0.16,1,0.3,1) both" : "none" }}
             >
                 {[
-                    { label: "Valência", emoji: valence.emoji, value: valence.label, color: valence.color },
-                    { label: "Ativação", emoji: activation.emoji, value: activation.label, color: activation.color },
+                    { label: "Valencia", emoji: valence.emoji, value: valence.label, color: valence.color },
+                    { label: "Ativacao", emoji: activation.emoji, value: activation.label, color: activation.color },
                 ].map(item => (
                     <div key={item.label}
                         className="flex flex-col gap-2 px-3 py-3 rounded-xl"
@@ -171,14 +173,14 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
             <div
                 className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
                 style={{
-                    background: "rgba(162,89,255,0.06)",
-                    border: "1px solid rgba(162,89,255,0.15)",
+                    background: "rgba(138,123,184,0.06)",
+                    border: "1px solid rgba(138,123,184,0.15)",
                     animation: mounted ? "fadeInUp 0.5s 0.18s cubic-bezier(0.16,1,0.3,1) both" : "none",
                 }}
             >
                 <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(162,89,255,0.15)" }}>
-                    <Zap className="w-3 h-3" style={{ color: "#a259ff" }} />
+                    style={{ background: "rgba(138,123,184,0.15)" }}>
+                    <Zap className="w-3 h-3" style={{ color: "#8a7bb8" }} />
                 </div>
                 <div className="flex flex-col">
                     <span className="text-[9px] uppercase tracking-wider text-white/25"
@@ -187,7 +189,7 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                     </span>
                     <span className="text-[11px] font-700 text-white/70"
                         style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
-                        {quadrant.label} — {quadrant.desc}
+                        {quadrant.label} - {quadrant.desc}
                     </span>
                 </div>
             </div>
@@ -197,13 +199,13 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                 <div
                     className="px-3 py-3 rounded-xl flex gap-2 items-start"
                     style={{
-                        background: "rgba(255,45,135,0.04)",
-                        border: "1px solid rgba(255,45,135,0.1)",
-                        borderLeft: "2px solid rgba(255,45,135,0.4)",
+                        background: "rgba(176,106,133,0.04)",
+                        border: "1px solid rgba(176,106,133,0.1)",
+                        borderLeft: "2px solid rgba(176,106,133,0.4)",
                         animation: mounted ? "fadeInUp 0.5s 0.25s cubic-bezier(0.16,1,0.3,1) both" : "none",
                     }}
                 >
-                    <Sparkles className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#ff2d87", opacity: 0.6 }} />
+                    <Sparkles className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#b06a85", opacity: 0.6 }} />
                     <p className="text-[12px] italic leading-relaxed text-white/55"
                         style={{ fontFamily: "var(--font-body)" }}>
                         "{data.reasoning}"
@@ -225,3 +227,4 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
         </div>
     );
 }
+

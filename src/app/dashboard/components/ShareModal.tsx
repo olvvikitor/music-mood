@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Download, Check, Play } from "lucide-react";
@@ -14,28 +14,28 @@ interface ShareModalProps {
 }
 
 // ---------------------------------------------------------------------------
-// Descrições por sentiment
+// Descricoes por sentiment
 // ---------------------------------------------------------------------------
 const sentimentDescriptionMap: Record<string, string> = {
     "pilhado": "Energia no talo. Sua playlist veio acelerada, confiante e sem freio.",
     "ta numa marra ein?": "Mood de protagonismo total. Tudo que toca vira trilha de main character.",
-    "adrenalina pura": "Som intenso, rápido e pronto para virar o volume no talo.",
-    "caos controlado": "Mente criativa em modo turbo: tensão boa, foco forte e muita expressão.",
-    "apaixonadx": "Clima doce e envolvente. Dia de trilha romântica e coração quentinho.",
-    "love love": "Sua vibe pede conexão real: músicas de afeto, colo e proximidade.",
-    "saudade boa": "Nostalgia leve, sorriso no canto e lembranças que batem no tempo certo.",
-    "de boa": "Dia de calma elegante: som limpo, respiração funda e mente alinhada.",
+    "adrenalina pura": "Som intenso, rapido e pronto para virar o volume no talo.",
+    "caos controlado": "Mente criativa em modo turbo: tensao boa, foco forte e muita expressao.",
+    "apaixonadx": "Clima doce e envolvente. Dia de trilha romantica e coracao quentinho.",
+    "love love": "Sua vibe pede conexao real: musicas de afeto, colo e proximidade.",
+    "saudade boa": "Nostalgia leve, sorriso no canto e lembrancas que batem no tempo certo.",
+    "de boa": "Dia de calma elegante: som limpo, respiracao funda e mente alinhada.",
     "zerado": "Estado zen ativado. Playlist serena para desacelerar sem perder a vibe.",
-    "viajando": "Seu humor tá contemplativo: trilha para pensar longe e sentir fundo.",
-    "pressentindo": "Tem suspense no ar. Sua trilha mistura tensão e expectativa.",
-    "de cara": "Sentimento travado no peito, com batidas que seguram a emoção.",
-    "p da vida": "Nervos à flor da pele. Seu som entrega intensidade e impulso.",
-    "surtando": "Energia explosiva no topo. Dia de descarregar tudo na música.",
+    "viajando": "Seu humor ta contemplativo: trilha para pensar longe e sentir fundo.",
+    "pressentindo": "Tem suspense no ar. Sua trilha mistura tensao e expectativa.",
+    "de cara": "Sentimento travado no peito, com batidas que seguram a emocao.",
+    "p da vida": "Nervos a flor da pele. Seu som entrega intensidade e impulso.",
+    "surtando": "Energia explosiva no topo. Dia de descarregar tudo na musica.",
     "chorando no banheiro": "Melancolia profunda, introspectiva e honesta. Dia de sentir sem filtro.",
     "quebrado": "Vibe baixa e cansada. Playlist de acolhimento para recarregar.",
-    "delulu": "Momento vulnerável e verdadeiro. Sensibilidade guiando suas escolhas.",
+    "Deixa pra lá": "Momento vulneravel e verdadeiro. Sensibilidade guiando suas escolhas.",
     "tô confuso": "Sentimentos misturados. Sua trilha alterna entre luz e sombra.",
-    "travado": "Modo pausa emocional. Som minimalista para organizar o que está por dentro.",
+    "travado": "Modo pausa emocional. Som minimalista para organizar o que esta por dentro.",
 };
 
 // ---------------------------------------------------------------------------
@@ -43,13 +43,13 @@ const sentimentDescriptionMap: Record<string, string> = {
 // ---------------------------------------------------------------------------
 const moodAccent: Record<string, string> = {
     "pilhado": "#ffaa00",
-    "ta numa marra ein?": "#a259ff",
+    "ta numa marra ein?": "#8a7bb8",
     "adrenalina pura": "#ff3c00",
     "caos controlado": "#00b4ff",
     "apaixonadx": "#ff6b9d",
     "love love": "#ff80c0",
     "saudade boa": "#7b9fff",
-    "de boa": "#00ffb3",
+    "de boa": "#6fae9b",
     "zerado": "#00e5a0",
     "viajando": "#8ab4ff",
     "pressentindo": "#ffcc44",
@@ -58,13 +58,13 @@ const moodAccent: Record<string, string> = {
     "surtando": "#ff00cc",
     "chorando no banheiro": "#4080ff",
     "quebrado": "#888888",
-    "delulu": "#d580ff",
+    "Deixa pra lá": "#d580ff",
     "tô confuso": "#aaaaaa",
     "travado": "#666666",
 };
 
 // ---------------------------------------------------------------------------
-// Detecção de plataforma
+// Deteccao de plataforma
 // ---------------------------------------------------------------------------
 type Platform = "ios-safari" | "ios-other" | "android" | "desktop";
 
@@ -82,25 +82,25 @@ function detectPlatform(): Platform {
 
 const platformHint: Record<Platform, { dot: string; text: string }> = {
     "ios-safari": {
-        dot: "#00ffb3",
-        text: "iOS Safari — Story abre o compartilhamento nativo (escolha Instagram).",
+        dot: "#6fae9b",
+        text: "iOS Safari - Story abre o compartilhamento nativo (escolha Instagram).",
     },
     "ios-other": {
-        dot: "#00ffb3",
-        text: "iOS (Chrome/Outros) — Story tenta compartilhamento nativo; se falhar, baixa a imagem.",
+        dot: "#6fae9b",
+        text: "iOS (Chrome/Outros) - Story tenta compartilhamento nativo; se falhar, baixa a imagem.",
     },
     android: {
-        dot: "#00ffb3",
-        text: "Android — Story tenta compartilhamento nativo; se falhar, baixa a imagem.",
+        dot: "#6fae9b",
+        text: "Android - Story tenta compartilhamento nativo; se falhar, baixa a imagem.",
     },
     desktop: {
         dot: "#4488ff",
-        text: "Desktop — Baixe o poster e publique no Instagram manualmente.",
+        text: "Desktop - Baixe o poster e publique no Instagram manualmente.",
     },
 };
 
 // ---------------------------------------------------------------------------
-// htmlToImage com retry (CORS do Giphy pode falhar na 1ª passagem)
+// htmlToImage com retry (CORS do Giphy pode falhar na 1a passagem)
 // ---------------------------------------------------------------------------
 async function generatePosterImage(
     el: HTMLDivElement,
@@ -170,9 +170,9 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
     const sentimentKey = mood.sentiment?.toLowerCase() ?? "de boa";
     const description = sentimentDescriptionMap[sentimentKey]
         ?? "Sua vibe do dia em forma de trilha sonora.";
-    const accent = moodAccent[sentimentKey] ?? "#a259ff";
+    const accent = moodAccent[sentimentKey] ?? "#8a7bb8";
     const score = Math.round((mood.moodScore ?? 0) * 100);
-    const moodWords = (mood.sentiment ?? "—").split(" ");
+    const moodWords = (mood.sentiment ?? "-").split(" ");
     const isBusy = dlState === "loading" || storyState === "loading";
 
     async function buildImage(format: "png" | "jpeg" = "png"): Promise<string | null> {
@@ -237,13 +237,13 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
             }
         }
 
-        // Android / iOS Chrome / Desktop → download direto
+        // Android / iOS Chrome / Desktop -> download direto
         triggerDownload(dataUrl);
         setStoryState("success");
         setTimeout(() => setStoryState("idle"), 2500);
     }
 
-    // Helpers de label/ícone por estado
+    // Helpers de label/icone por estado
     const dlLabel = dlState === "loading" ? "Gerando..." : dlState === "success" ? "Baixado!" : "Baixar";
     const storyLabel = storyState === "loading" ? "Gerando..." : storyState === "success" ? "Pronto!" : "Story";
 
@@ -261,7 +261,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                 {/* Fechar */}
 
 
-                {/* ── POSTER capturado pelo htmlToImage ── */}
+                {/* POSTER capturado pelo htmlToImage */}
                 <div
                     ref={posterRef}
                     className="w-full relative overflow-hidden flex flex-col"
@@ -363,7 +363,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                                 </span>
                             </div>
 
-                            {/* Equalizer estático (htmlToImage não anima) */}
+                            {/* Equalizer estatico (htmlToImage nao anima) */}
                             <div className="flex items-end gap-0.75" style={{ height: 16 }}>
                                 {[38, 80, 100, 62, 88].map((h, i) => (
                                     <div
@@ -382,7 +382,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                     </div>
                 </div>
 
-                {/* ── ACTIONS ── */}
+                {/* ACTIONS */}
                 <div className="flex flex-col gap-3 px-5 py-5">
 
                     {/* Platform hint */}
@@ -402,7 +402,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                         </p>
                     </div>
 
-                    {/* Botões */}
+                    {/* Botoes */}
                     <div className="grid grid-cols-2 gap-3">
 
                         {/* Download */}
@@ -411,9 +411,9 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                             disabled={isBusy}
                             className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
                             style={{
-                                background: dlState === "success" ? "rgba(0,255,179,.12)" : "rgba(255,255,255,.08)",
-                                border: `1px solid ${dlState === "success" ? "rgba(0,255,179,.3)" : "rgba(255,255,255,.12)"}`,
-                                color: dlState === "success" ? "#00ffb3" : "rgba(255,255,255,.8)",
+                                background: dlState === "success" ? "rgba(111,174,155,.12)" : "rgba(255,255,255,.08)",
+                                border: `1px solid ${dlState === "success" ? "rgba(111,174,155,.3)" : "rgba(255,255,255,.12)"}`,
+                                color: dlState === "success" ? "#6fae9b" : "rgba(255,255,255,.8)",
                             }}
                         >
                             {dlState === "loading"
@@ -432,10 +432,10 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                             className="h-12 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-60"
                             style={{
                                 background: storyState === "success"
-                                    ? "rgba(0,255,179,.12)"
+                                    ? "rgba(111,174,155,.12)"
                                     : "linear-gradient(135deg, #f72585, #ff6b35)",
-                                border: storyState === "success" ? "1px solid rgba(0,255,179,.3)" : "none",
-                                color: storyState === "success" ? "#00ffb3" : "#fff",
+                                border: storyState === "success" ? "1px solid rgba(111,174,155,.3)" : "none",
+                                color: storyState === "success" ? "#6fae9b" : "#fff",
                                 boxShadow: storyState !== "success" ? "0 4px 20px rgba(247,37,133,.35)" : "none",
                             }}
                         >
@@ -449,7 +449,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                         </button>
                     </div>
 
-                    {/* Descrição do mood */}
+                    {/* Descricao do mood */}
                     <p
                         className="text-[11px] leading-relaxed text-center px-1"
                         style={{ color: "rgba(255,255,255,.28)" }}

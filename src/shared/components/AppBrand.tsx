@@ -1,4 +1,4 @@
-export function AppBrand({ className = "" }: { className?: string }) {
+﻿export function AppBrand({ className = "" }: { className?: string }) {
     return (
         <span
             className={`font-black uppercase leading-none tracking-tighter select-none ${className}`}
@@ -7,7 +7,7 @@ export function AppBrand({ className = "" }: { className?: string }) {
             <span className="text-white">Motion</span>
             <span
                 style={{
-                    background: "linear-gradient(90deg, #00ffb3, #a259ff)",
+                    background: "linear-gradient(90deg, #6fae9b, #8a7bb8)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     backgroundClip: "text",
@@ -18,3 +18,4 @@ export function AppBrand({ className = "" }: { className?: string }) {
         </span>
     );
 }
+

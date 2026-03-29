@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import {
@@ -63,7 +63,7 @@ export function FeedTab() {
     if (!posts.length) return (
         <div className="flex flex-col items-center py-16 gap-4 text-center">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}>
                 <Users className="w-7 h-7 text-white/20" />
             </div>
             <div>
@@ -75,9 +75,9 @@ export function FeedTab() {
             <Link
                 href="/friends"
                 className="text-xs font-semibold transition-colors"
-                style={{ color: "#00ffb3" }}
+                style={{ color: "#6fae9b" }}
             >
-                Buscar amigos →
+                Buscar amigos â†’
             </Link>
         </div>
     );
@@ -90,3 +90,4 @@ export function FeedTab() {
         </div>
     );
 }
+

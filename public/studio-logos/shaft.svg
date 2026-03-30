@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Shaft inspired mark">
+  <defs>
+    <linearGradient id="s" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f3f4f6"/>
+      <stop offset="100%" stop-color="#9ca3af"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="24" fill="#121212"/>
+  <rect x="22" y="22" width="76" height="76" rx="14" fill="none" stroke="url(#s)" stroke-width="6"/>
+  <rect x="38" y="38" width="44" height="44" rx="8" fill="none" stroke="#6b7280" stroke-width="4"/>
+  <circle cx="60" cy="60" r="7" fill="#d1d5db"/>
+  <text x="60" y="108" text-anchor="middle" fill="#e5e7eb" font-size="14" font-family="Verdana">SHAFT</text>
+</svg>

@@ -1,8 +1,6 @@
 ﻿"use client";
 
-import { Users, LayoutGrid, Radio, Sparkles, UserCircle, Sun, Moon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { getPendingRequests } from "@/shared/services/friendService";
+import { LayoutGrid, Radio, Sparkles, UserCircle, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/shared/providers/ThemeProvider";
 
 export type DashTab = "feed" | "playing" | "mix" | "profile" | "friends";
@@ -13,21 +11,15 @@ interface BottomNavProps {
 }
 
 const TABS: { key: DashTab; icon: React.ReactNode; label: string }[] = [
+    { key: "profile", icon: <UserCircle className="w-5 h-5" />, label: "Perfil"  },
     { key: "feed",    icon: <LayoutGrid className="w-5 h-5" />, label: "Feed"    },
     { key: "playing", icon: <Radio className="w-5 h-5" />,      label: "Playing" },
     { key: "mix",     icon: <Sparkles className="w-5 h-5" />,   label: "Mix"     },
-    { key: "friends", icon: <Users className="w-5 h-5" />,      label: "Amigos"  },
-    { key: "profile", icon: <UserCircle className="w-5 h-5" />, label: "Perfil"  },
 ];
 
 export function BottomNav({ active, onChange }: BottomNavProps) {
-    const [pendingCount, setPendingCount] = useState(0);
     const { theme, toggle } = useTheme();
     const isLight = theme === "light";
-
-    useEffect(() => {
-        getPendingRequests().then(r => setPendingCount(r.length)).catch(() => {});
-    }, []);
 
     const navBg     = isLight ? "rgba(244,244,248,0.94)" : "rgba(7,7,12,0.92)";
     const navBorder = isLight ? "rgba(0,0,0,0.08)"       : "rgba(255,255,255,0.07)";
@@ -61,12 +53,6 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                         )}
                         <span className="relative">
                             {tab.icon}
-                            {tab.key === "friends" && pendingCount > 0 && (
-                                <span className="absolute -top-1 -right-1.5 w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center text-white"
-                                    style={{ background: "#b06a85" }}>
-                                    {pendingCount > 9 ? "9+" : pendingCount}
-                                </span>
-                            )}
                         </span>
                         <span className="text-[9px] uppercase tracking-widest font-semibold"
                             style={{ fontFamily: "var(--font-display)" }}>

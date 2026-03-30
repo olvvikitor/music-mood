@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
-import { Zap, Sparkles, Radio } from "lucide-react";
+import { Zap, Sparkles, Radio, LayoutGrid, UserCircle } from "lucide-react";
 
 import { AppBrand } from "@/shared/components/AppBrand";
 import { SectionCard } from "@/shared/components/SectionCard";
@@ -16,8 +16,11 @@ import RecentSongs from "./components/RecentsSongs";
 import { NowPlayingCard } from "./components/NowPlayingCard";
 import { InsightsSection } from "./components/InsightsSection";
 import { EmotionalCardChart } from "./components/EmotionalCardGraphicChart";
+import { ProfileStats } from "./components/ProfileStats";
+import { MoodWeekChart } from "./components/MoodWeekChart";
+import { MoodTimeline } from "./components/MoodTimeline";
 
-// â”€â”€â”€ Background blobs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Background blobs ─────────────────────────────────────────────────────────
 
 function Blobs() {
     return (
@@ -32,12 +35,9 @@ function Blobs() {
     );
 }
 
-// â”€â”€â”€ Header mobile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Header mobile ────────────────────────────────────────────────────────────
 
 function MobileHeader({ tab }: { tab: DashTab }) {
-    const { theme } = useTheme();
-    const isLight = theme === "light";
-
     const labels: Record<DashTab, string> = {
         feed:    "Feed",
         playing: "Tocando Agora",
@@ -45,7 +45,6 @@ function MobileHeader({ tab }: { tab: DashTab }) {
         friends: "Amigos",
         profile: "Meu Perfil",
     };
-
     return (
         <header
             className="sticky top-0 z-50 flex items-center justify-between px-5 py-3.5 lg:hidden"
@@ -57,10 +56,8 @@ function MobileHeader({ tab }: { tab: DashTab }) {
         >
             <AppBrand className="text-lg" />
             <div className="flex items-center gap-3">
-                <span
-                    className="text-xs font-semibold uppercase tracking-widest"
-                    style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}
-                >
+                <span className="text-xs font-semibold uppercase tracking-widest"
+                    style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}>
                     {labels[tab]}
                 </span>
                 <Header />
@@ -69,48 +66,67 @@ function MobileHeader({ tab }: { tab: DashTab }) {
     );
 }
 
-// â”€â”€â”€ Desktop sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Desktop sidebar ──────────────────────────────────────────────────────────
 
 const SIDEBAR_TABS: { key: DashTab; label: string; icon: React.ReactNode }[] = [
-    { key: "feed",    label: "Feed",          icon: <span className="text-base">âŠž</span> },
-    { key: "profile", label: "Meu Perfil",    icon: <span className="text-base">â—Ž</span> },
-    { key: "playing", label: "Tocando Agora", icon: <span className="text-base">â™ª</span> },
+    { key: "feed",    label: "Feed",          icon: <LayoutGrid className="w-4 h-4" /> },
+    { key: "profile", label: "Meu Perfil",    icon: <UserCircle className="w-4 h-4" /> },
+    { key: "playing", label: "Tocando Agora", icon: <Radio className="w-4 h-4" /> },
     { key: "mix",     label: "Mix Emocional", icon: <Sparkles className="w-4 h-4" /> },
-    { key: "friends", label: "Amigos",        icon: <span className="text-base">â—ˆ</span> },
 ];
 
-// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Conteúdo da aba Perfil ───────────────────────────────────────────────────
+
+function ProfileTab() {
+    return (
+        <div className="flex flex-col gap-6">
+            {/* Card de perfil + mood atual */}
+            <div className="min-h-[340px]"><Profile /></div>
+
+            {/* Insight do dia */}
+            <InsightsSection />
+
+            {/* Gráfico da semana */}
+            <MoodWeekChart />
+
+            {/* Estatísticas gerais */}
+            <ProfileStats />
+
+            {/* Linha do tempo emocional */}
+            <MoodTimeline />
+        </div>
+    );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-    const [tab, setTab] = useState<DashTab>("feed");
+    const [tab, setTab] = useState<DashTab>("profile");
     const { theme } = useTheme();
     const isLight = theme === "light";
 
-    const sidebarBorder  = isLight ? "rgba(0,0,0,0.07)"  : "rgba(255,255,255,0.06)";
-    const sidebarActiveBg     = isLight ? "rgba(111,174,155,0.08)" : "rgba(111,174,155,0.08)";
-    const sidebarActiveBorder = isLight ? "rgba(111,174,155,0.20)" : "rgba(111,174,155,0.18)";
+    const sidebarBorder       = isLight ? "rgba(0,0,0,0.07)"         : "rgba(255,255,255,0.06)";
+    const sidebarActiveBg     = isLight ? "rgba(0,196,160,0.08)"     : "rgba(0,255,179,0.08)";
+    const sidebarActiveBorder = isLight ? "rgba(0,196,160,0.20)"     : "rgba(0,255,179,0.18)";
     const sidebarActiveColor  = "#00c4a0";
-    const sidebarInactiveColor = isLight ? "rgba(15,15,20,0.45)" : "rgba(255,255,255,0.4)";
+    const sidebarInactiveColor = isLight ? "rgba(15,15,20,0.45)"     : "rgba(255,255,255,0.4)";
 
     return (
         <div className="min-h-screen antialiased" style={{ fontFamily: "var(--font-body)", color: "var(--text-primary)" }}>
             <Blobs />
 
-            {/* â”€â”€ MOBILE â”€â”€ */}
+            {/* ── MOBILE ── */}
             <div className="lg:hidden flex flex-col min-h-screen">
                 <MobileHeader tab={tab} />
 
-                <main className="flex-1 px-4 py-5 pb-[calc(72px+env(safe-area-inset-bottom))]">
+                <main className="flex-1 px-4 py-5 pb-[calc(80px+env(safe-area-inset-bottom))]">
 
                     {tab === "feed" && (
                         <div className="max-w-xl mx-auto"><FeedTab /></div>
                     )}
 
                     {tab === "profile" && (
-                        <div className="flex flex-col gap-4 max-w-xl mx-auto">
-                            <div className="min-h-[340px]"><Profile /></div>
-                            <InsightsSection />
-                        </div>
+                        <div className="max-w-xl mx-auto"><ProfileTab /></div>
                     )}
 
                     {tab === "playing" && (
@@ -120,7 +136,7 @@ export default function Dashboard() {
                                 noPadding className="min-h-[260px]">
                                 <NowPlayingCard />
                             </SectionCard>
-                            <SectionCard title="Ultimas Faixas" icon={<Zap fill="currentColor" />}
+                            <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
                                 iconColor="text-brand-primary" accentColor="#6fae9b">
                                 <RecentSongs compact />
                             </SectionCard>
@@ -145,7 +161,7 @@ export default function Dashboard() {
                 <BottomNav active={tab} onChange={setTab} />
             </div>
 
-            {/* â”€â”€ DESKTOP â”€â”€ */}
+            {/* ── DESKTOP ── */}
             <div className="hidden lg:flex min-h-screen">
 
                 {/* Sidebar */}
@@ -174,7 +190,7 @@ export default function Dashboard() {
                     <div className="mt-auto px-3"><Header /></div>
                 </aside>
 
-                {/* Conteudo */}
+                {/* Conteúdo */}
                 <main className="flex-1 min-w-0 px-6 py-6 overflow-y-auto">
 
                     {tab === "feed" && (
@@ -186,26 +202,36 @@ export default function Dashboard() {
                     )}
 
                     {tab === "profile" && (
-                        <div className="max-w-2xl">
+                        <div className="max-w-3xl mx-auto">
                             <h1 className="text-lg font-black uppercase tracking-tight mb-5"
                                 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Meu Perfil</h1>
-                            <div className="flex flex-col gap-5">
-                                <div className="min-h-[320px]"><Profile /></div>
-                                <InsightsSection />
+                            {/* Desktop: 2 colunas */}
+                            <div className="grid grid-cols-12 gap-6">
+                                {/* Coluna esquerda */}
+                                <div className="col-span-5 flex flex-col gap-6">
+                                    <div className="min-h-[380px]"><Profile /></div>
+                                    <InsightsSection />
+                                    <MoodWeekChart />
+                                </div>
+                                {/* Coluna direita */}
+                                <div className="col-span-7 flex flex-col gap-6">
+                                    <ProfileStats />
+                                    <MoodTimeline />
+                                </div>
                             </div>
                         </div>
                     )}
 
                     {tab === "playing" && (
                         <div className="max-w-2xl flex flex-col gap-5">
-                            <h1 className="text-lg font-black uppercase tracking-tight mb-5"
+                            <h1 className="text-lg font-black uppercase tracking-tight"
                                 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Tocando Agora</h1>
                             <SectionCard title="Tocando Agora" icon={<Radio />}
                                 iconColor="text-brand-primary" accentColor="#6fae9b"
                                 noPadding className="min-h-[300px]">
                                 <NowPlayingCard />
                             </SectionCard>
-                            <SectionCard title="Ultimas Faixas" icon={<Zap fill="currentColor" />}
+                            <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
                                 iconColor="text-brand-primary" accentColor="#6fae9b"
                                 className="min-h-[420px]">
                                 <RecentSongs compact />
@@ -237,4 +263,3 @@ export default function Dashboard() {
         </div>
     );
 }
-

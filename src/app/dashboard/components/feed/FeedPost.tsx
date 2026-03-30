@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Music2, BarChart2, MessageCircle, Send, Heart } from "lucide-react";
 import { compareMood, type CompareMoodData, type Friend } from "@/shared/services/friendService";
 import { getMoodDisplayName, getMoodTextColor } from "@/shared/lib/moodHelpers";
+import { useTheme } from "@/shared/providers/ThemeProvider";
 
 export type FeedPostData = Friend & {
     isPlaying: boolean;
@@ -210,6 +211,8 @@ function ComparePanel({
 }
 
 export function FeedPost({ post }: { post: FeedPostData }) {
+    const { theme } = useTheme();
+    const isLight = theme === "light";
     const score = post.mood?.moodScore ?? 0;
     const color = moodColor(score);
     const pct = Math.round(score * 100);
@@ -226,10 +229,16 @@ export function FeedPost({ post }: { post: FeedPostData }) {
     const [showReactions, setShowReactions] = useState(false);
     const [showComments, setShowComments] = useState(false);
     const [showCompare, setShowCompare] = useState(false);
+    const [showFullMoodImage, setShowFullMoodImage] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]);
     const [commentText, setCommentText] = useState("");
     const [imgLoaded, setImgLoaded] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const actionsDivider = isLight ? "rgba(12,12,18,0.12)" : "rgba(255,255,255,0.05)";
+    const panelShadow = isLight ? "0 8px 24px rgba(28,40,58,0.15)" : "0 8px 32px rgba(0,0,0,0.6)";
+    const iconButtonBg = isLight ? "rgba(12,12,18,0.06)" : "var(--surface-card-alt)";
+    const iconButtonBorder = isLight ? "rgba(12,12,18,0.16)" : "var(--border-medium)";
+    const iconButtonColor = isLight ? "rgba(12,12,18,0.68)" : "rgba(255,255,255,0.65)";
 
     function handleReact(emoji: string) {
         setReactionCounts((prev) => {
@@ -258,14 +267,10 @@ export function FeedPost({ post }: { post: FeedPostData }) {
 
     return (
         <article
-            className="flex flex-col overflow-hidden"
-            style={{
-                background: "var(--surface-solid)",
-                border: "1px solid var(--border-medium)",
-                borderRadius: "1.25rem",
-            }}
+            className="glass-card glass-card-hover h-full flex flex-col overflow-hidden relative"
+            style={{ minHeight: 430 }}
         >
-            <div className="relative mx-4 mt-4 mb-3 overflow-hidden rounded-2xl" style={{ aspectRatio: "9/12", background: "#05050a" }}>
+            <div className="relative flex-1 mx-3 mt-3 mb-2 rounded-2xl overflow-hidden" style={{ minHeight: 390, background: "#05050a" }}>
                 {!imgLoaded && imageMood && (
                     <div
                         className="absolute inset-0 animate-pulse"
@@ -281,9 +286,10 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                     <img
                         src={imageMood}
                         alt={`Mood de ${post.display_name}`}
-                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 cursor-zoom-in"
                         style={{ opacity: imgLoaded ? 0.85 : 0, objectPosition: "top center" }}
                         onLoad={() => setImgLoaded(true)}
+                        onClick={() => setShowFullMoodImage(true)}
                     />
                 ) : (
                     <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 20% 20%, ${color}33, transparent 55%), #0b0b11` }} />
@@ -298,7 +304,9 @@ export function FeedPost({ post }: { post: FeedPostData }) {
 
                 <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 40% at 80% 15%, ${color}33 0%, transparent 60%)` }} />
 
-                <div className="relative z-10 flex items-center gap-2.5 px-4 pt-4">
+                <div className="absolute inset-0 opacity-[0.10] mix-blend-soft-light mood-noise" />
+
+                <div className="relative z-10 flex items-center gap-2.5 px-5 pt-5.5">
                     <img
                         src={post.img_profile}
                         alt={post.display_name}
@@ -308,12 +316,12 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                     <span className="flex-1 text-[11px] uppercase tracking-[.12em] truncate" style={{ color: "rgba(255,255,255,.62)", fontFamily: "var(--font-display)" }}>
                         {post.display_name}
                     </span>
-                    <span className="text-[10px] uppercase tracking-[.18em]" style={{ color: "rgba(255,255,255,.28)" }}>
-                        {timeAgo(post.mood?.analyzedAt)}
+                    <span className="text-[11px] uppercase tracking-[.18em]" style={{ color: "rgba(255,255,255,.28)" }}>
+                        MusicMood
                     </span>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-4">
+                <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-6">
                     <p className="text-[9px] uppercase tracking-[.22em] mb-2" style={{ color: "rgba(255,255,255,.38)" }}>
                         vibe atual
                     </p>
@@ -321,7 +329,7 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                     <p
                         className="font-black italic leading-[.92] tracking-tight"
                         style={{
-                            fontSize: "clamp(28px, 7vw, 40px)",
+                            fontSize: "clamp(38px, 10vw, 54px)",
                             color: "#fff",
                             textShadow: "0 2px 24px rgba(0,0,0,.8)",
                         }}
@@ -414,6 +422,39 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                 </div>
             </div>
 
+            {showFullMoodImage && imageMood && (
+                <div
+                    className="fixed inset-0 z-[120] flex items-center justify-center p-4"
+                    style={{ background: "rgba(5,5,10,0.84)", backdropFilter: "blur(6px)" }}
+                    onClick={() => setShowFullMoodImage(false)}
+                >
+                    <div
+                        className="relative w-full max-w-4xl max-h-[88vh] rounded-2xl overflow-hidden"
+                        style={{ border: "1px solid rgba(255,255,255,0.16)", background: "rgba(0,0,0,0.35)" }}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <img
+                            src={imageMood}
+                            alt={`Foto completa de mood de ${post.display_name}`}
+                            className="w-full h-full object-contain"
+                            style={{ maxHeight: "88vh" }}
+                        />
+                        <button
+                            onClick={() => setShowFullMoodImage(false)}
+                            className="absolute top-3 right-3 text-[10px] uppercase tracking-[0.16em] px-2.5 py-1 rounded-full"
+                            style={{
+                                background: "rgba(0,0,0,0.55)",
+                                color: "rgba(255,255,255,0.9)",
+                                border: "1px solid rgba(255,255,255,0.22)",
+                                fontFamily: "var(--font-display)",
+                            }}
+                        >
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {post.mood?.reasoning && (
                 <div className="px-4 pb-3">
                     <p className="text-[13px] text-white/50 leading-relaxed italic line-clamp-3">"{post.mood.reasoning}"</p>
@@ -443,27 +484,28 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                 </div>
             )}
 
-            <div className="px-4 pb-3 flex items-center gap-1" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "10px" }}>
-                <div className="relative flex-1">
+            <div className="px-4 pb-3 flex items-center justify-end gap-2" style={{ borderTop: `1px solid ${actionsDivider}`, paddingTop: "10px" }}>
+                <div className="relative">
                     <button
                         onClick={() => setShowReactions((prev) => !prev)}
-                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all w-full justify-center"
+                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
                         style={{
-                            color: myReaction ? color : "rgba(255,255,255,0.35)",
-                            background: showReactions ? "rgba(255,255,255,0.06)" : "transparent",
+                            background: iconButtonBg,
+                            border: `1px solid ${iconButtonBorder}`,
+                            color: myReaction ? color : iconButtonColor,
                         }}
+                        title="Reagir"
                     >
-                        {myReaction ? <span className="text-base leading-none">{myReaction}</span> : <Heart className="w-4 h-4" />}
-                        <span>{myReaction ? REACTIONS.find((r) => r.emoji === myReaction)?.label : "Reagir"}</span>
+                        {myReaction ? <span className="text-base leading-none">{myReaction}</span> : <Heart className="w-4.5 h-4.5" />}
                     </button>
 
                     {showReactions && (
                         <div
-                            className="absolute bottom-full left-0 mb-2 flex items-center gap-1 p-2 rounded-2xl z-20"
+                            className="absolute bottom-full right-0 mb-2 flex items-center gap-1 p-2 rounded-2xl z-20"
                             style={{
                                 background: "var(--surface-solid)",
                                 border: "1px solid var(--border-strong)",
-                                boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                                boxShadow: panelShadow,
                                 animation: "fadeSlideIn 0.15s ease-out",
                             }}
                         >
@@ -472,11 +514,11 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                                     key={reaction.emoji}
                                     onClick={() => handleReact(reaction.emoji)}
                                     className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all hover:scale-110 active:scale-95"
-                                    style={{ background: myReaction === reaction.emoji ? "rgba(255,255,255,0.1)" : "transparent" }}
+                                    style={{ background: myReaction === reaction.emoji ? (isLight ? "rgba(12,12,18,0.10)" : "rgba(255,255,255,0.1)") : "transparent" }}
                                     title={reaction.label}
                                 >
                                     <span className="text-xl leading-none">{reaction.emoji}</span>
-                                    <span className="text-[8px] text-white/30 uppercase tracking-wide" style={{ fontFamily: "var(--font-display)" }}>
+                                    <span className="text-[8px] uppercase tracking-wide" style={{ fontFamily: "var(--font-display)", color: isLight ? "rgba(12,12,18,0.48)" : "rgba(255,255,255,0.30)" }}>
                                         {reaction.label}
                                     </span>
                                 </button>
@@ -490,31 +532,47 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                         setShowComments((prev) => !prev);
                         setTimeout(() => inputRef.current?.focus(), 100);
                     }}
-                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all flex-1 justify-center"
-                    style={{ color: showComments ? color : "rgba(255,255,255,0.35)" }}
+                    className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+                    style={{
+                        background: iconButtonBg,
+                        border: `1px solid ${iconButtonBorder}`,
+                        color: showComments ? color : iconButtonColor,
+                    }}
+                    title="Comentar"
                 >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>{comments.length > 0 ? comments.length : "Comentar"}</span>
+                    <MessageCircle className="w-4.5 h-4.5" />
+                    {comments.length > 0 && (
+                        <span
+                            className="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-1 rounded-full text-[8px] font-black flex items-center justify-center text-white"
+                            style={{ background: "#b06a85" }}
+                        >
+                            {comments.length > 9 ? "9+" : comments.length}
+                        </span>
+                    )}
                 </button>
 
                 <button
                     onClick={() => setShowCompare((prev) => !prev)}
-                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all flex-1 justify-center"
-                    style={{ color: showCompare ? "#8a7bb8" : "rgba(255,255,255,0.35)" }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+                    style={{
+                        background: iconButtonBg,
+                        border: `1px solid ${iconButtonBorder}`,
+                        color: showCompare ? "#8a7bb8" : iconButtonColor,
+                    }}
+                    title="Comparar mood"
                 >
-                    <BarChart2 className="w-4 h-4" />
-                    <span>Comparar</span>
+                    <BarChart2 className="w-4.5 h-4.5" />
                 </button>
             </div>
 
             {showCompare && (
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ borderTop: `1px solid ${actionsDivider}` }}>
                     <ComparePanel friendId={post.id} friendName={firstName} accentColor={color} />
                 </div>
             )}
 
             {showComments && (
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ borderTop: `1px solid ${actionsDivider}` }}>
                     {comments.length > 0 && (
                         <ul className="flex flex-col divide-y divide-white/4 px-4 pt-3">
                             {comments.map((comment) => (
@@ -557,6 +615,13 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                     </div>
                 </div>
             )}
+
+            <style jsx>{`
+                .mood-noise {
+                    background-image: radial-gradient(rgba(255,255,255,0.38) 0.6px, transparent 0.6px);
+                    background-size: 3px 3px;
+                }
+            `}</style>
         </article>
     );
 }

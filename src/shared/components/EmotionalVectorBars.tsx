@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { EmotionalVector } from "@/app/dashboard/types/music";
-import { DIMENSION_COLORS, DIMENSION_LABELS } from "@/shared/lib/moodHelpers";
+import { DIMENSION_LABELS } from "@/shared/lib/moodHelpers";
+import { useTheme } from "@/shared/providers/ThemeProvider";
 
 interface EmotionalVectorBarsProps {
     vector: EmotionalVector;
@@ -25,6 +26,8 @@ const COLOR_HEX: Record<string, string> = {
 export function EmotionalVectorBars({ vector, className = "" }: EmotionalVectorBarsProps) {
     const [visible, setVisible] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
+    const { theme } = useTheme();
+    const isLight = theme === "light";
 
     // Trigger animation on mount (or when entering viewport)
     useEffect(() => {
@@ -42,6 +45,8 @@ export function EmotionalVectorBars({ vector, className = "" }: EmotionalVectorB
                 const pct = Math.round(value * 100);
                 const hex = COLOR_HEX[key] ?? "#6fae9b";
                 const label = DIMENSION_LABELS[key] ?? key;
+                const labelColor = isLight ? "rgba(12,12,18,0.60)" : "rgba(255,255,255,0.35)";
+                const trackColor = isLight ? "rgba(12,12,18,0.10)" : "rgba(255,255,255,0.05)";
 
                 return (
                     <div
@@ -57,9 +62,9 @@ export function EmotionalVectorBars({ vector, className = "" }: EmotionalVectorB
                         {/* Label row */}
                         <div className="flex items-center justify-between">
                             <span
-                                className="text-[10px] uppercase tracking-[0.12em] font-700 transition-colors duration-200 group-hover:text-white/80"
+                                className="text-[11px] uppercase tracking-[0.12em] font-700"
                                 style={{
-                                    color: "rgba(255,255,255,0.35)",
+                                    color: labelColor,
                                     fontFamily: "var(--font-display)",
                                     fontWeight: 700,
                                 }}
@@ -77,7 +82,7 @@ export function EmotionalVectorBars({ vector, className = "" }: EmotionalVectorB
                         {/* Track */}
                         <div
                             className="h-1 w-full rounded-full overflow-hidden relative"
-                            style={{ background: "rgba(255,255,255,0.05)" }}
+                            style={{ background: trackColor }}
                         >
                             {/* Fill */}
                             <div

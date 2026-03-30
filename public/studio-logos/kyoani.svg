@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Kyoto Animation inspired mark">
+  <defs>
+    <linearGradient id="k" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7b267"/>
+      <stop offset="100%" stop-color="#f4845f"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="24" fill="#151018"/>
+  <rect x="26" y="26" width="68" height="52" rx="12" fill="url(#k)"/>
+  <circle cx="44" cy="52" r="6" fill="#231926"/>
+  <circle cx="76" cy="52" r="6" fill="#231926"/>
+  <path d="M44 88h32" stroke="#f8d7c5" stroke-width="7" stroke-linecap="round"/>
+  <text x="60" y="108" text-anchor="middle" fill="#ffe5d7" font-size="14" font-family="Verdana">KYOANI</text>
+</svg>

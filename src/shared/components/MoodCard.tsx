@@ -1,13 +1,13 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { CoreAxes, EmotionalVector } from "@/app/dashboard/types/music";
 import { CLUSTER, intensityMeta, quadrantMeta, valenceMeta, activationMeta } from "../lib/moodCardHelpers";
 import { MoodBadge } from "./MoodBadge";
 import { EmotionalVectorBars } from "./EmotionalVectorBars";
 import { Sparkles, Zap } from "lucide-react";
 import { getMoodDisplayName } from "@/shared/lib/moodHelpers";
+import { useTheme } from "@/shared/providers/ThemeProvider";
 
 type MoodCardData = {
     dominantSentiment: string;
@@ -24,6 +24,8 @@ interface MoodCardProps {
 
 export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
     const [mounted, setMounted] = useState(false);
+    const { theme } = useTheme();
+    const isLight = theme === "light";
     useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); }, []);
 
     const key = data.dominantSentiment?.toLowerCase() ?? "";
@@ -34,6 +36,12 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
     const valence   = valenceMeta(polaridade);
     const activation = activationMeta(ativacao);
     const intensity = intensityMeta(Math.abs(ativacao));
+    const metricCardBg = isLight ? "rgba(12,12,18,0.04)" : "rgba(255,255,255,0.025)";
+    const metricCardBorder = isLight ? "rgba(12,12,18,0.12)" : "rgba(255,255,255,0.06)";
+    const subtleLabelColor = isLight ? "rgba(12,12,18,0.58)" : "rgba(255,255,255,0.25)";
+    const secondaryTextColor = isLight ? "rgba(12,12,18,0.78)" : "rgba(255,255,255,0.70)";
+    const scoreTrackBg = isLight ? "rgba(12,12,18,0.10)" : "rgba(255,255,255,0.06)";
+    const reasoningTextColor = isLight ? "rgba(12,12,18,0.72)" : "rgba(255,255,255,0.55)";
 
     // â”€â”€ TRACK mode (used in drawer inline) â”€â”€
     if (mode === "track") {
@@ -128,7 +136,7 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                             {Math.round(data.moodScore * 100)}%
                         </span>
                     </div>
-                    <div className="h-0.5 w-full rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+                    <div className="h-0.5 w-full rounded-full" style={{ background: scoreTrackBg }}>
                         <div
                             className="h-full rounded-full"
                             style={{
@@ -153,14 +161,14 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                 ].map(item => (
                     <div key={item.label}
                         className="flex flex-col gap-2 px-3 py-3 rounded-xl"
-                        style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                        <span className="text-[9px] uppercase tracking-wider text-white/25"
-                            style={{ fontFamily: "var(--font-display)" }}>
+                        style={{ background: metricCardBg, border: `1px solid ${metricCardBorder}` }}>
+                        <span className="text-[10px] uppercase tracking-wider"
+                            style={{ fontFamily: "var(--font-display)", color: subtleLabelColor }}>
                             {item.label}
                         </span>
                         <div className="flex items-center gap-2">
                             <span className="text-lg leading-none">{item.emoji}</span>
-                            <span className="text-[11px] font-700 leading-tight"
+                            <span className="text-[12px] font-700 leading-tight"
                                 style={{ color: item.color, fontFamily: "var(--font-display)", fontWeight: 700 }}>
                                 {item.value}
                             </span>
@@ -183,12 +191,12 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                     <Zap className="w-3 h-3" style={{ color: "#8a7bb8" }} />
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-[9px] uppercase tracking-wider text-white/25"
-                        style={{ fontFamily: "var(--font-display)" }}>
+                    <span className="text-[9px] uppercase tracking-wider"
+                        style={{ fontFamily: "var(--font-display)", color: subtleLabelColor }}>
                         Quadrante
                     </span>
-                    <span className="text-[11px] font-700 text-white/70"
-                        style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+                    <span className="text-[12px] font-700"
+                        style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: secondaryTextColor }}>
                         {quadrant.label} - {quadrant.desc}
                     </span>
                 </div>
@@ -206,8 +214,8 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                     }}
                 >
                     <Sparkles className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#b06a85", opacity: 0.6 }} />
-                    <p className="text-[12px] italic leading-relaxed text-white/55"
-                        style={{ fontFamily: "var(--font-body)" }}>
+                    <p className="text-[12px] italic leading-relaxed"
+                        style={{ fontFamily: "var(--font-body)", color: reasoningTextColor }}>
                         "{data.reasoning}"
                     </p>
                 </div>
@@ -218,8 +226,8 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                 className="flex flex-col gap-2.5"
                 style={{ animation: mounted ? "fadeInUp 0.5s 0.32s cubic-bezier(0.16,1,0.3,1) both" : "none" }}
             >
-                <span className="text-[9px] uppercase tracking-[0.15em] font-700 text-white/20"
-                    style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
+                <span className="text-[10px] uppercase tracking-[0.15em] font-700"
+                    style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: subtleLabelColor }}>
                     Espectro emocional
                 </span>
                 <EmotionalVectorBars vector={data.emotionalVector} />

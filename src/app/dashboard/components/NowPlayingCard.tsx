@@ -5,6 +5,7 @@ import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { MoodBadge } from "@/shared/components/MoodBadge";
 import { useListeningNow } from "../hooks/useListeningNow";
+import { useTheme } from "@/shared/providers/ThemeProvider";
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
@@ -12,6 +13,8 @@ function clamp(value: number, min: number, max: number) {
 
 export function NowPlayingCard() {
     const { data, isLoading, isError, isFetching } = useListeningNow();
+    const { theme } = useTheme();
+    const isLight = theme === "light";
 
     if (isLoading || isFetching) return <LoadingComponent type="emotionalChart" />;
     if (isError || !data?.tracks?.length) {
@@ -29,12 +32,24 @@ export function NowPlayingCard() {
     const artistMain = (track.artist ?? "").split(",")[0] ?? "Artista";
     const glowOpacity = 0.12 + intensity * 0.22;
     const barsDuration = `${(1.1 - intensity * 0.55).toFixed(2)}s`;
+    const cardBackground = isLight
+        ? "linear-gradient(145deg, rgba(239,246,252,0.96), rgba(229,237,247,0.94))"
+        : "linear-gradient(145deg, rgba(5,9,15,0.95), rgba(18,7,24,0.92))";
+    const waveformLine = isLight
+        ? "linear-gradient(90deg, transparent, rgba(12,12,18,0.2), transparent)"
+        : "linear-gradient(90deg, transparent, rgba(255,255,255,0.17), transparent)";
+    const vinylBackground = isLight
+        ? "repeating-radial-gradient(circle at center, rgba(30,44,62,0.16) 0 1px, transparent 1px 6px), radial-gradient(circle at center, rgba(212,223,236,1) 0%, rgba(169,184,202,1) 62%)"
+        : "repeating-radial-gradient(circle at center, rgba(255,255,255,0.15) 0 1px, transparent 1px 6px), radial-gradient(circle at center, rgba(40,40,46,1) 0%, rgba(8,8,12,1) 62%)";
+    const vinylShadow = isLight
+        ? "inset 0 0 0 1px rgba(255,255,255,0.9), 0 14px 40px rgba(39,55,77,0.26)"
+        : "inset 0 0 0 1px rgba(255,255,255,0.12), 0 14px 40px rgba(0,0,0,0.5)";
 
     return (
         <div className="relative h-full min-h-55 rounded-2xl overflow-hidden p-4 md:p-5"
             style={{
                 border: "1px solid var(--border-medium)",
-                background: "linear-gradient(145deg, rgba(5,9,15,0.95), rgba(18,7,24,0.92))",
+                background: cardBackground,
             }}
         >
             <div
@@ -142,7 +157,7 @@ export function NowPlayingCard() {
                             </div>
                             <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full"
                                 style={{
-                                    background: "#06060a",
+                                    background: isLight ? "rgba(236,242,248,1)" : "#06060a",
                                     border: "1px solid rgba(255,255,255,0.18)",
                                     boxShadow: "0 0 0 4px rgba(255,255,255,0.04)",
                                 }} />
@@ -152,8 +167,8 @@ export function NowPlayingCard() {
 
                 <div className="relative mt-auto">
                     <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px"
-                        style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.17), transparent)" }} />
-                    <div className="flex items-end gap-1 h-14 px-0.5">
+                        style={{ background: waveformLine }} />
+                    <div className="mx-auto flex w-fit items-end justify-center gap-1 h-14 px-0.5">
                     {Array.from({ length: 28 }).map((_, index) => {
                         const delay = `${(index * 0.08).toFixed(2)}s`;
                         const baseHeight = 10 + (index % 7) * 5;
@@ -205,12 +220,8 @@ export function NowPlayingCard() {
                 }
 
                 .now-vinyl {
-                    background:
-                        repeating-radial-gradient(circle at center, rgba(255,255,255,0.15) 0 1px, transparent 1px 6px),
-                        radial-gradient(circle at center, rgba(40,40,46,1) 0%, rgba(8,8,12,1) 62%);
-                    box-shadow:
-                        inset 0 0 0 1px rgba(255,255,255,0.12),
-                        0 14px 40px rgba(0,0,0,0.5);
+                    background: ${vinylBackground};
+                    box-shadow: ${vinylShadow};
                     animation-name: spinVinyl;
                     animation-timing-function: linear;
                     animation-iteration-count: infinite;

@@ -77,7 +77,7 @@ const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
     NostalgiaProfunda: "saudade ruim",
     Desanimo: "chorando no banheiro",
     VulnerabilidadeEmocional: "tô fraco",
-    Ambivalencia: "sem noção",
+    Ambivalencia: "tanto faz",
     Estupor: "travado",
 };
 

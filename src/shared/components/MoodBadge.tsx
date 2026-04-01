@@ -1,7 +1,7 @@
 "use client";
 
 import { MoodIcon } from "./MoodIcons";
-import { emotionStyles, getMoodDisplayName } from "@/shared/lib/moodHelpers";
+import { emotionStyles, getMoodDisplayName, getMoodProfile } from "@/shared/lib/moodHelpers";
 
 interface MoodBadgeProps {
     mood: string;
@@ -10,8 +10,10 @@ interface MoodBadgeProps {
 }
 
 export function MoodBadge({ mood, size = "md", label }: MoodBadgeProps) {
-    const displayLabel = getMoodDisplayName(label ?? mood, label ?? mood);
-    const style = emotionStyles[displayLabel.toLowerCase()] ?? emotionStyles[mood?.toLowerCase()] ?? "bg-white/8 text-white/60 border-white/15";
+    const sourceMood = (label ?? mood ?? "").trim();
+    const canonicalMoodKey = getMoodProfile(sourceMood).backendKey.toLowerCase();
+    const displayLabel = getMoodDisplayName(sourceMood, "Sem humor");
+    const style = emotionStyles[canonicalMoodKey] ?? "bg-black/5 text-black/70 border-black/15 dark:bg-white/8 dark:text-white/60 dark:border-white/15";
 
     const sizeClass =
         size === "sm"  ? "text-[9px] px-2 py-0.5 gap-1" :

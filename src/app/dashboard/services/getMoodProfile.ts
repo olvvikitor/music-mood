@@ -5,13 +5,10 @@ import  { getMoodDisplayName } from "@/shared/lib/moodHelpers";
 export type MoodProfileResponse = {
     moodScore: number;
     id: string;
-    userId: string;
     sentiment: string;
-    url_gif: string;
     emotions: EmotionalVector;
-    reasoning: string;
     analyzedAt: Date;
-    image_mood:string,
+    image_mood: string;
     coreAxes: CoreAxes;
     tracksAnalyzeds: {
         music: string;

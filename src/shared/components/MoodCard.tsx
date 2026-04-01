@@ -13,7 +13,7 @@ type MoodCardData = {
     dominantSentiment: string;
     coreAxes: CoreAxes;
     moodScore: number;
-    reasoning: string;
+    reasoning?: string;
     emotionalVector: EmotionalVector;
 };
 

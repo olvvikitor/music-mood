@@ -23,7 +23,6 @@ export function EmotionalCardChart() {
                     emotionalVector: data.emotions,
                     coreAxes: data.coreAxes,
                     moodScore: data.moodScore,
-                    reasoning: data.reasoning,
                 }}
                 mode="hero"
             />

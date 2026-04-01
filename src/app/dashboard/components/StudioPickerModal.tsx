@@ -8,6 +8,7 @@ const STUDIO_PALETTE: Record<string, { from: string; to: string; initials: strin
     kyoani:   { from: "#f9a8d4", to: "#fb7185", initials: "KA" },
     ghibli:   { from: "#86efac", to: "#34d399", initials: "SG" },
     ufotable: { from: "#7dd3fc", to: "#818cf8", initials: "UF" },
+    mappa:    { from: "#fca5a5", to: "#ef4444", initials: "MP" },
     shaft:    { from: "#f0abfc", to: "#a259ff", initials: "SH" },
     trigger:  { from: "#fde68a", to: "#fb923c", initials: "TR" },
 };

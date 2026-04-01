@@ -5,6 +5,7 @@ import { X, Download, Check, Play } from "lucide-react";
 import * as htmlToImage from "html-to-image";
 import { MoodProfileResponse } from "../services/getMoodProfile";
 import { UserResponseDto } from "@/shared/services/userService";
+import { getMoodDisplayName, getMoodProfile } from "@/shared/lib/moodHelpers";
 
 interface ShareModalProps {
     isOpen: boolean;
@@ -12,56 +13,6 @@ interface ShareModalProps {
     mood: MoodProfileResponse;
     profile: UserResponseDto;
 }
-
-// ---------------------------------------------------------------------------
-// Descricoes por sentiment
-// ---------------------------------------------------------------------------
-const sentimentDescriptionMap: Record<string, string> = {
-    "pilhado": "Energia no talo. Sua playlist veio acelerada, confiante e sem freio.",
-    "ta numa marra ein?": "Mood de protagonismo total. Tudo que toca vira trilha de main character.",
-    "adrenalina pura": "Som intenso, rapido e pronto para virar o volume no talo.",
-    "caos controlado": "Mente criativa em modo turbo: tensao boa, foco forte e muita expressao.",
-    "apaixonadx": "Clima doce e envolvente. Dia de trilha romantica e coracao quentinho.",
-    "love love": "Sua vibe pede conexao real: musicas de afeto, colo e proximidade.",
-    "saudade boa": "Nostalgia leve, sorriso no canto e lembrancas que batem no tempo certo.",
-    "de boa": "Dia de calma elegante: som limpo, respiracao funda e mente alinhada.",
-    "zerado": "Estado zen ativado. Playlist serena para desacelerar sem perder a vibe.",
-    "viajando": "Seu humor ta contemplativo: trilha para pensar longe e sentir fundo.",
-    "pressentindo": "Tem suspense no ar. Sua trilha mistura tensao e expectativa.",
-    "de cara": "Sentimento travado no peito, com batidas que seguram a emocao.",
-    "p da vida": "Nervos a flor da pele. Seu som entrega intensidade e impulso.",
-    "surtando": "Energia explosiva no topo. Dia de descarregar tudo na musica.",
-    "chorando no banheiro": "Melancolia profunda, introspectiva e honesta. Dia de sentir sem filtro.",
-    "quebrado": "Vibe baixa e cansada. Playlist de acolhimento para recarregar.",
-    "Deixa pra lá": "Momento vulneravel e verdadeiro. Sensibilidade guiando suas escolhas.",
-    "tô confuso": "Sentimentos misturados. Sua trilha alterna entre luz e sombra.",
-    "travado": "Modo pausa emocional. Som minimalista para organizar o que esta por dentro.",
-};
-
-// ---------------------------------------------------------------------------
-// Paleta de acento por sentiment
-// ---------------------------------------------------------------------------
-const moodAccent: Record<string, string> = {
-    "pilhado": "#ffaa00",
-    "ta numa marra ein?": "#8a7bb8",
-    "adrenalina pura": "#ff3c00",
-    "caos controlado": "#00b4ff",
-    "apaixonadx": "#ff6b9d",
-    "love love": "#ff80c0",
-    "saudade boa": "#7b9fff",
-    "de boa": "#6fae9b",
-    "zerado": "#00e5a0",
-    "viajando": "#8ab4ff",
-    "pressentindo": "#ffcc44",
-    "de cara": "#ff6060",
-    "p da vida": "#ff4500",
-    "surtando": "#ff00cc",
-    "chorando no banheiro": "#4080ff",
-    "quebrado": "#888888",
-    "Deixa pra lá": "#d580ff",
-    "tô confuso": "#aaaaaa",
-    "travado": "#666666",
-};
 
 // ---------------------------------------------------------------------------
 // Deteccao de plataforma
@@ -167,12 +118,11 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
 
     if (!isOpen || !mounted) return null;
 
-    const sentimentKey = mood.sentiment?.toLowerCase() ?? "de boa";
-    const description = sentimentDescriptionMap[sentimentKey]
-        ?? "Sua vibe do dia em forma de trilha sonora.";
-    const accent = moodAccent[sentimentKey] ?? "#8a7bb8";
+    const moodProfile = getMoodProfile(mood.sentiment);
+    const description = moodProfile.description;
+    const accent = moodProfile.accent;
     const score = Math.round((mood.moodScore ?? 0) * 100);
-    const moodWords = (mood.sentiment ?? "-").split(" ");
+    const moodWords = getMoodDisplayName(mood.sentiment, "-").split(" ");
     const isBusy = dlState === "loading" || storyState === "loading";
 
     async function buildImage(format: "png" | "jpeg" = "png"): Promise<string | null> {

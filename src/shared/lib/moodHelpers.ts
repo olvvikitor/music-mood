@@ -60,25 +60,92 @@ export const emotionStyles: Record<string, string> = {
 };
 
 const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
-    EuforiaAtiva: "ligado no 220",
-    ConfiancaDominante: "se achando",
-    RockEletrizante: "no limite",
-    TensaoCriativa: "caos total",
-    AmorCalmo: "apaixonadx",
-    ConexaoAfetiva: "grudadx",
-    NostalgiaFeliz: "saudade boa",
-    Serenidade: "de boa total",
-    PazInterior: "zerado",
-    Contemplacao: "viajando na maionese",
-    TensaoDramatica: "pressentindo caô",
-    Frustracao: "de cara feia",
-    IrritacaoAtiva: "puto da vida",
-    RaivaExplosiva: "surtando geral",
-    NostalgiaProfunda: "saudade ruim",
-    Desanimo: "chorando no banheiro",
-    VulnerabilidadeEmocional: "tô fraco",
-    Ambivalencia: "tanto faz",
-    Estupor: "travado",
+    EuforiaAtiva: "trend no talo",
+    ConfiancaDominante: "main character mode",
+    RockEletrizante: "volume no max",
+    TensaoCriativa: "caos criativo",
+    AmorCalmo: "love session",
+    ConexaoAfetiva: "conexao real",
+    NostalgiaFeliz: "throwback bom",
+    Serenidade: "flow leve",
+    PazInterior: "zen em loop",
+    Contemplacao: "pensando alto",
+    TensaoDramatica: "plot twist vibes",
+    Frustracao: "modo impaciente",
+    IrritacaoAtiva: "pavio curto",
+    RaivaExplosiva: "rage mode",
+    NostalgiaProfunda: "saudade em 8d",
+    Desanimo: "low battery soul",
+    VulnerabilidadeEmocional: "coracao aberto",
+    Ambivalencia: "entre hits e silencios",
+    Estupor: "mute emocional",
+};
+
+const PROFILE_MOOD_DESCRIPTIONS: Record<string, string> = {
+    EuforiaAtiva: "Energia no topo e ritmo de festival. Dia de volume alto e movimento.",
+    ConfiancaDominante: "Vibe de protagonista. Tudo que toca parece trilha de entrada triunfal.",
+    RockEletrizante: "Adrenalina sonora, batida forte e corpo em estado de turbo.",
+    TensaoCriativa: "Pressao boa virando expressao. Modo foco intenso com arte pulsando.",
+    AmorCalmo: "Afeto suave, calor no peito e playlist que abraca sem pressa.",
+    ConexaoAfetiva: "Clima de proximidade real. Sons que aproximam e criam presenca.",
+    NostalgiaFeliz: "Memoria boa no repeat. Saudade leve com sorriso no canto.",
+    Serenidade: "Respiracao funda, mente alinhada e trilha limpa para desacelerar.",
+    PazInterior: "Estado zen ativado. Frequencia calma com zero ruido interno.",
+    Contemplacao: "Olhar distante e coracao atento. Musica para sentir e refletir.",
+    TensaoDramatica: "Suspense no ar. Batidas que pedem atencao e expectativa alta.",
+    Frustracao: "Incomodo acumulado em forma de ritmo. Vibe de descarrego consciente.",
+    IrritacaoAtiva: "Nervo aceso e impulso alto. Som para liberar pressao sem filtro.",
+    RaivaExplosiva: "Explosao emocional no maximo. Dia de liberar energia no beat.",
+    NostalgiaProfunda: "Saudade pesada, cinema interno e trilha para sentir fundo.",
+    Desanimo: "Baixa carga emocional. Playlist de acolhimento para recomecar.",
+    VulnerabilidadeEmocional: "Pele fina e verdade na superficie. Som para se abrir.",
+    Ambivalencia: "Metade luz, metade sombra. Vibe oscilando entre extremos.",
+    Estupor: "Modo pausa emocional. Menos ruido, mais processamento interno.",
+};
+
+const PROFILE_MOOD_ACCENTS: Record<string, string> = {
+    EuforiaAtiva: "#ffaa00",
+    ConfiancaDominante: "#a3e635",
+    RockEletrizante: "#ff5f1f",
+    TensaoCriativa: "#00b4ff",
+    AmorCalmo: "#ff6b9d",
+    ConexaoAfetiva: "#ff80c0",
+    NostalgiaFeliz: "#7b9fff",
+    Serenidade: "#6fae9b",
+    PazInterior: "#00e5a0",
+    Contemplacao: "#8ab4ff",
+    TensaoDramatica: "#ffcc44",
+    Frustracao: "#ff7a45",
+    IrritacaoAtiva: "#ff6060",
+    RaivaExplosiva: "#ff2d55",
+    NostalgiaProfunda: "#5b7cff",
+    Desanimo: "#8c8c8c",
+    VulnerabilidadeEmocional: "#d580ff",
+    Ambivalencia: "#a6a6a6",
+    Estupor: "#666666",
+};
+
+const MOOD_ALIAS_TO_BACKEND: Record<string, string> = {
+    // aliases legados para manter compatibilidade visual
+    "pilhado": "EuforiaAtiva",
+    "ta numa marra ein": "ConfiancaDominante",
+    "adrenalina pura": "RockEletrizante",
+    "caos controlado": "TensaoCriativa",
+    "apaixonadx": "AmorCalmo",
+    "love love": "ConexaoAfetiva",
+    "saudade boa": "NostalgiaFeliz",
+    "de boa": "Serenidade",
+    "zerado": "PazInterior",
+    "viajando": "Contemplacao",
+    "pressentindo": "TensaoDramatica",
+    "de cara": "Frustracao",
+    "p da vida": "IrritacaoAtiva",
+    "surtando": "RaivaExplosiva",
+    "chorando no banheiro": "NostalgiaProfunda",
+    "quebrado": "Desanimo",
+    "deixa pra la": "VulnerabilidadeEmocional",
+    "to confuso": "Ambivalencia",
+    "travado": "Estupor",
 };
 
 function normalizeMoodKey(value?: string): string {
@@ -99,8 +166,48 @@ const MOOD_DISPLAY_LOOKUP: Record<string, string> = (() => {
         lookup[normalizeMoodKey(displayName)] = displayName;
     }
 
+    for (const [alias, backendKey] of Object.entries(MOOD_ALIAS_TO_BACKEND)) {
+        const displayName = PROFILE_MOOD_DISPLAY_NAMES[backendKey];
+        if (displayName) lookup[normalizeMoodKey(alias)] = displayName;
+    }
+
     return lookup;
 })();
+
+function resolveBackendMoodKey(mood?: string): string | null {
+    const normalized = normalizeMoodKey(mood);
+    if (!normalized) return null;
+
+    const fromBackend = Object.keys(PROFILE_MOOD_DISPLAY_NAMES).find(
+        (key) => normalizeMoodKey(key) === normalized,
+    );
+    if (fromBackend) return fromBackend;
+
+    const fromAlias = Object.entries(MOOD_ALIAS_TO_BACKEND).find(
+        ([alias]) => normalizeMoodKey(alias) === normalized,
+    )?.[1];
+    if (fromAlias) return fromAlias;
+
+    return null;
+}
+
+export type FrontMoodProfile = {
+    backendKey: string;
+    label: string;
+    description: string;
+    accent: string;
+};
+
+export function getMoodProfile(mood?: string): FrontMoodProfile {
+    const backendKey = resolveBackendMoodKey(mood) ?? "Ambivalencia";
+
+    return {
+        backendKey,
+        label: PROFILE_MOOD_DISPLAY_NAMES[backendKey] ?? "vibe indefinida",
+        description: PROFILE_MOOD_DESCRIPTIONS[backendKey] ?? "Sua trilha do dia veio com energia unica.",
+        accent: PROFILE_MOOD_ACCENTS[backendKey] ?? "#8a7bb8",
+    };
+}
 
 export function getMoodDisplayName(mood?: string, fallback = "-"): string {
     if (!mood) return fallback;

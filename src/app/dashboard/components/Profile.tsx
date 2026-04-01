@@ -11,36 +11,9 @@ import NProgress from "nprogress";
 import { ShareModal } from "./ShareModal";
 import { StudioPickerModal } from "./StudioPickerModal";
 import { updateFacePhotoService } from "@/shared/services/updateFacePhotoService";
-import { getMoodDisplayName } from "@/shared/lib/moodHelpers";
+import { getMoodDisplayName, getMoodProfile } from "@/shared/lib/moodHelpers";
 import { getCreditBalance } from "@/shared/services/creditService";
 import { CreditModal } from "@/shared/components/CreditModal";
-
-const moodAccent: Record<string, string> = {
-    "pilhado": "#ffaa00",
-    "ta numa marra ein?": "#8a7bb8",
-    "adrenalina pura": "#ff3c00",
-    "caos controlado": "#00b4ff",
-    "apaixonadx": "#ff6b9d",
-    "love love": "#ff80c0",
-    "saudade boa": "#7b9fff",
-    "de boa": "#6fae9b",
-    "zerado": "#00e5a0",
-    "viajando": "#8ab4ff",
-    "pressentindo": "#ffcc44",
-    "de cara": "#ff6060",
-    "p da vida": "#ff4500",
-    "surtando": "#ff00cc",
-    "chorando no banheiro": "#4080ff",
-    "quebrado": "#888888",
-    "Deixa pra lá": "#d580ff",
-    "to confuso": "#aaaaaa",
-    "travado": "#666666",
-};
-
-function normalizeMoodAccentKey(value?: string): string {
-    if (!value) return "";
-    return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-}
 
 export default function Profile() {
     const { data: profile, isLoading: profileLoading, isError: profileError } = useProfile();
@@ -95,8 +68,7 @@ export default function Profile() {
     );
 
     const sentimentDisplay = getMoodDisplayName(mood?.sentiment, "—");
-    const sentimentKey = normalizeMoodAccentKey(sentimentDisplay);
-    const accent = moodAccent[sentimentKey] ?? "#8a7bb8";
+    const accent = getMoodProfile(mood?.sentiment).accent;
     const moodWords = sentimentDisplay.split(" ");
     const moodScore = Math.round((mood?.moodScore ?? 0) * 100);
 

@@ -173,15 +173,22 @@ export default function Dashboard() {
                             {t.label}
                         </button>
                     ))}
-
-                    <div className="mt-auto px-3"><Header /></div>
                 </aside>
 
                 {/* Conteúdo */}
                 <main className="flex-1 min-w-0 px-6 py-6 overflow-y-auto">
 
+                    {/* Top controls (desktop) */}
+                    <div
+                        className="sticky top-0 z-40 -mx-6 px-6 py-3 mb-4"
+                    >
+                        <div className="flex items-center justify-end">
+                            <Header />
+                        </div>
+                    </div>
+
                     {tab === "feed" && (
-                        <div className="max-w-2xl mx-auto">
+                        <div className="max-w-6xl mx-auto">
                             <h1 className="text-lg font-black uppercase tracking-tight mb-5"
                                 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Feed</h1>
                             <FeedTab />
@@ -189,19 +196,19 @@ export default function Dashboard() {
                     )}
 
                     {tab === "profile" && (
-                        <div className="max-w-3xl mx-auto">
+                        <div className="max-w-6xl mx-auto">
                             <h1 className="text-lg font-black uppercase tracking-tight mb-5"
                                 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Meu Perfil</h1>
                             {/* Desktop: 2 colunas */}
-                            <div className="grid grid-cols-12 gap-6">
+                            <div className="grid grid-cols-12 gap-6 items-start">
                                 {/* Coluna esquerda */}
-                                <div className="col-span-5 flex flex-col gap-6">
+                                <div className="col-span-12 xl:col-span-5 flex flex-col gap-6">
                                     <div className="min-h-[380px]"><Profile /></div>
                                     <InsightsSection />
                                     <MoodWeekChart />
                                 </div>
                                 {/* Coluna direita */}
-                                <div className="col-span-7 flex flex-col gap-6">
+                                <div className="col-span-12 xl:col-span-7 flex flex-col gap-6">
                                     <ProfileStats />
                                     <MoodTimeline />
                                 </div>
@@ -210,36 +217,50 @@ export default function Dashboard() {
                     )}
 
                     {tab === "playing" && (
-                        <div className="max-w-2xl flex flex-col gap-5">
+                        <div className="max-w-6xl mx-auto">
                             <h1 className="text-lg font-black uppercase tracking-tight"
                                 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Tocando Agora</h1>
-                            <SectionCard title="Tocando Agora" icon={<Radio />}
-                                iconColor="text-brand-primary" accentColor="#6fae9b"
-                                noPadding className="min-h-[300px]">
-                                <NowPlayingCard />
-                            </SectionCard>
-                            <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
-                                iconColor="text-brand-primary" accentColor="#6fae9b"
-                                className="min-h-[420px]">
-                                <RecentSongs compact />
-                            </SectionCard>
+                            <div className="grid grid-cols-12 gap-6 mt-5 items-start">
+                                <div className="col-span-12 xl:col-span-7">
+                                    <SectionCard title="Tocando Agora" icon={<Radio />}
+                                        iconColor="text-brand-primary" accentColor="#6fae9b"
+                                        noPadding className="min-h-[360px]">
+                                        <NowPlayingCard />
+                                    </SectionCard>
+                                </div>
+                                <div className="col-span-12 xl:col-span-5">
+                                    <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
+                                        iconColor="text-brand-primary" accentColor="#6fae9b"
+                                        className="min-h-[540px]">
+                                        <RecentSongs compact />
+                                    </SectionCard>
+                                </div>
+                            </div>
                         </div>
                     )}
 
                     {tab === "mix" && (
-                        <div className="max-w-3xl">
+                        <div className="max-w-6xl mx-auto">
                             <h1 className="text-lg font-black uppercase tracking-tight mb-5"
                                 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Mix Emocional</h1>
-                            <SectionCard icon={<Sparkles />} title="Mix Emocional"
-                                iconColor="text-brand-secondary" accentColor="#b06a85"
-                                className="min-h-[480px]">
-                                <EmotionalCardChart />
-                            </SectionCard>
+                            <div className="grid grid-cols-12 gap-6 items-start">
+                                <div className="col-span-12 xl:col-span-8">
+                                    <SectionCard icon={<Sparkles />} title="Mix Emocional"
+                                        iconColor="text-brand-secondary" accentColor="#b06a85"
+                                        className="min-h-[520px]">
+                                        <EmotionalCardChart />
+                                    </SectionCard>
+                                </div>
+                                <div className="col-span-12 xl:col-span-4 flex flex-col gap-6">
+                                    <MoodWeekChart />
+                                    <InsightsSection />
+                                </div>
+                            </div>
                         </div>
                     )}
 
                     {tab === "friends" && (
-                        <div className="max-w-2xl">
+                        <div className="max-w-6xl mx-auto">
                             <h1 className="text-lg font-black uppercase tracking-tight mb-5"
                                 style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Amigos</h1>
                             <FriendsView />

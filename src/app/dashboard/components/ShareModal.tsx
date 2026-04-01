@@ -280,7 +280,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                             className="text-[9px] uppercase tracking-[.22em] mb-2"
                             style={{ color: "rgba(255,255,255,.38)" }}
                         >
-                            vibe atual
+                            se sentindo 
                         </p>
 
                         <p

@@ -55,7 +55,7 @@ export function FeedTab() {
     }, []);
 
     if (loading) return (
-        <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {[1, 2, 3].map(i => <FeedPostSkeleton key={i} />)}
         </div>
     );
@@ -83,7 +83,7 @@ export function FeedTab() {
     );
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
             {posts.map(p => (
                 <FeedPost key={p.id} post={p} />
             ))}

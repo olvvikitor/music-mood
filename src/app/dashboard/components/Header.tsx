@@ -79,7 +79,7 @@ export function Header() {
     if (isError || !data) return <ErrorComponent type="header" />;
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2 min-w-0">
 
             {/* Botao Amigos */}
             <Link
@@ -100,7 +100,7 @@ export function Header() {
                 }}
             >
                 <Users className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Amigos</span>
+                <span className="hidden xl:inline">Amigos</span>
                 {pendingCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center text-white"
                         style={{ background: "#b06a85" }}>
@@ -129,7 +129,7 @@ export function Header() {
                 title="Comprar créditos"
             >
                 <Coins className="w-3.5 h-3.5" style={{ color: "#ffd700" }} />
-                <span className="hidden sm:inline" style={{ color: "#ffd700", fontWeight: 600 }}>{balance}</span>
+                <span className="hidden xl:inline" style={{ color: "#ffd700", fontWeight: 600 }}>{balance}</span>
             </button>
 
             {/* Botao de tema */}
@@ -204,7 +204,7 @@ export function Header() {
                     </div>
 
                     {/* Name */}
-                    <div className="flex-col leading-none hidden sm:flex">
+                    <div className="flex-col leading-none hidden xl:flex">
                         <span className="text-[13px] transition-colors"
                             style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: nameColor }}>
                             {data?.display_name?.split(" ")[0] || "Usuario"}

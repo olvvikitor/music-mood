@@ -44,9 +44,13 @@ function PackageCard({ pkg, onBuy, buying, bought }: {
     bought: string | null;
 }) {
     const isPopular   = pkg.popular;
+    const isRecommended = Boolean(pkg.recommended);
     const isBought    = bought === pkg.id;
     const isBuying    = buying === pkg.id;
     const priceEach   = formatPrice(Math.round(pkg.price / pkg.credits));
+    const basePriceEach = 290;
+    const packagePriceEach = Math.round(pkg.price / pkg.credits);
+    const savings = pkg.credits > 1 ? Math.max(0, Math.round((1 - packagePriceEach / basePriceEach) * 100)) : 0;
 
     return (
         <div
@@ -68,6 +72,16 @@ function PackageCard({ pkg, onBuy, buying, bought }: {
                     <span className="text-[9px] font-black uppercase tracking-widest"
                         style={{ color: "#07070c", fontFamily: "var(--font-display)" }}>
                         Mais vendido
+                    </span>
+                </div>
+            )}
+
+            {isRecommended && !isPopular && (
+                <div className="flex items-center justify-center gap-1 py-1.5"
+                    style={{ background: "rgba(0,255,179,0.12)", borderBottom: "1px solid rgba(0,255,179,0.22)" }}>
+                    <span className="text-[9px] font-black uppercase tracking-widest"
+                        style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>
+                        Recomendado
                     </span>
                 </div>
             )}
@@ -106,6 +120,20 @@ function PackageCard({ pkg, onBuy, buying, bought }: {
                 <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>
                     {priceEach} cada
                 </span>
+
+                {savings > 0 && (
+                    <span className="mt-1 text-[10px] font-bold"
+                        style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>
+                        Economize ate {savings}%
+                    </span>
+                )}
+
+                {pkg.description && (
+                    <p className="mt-2 text-[10px] leading-relaxed"
+                        style={{ color: "var(--text-muted)" }}>
+                        {pkg.description}
+                    </p>
+                )}
             </div>
 
             {/* Botão */}
@@ -226,11 +254,11 @@ export function CreditModal({ onClose, onPurchased, noCredits = false }: CreditM
                                 <Sparkles className="w-4 h-4" style={{ color: "#00ffb3" }} />
                                 <h2 className="text-base font-black uppercase tracking-tight"
                                     style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
-                                    Créditos de Imagem
+                                    Crie seu Mood Visual
                                 </h2>
                             </div>
                             <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>
-                                Não expiram · Use quando quiser
+                                Cada credito gera 1 arte exclusiva do seu momento. Nao expiram.
                             </p>
                         </div>
 
@@ -289,6 +317,28 @@ export function CreditModal({ onClose, onPurchased, noCredits = false }: CreditM
 
                 {/* ── Scroll ── */}
                 <div className="overflow-y-auto flex-1 min-h-0" style={{ overscrollBehavior: "contain" }}>
+
+                    {/* Beneficios */}
+                    <div className="px-4 sm:px-5 pt-4">
+                        <div className="rounded-2xl p-3.5"
+                            style={{
+                                background: "linear-gradient(145deg, rgba(0,255,179,0.10), rgba(162,89,255,0.08))",
+                                border: "1px solid rgba(0,255,179,0.18)",
+                            }}>
+                            <p className="text-[10px] uppercase tracking-widest font-bold mb-1"
+                                style={{ color: "#00ffb3", fontFamily: "var(--font-display)" }}>
+                                Por que comprar?
+                            </p>
+                            <p className="text-[12px] leading-relaxed" style={{ color: "var(--text-primary)" }}>
+                                Gere novas versoes do seu mood com estilos diferentes e compartilhe suas imagens favoritas.
+                            </p>
+                            <div className="flex flex-wrap gap-2 mt-3">
+                                <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "rgba(0,255,179,0.12)", color: "#00ffb3" }}>1 credito = 1 imagem</span>
+                                <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.07)", color: "var(--text-muted)" }}>Pagamento seguro</span>
+                                <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.07)", color: "var(--text-muted)" }}>Ativacao imediata</span>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Pacotes */}
                     <div className="px-4 sm:px-5 py-5">

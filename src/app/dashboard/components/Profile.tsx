@@ -69,7 +69,6 @@ export default function Profile() {
 
     const sentimentDisplay = getMoodDisplayName(mood?.sentiment, "—");
     const accent = getMoodProfile(mood?.sentiment).accent;
-    const moodWords = sentimentDisplay.split(" ");
     const moodScore = Math.round((mood?.moodScore ?? 0) * 100);
 
     const handleFacePhotoChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -158,11 +157,11 @@ export default function Profile() {
                     <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-6">
                         <p className="text-[9px] uppercase tracking-[.22em] mb-2"
                             style={{ color: "rgba(255,255,255,.38)" }}>
-                            vibe atual
+                            se sentindo 
                         </p>
-                        <p className="font-black italic leading-[.92] tracking-tight"
-                            style={{ fontSize: "clamp(38px, 10vw, 54px)", color: "#fff", textShadow: "0 2px 24px rgba(0,0,0,.8)" }}>
-                            {moodWords.map((w, i) => <span key={i} style={{ display: "block" }}>{w}</span>)}
+                        <p className="font-black italic leading-[1.06] tracking-tight whitespace-nowrap overflow-hidden text-ellipsis"
+                            style={{ fontSize: "clamp(24px, 6.4vw, 34px)", color: "#fff", textShadow: "0 2px 24px rgba(0,0,0,.8)" }}>
+                            {sentimentDisplay}
                         </p>
                         <div className="flex items-center gap-3 mt-4">
                             <div className="flex items-center gap-2 rounded-full px-3 py-1"

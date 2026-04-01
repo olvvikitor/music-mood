@@ -7,6 +7,8 @@ export type CreditPackage = {
     label: string;
     tag: string | null;
     popular: boolean;
+    recommended?: boolean;
+    description?: string;
 };
 
 export type CreditStatus = {
@@ -24,6 +26,6 @@ export async function getCreditBalance(): Promise<{ balance: number }> {
     return api.get("/credits/balance").then(r => r.data);
 }
 
-export async function purchasePackage(packageId: string): Promise<{ balance: number }> {
-    return api.post("/credits/purchase", { packageId }).then(r => r.data);
+export async function purchasePackage(packageId: string, source = "credit_modal"): Promise<{ balance: number }> {
+    return api.post("/credits/purchase", { packageId, source }).then(r => r.data);
 }

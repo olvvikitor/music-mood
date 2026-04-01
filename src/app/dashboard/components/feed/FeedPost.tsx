@@ -268,9 +268,9 @@ export function FeedPost({ post }: { post: FeedPostData }) {
     return (
         <article
             className="glass-card glass-card-hover h-full flex flex-col overflow-hidden relative"
-            style={{ minHeight: 430 }}
+            style={{ minHeight: 390 }}
         >
-            <div className="relative flex-1 mx-3 mt-3 mb-2 rounded-2xl overflow-hidden" style={{ minHeight: 390, background: "#05050a" }}>
+            <div className="relative flex-1 mx-3 mt-3 mb-2 rounded-2xl overflow-hidden" style={{ minHeight: 320, background: "#05050a" }}>
                 {!imgLoaded && imageMood && (
                     <div
                         className="absolute inset-0 animate-pulse"
@@ -306,7 +306,7 @@ export function FeedPost({ post }: { post: FeedPostData }) {
 
                 <div className="absolute inset-0 opacity-[0.10] mix-blend-soft-light mood-noise" />
 
-                <div className="relative z-10 flex items-center gap-2.5 px-5 pt-5.5">
+                <div className="relative z-10 flex items-center gap-2.5 px-4 pt-4">
                     <img
                         src={post.img_profile}
                         alt={post.display_name}
@@ -321,15 +321,15 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                     </span>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-6">
+                <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-4">
                     <p className="text-[9px] uppercase tracking-[.22em] mb-2" style={{ color: "rgba(255,255,255,.38)" }}>
-                        vibe atual
+                        se sentindo 
                     </p>
 
                     <p
                         className="font-black italic leading-[.92] tracking-tight"
                         style={{
-                            fontSize: "clamp(38px, 10vw, 54px)",
+                            fontSize: "clamp(28px, 7.2vw, 38px)",
                             color: "#fff",
                             textShadow: "0 2px 24px rgba(0,0,0,.8)",
                         }}

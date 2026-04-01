@@ -109,7 +109,7 @@ function OnboardingContent() {
       await updateProfileService(notifications);
       await setPasswordService(password);
       setConfirmed(true);
-      refreshUser();
+      refreshUser(undefined);
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao salvar.");
       setConfirming(false);

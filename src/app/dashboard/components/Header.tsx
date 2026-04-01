@@ -1,5 +1,5 @@
 ﻿"use client"
-import { UserCircle, Crown, ChevronDown, Users, LogOut, Sun, Moon } from "lucide-react"
+import { UserCircle, Crown, ChevronDown, Users, LogOut, Sun, Moon, Coins } from "lucide-react"
 import { useProfile } from "../hooks/useProfile"
 import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
@@ -8,15 +8,27 @@ import { useEffect, useRef, useState } from "react";
 import { getPendingRequests } from "@/shared/services/friendService";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/shared/providers/ThemeProvider";
+import { useQuery } from "@tanstack/react-query";
+import { getCreditBalance } from "@/shared/services/creditService";
+import { CreditModal } from "@/shared/components/CreditModal";
 
 export function Header() {
     const { data, isError, isLoading } = useProfile()
     const [pendingCount, setPendingCount] = useState(0)
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const [spinning, setSpinning] = useState(false)
+    const [isCreditOpen, setIsCreditOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
     const router = useRouter()
     const { theme, toggle } = useTheme()
+    
+    // Saldo de créditos
+    const { data: creditData, refetch: refetchBalance } = useQuery({
+        queryKey: ["creditBalance"],
+        queryFn: getCreditBalance,
+        staleTime: 30_000,
+    })
+    const balance = creditData?.balance ?? 0
 
     useEffect(() => {
         getPendingRequests()
@@ -96,6 +108,29 @@ export function Header() {
                     </span>
                 )}
             </Link>
+
+            {/* Botao Créditos */}
+            <button
+                onClick={() => setIsCreditOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
+                style={{ background: pillBg, border: `1px solid ${pillBorder}`, color: textColor }}
+                onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLButtonElement;
+                    el.style.background = pillBgHover;
+                    el.style.borderColor = pillBorHover;
+                    el.style.color = textHover;
+                }}
+                onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLButtonElement;
+                    el.style.background = pillBg;
+                    el.style.borderColor = pillBorder;
+                    el.style.color = textColor;
+                }}
+                title="Comprar créditos"
+            >
+                <Coins className="w-3.5 h-3.5" style={{ color: "#ffd700" }} />
+                <span className="hidden sm:inline" style={{ color: "#ffd700", fontWeight: 600 }}>{balance}</span>
+            </button>
 
             {/* Botao de tema */}
             <button
@@ -263,6 +298,15 @@ export function Header() {
                     to   { opacity: 1; transform: translateY(0)  scale(1);    }
                 }
             `}</style>
+
+            {/* Modal de Créditos */}
+            {isCreditOpen && (
+                <CreditModal
+                    noCredits={false}
+                    onClose={() => setIsCreditOpen(false)}
+                    onPurchased={() => void refetchBalance()}
+                />
+            )}
         </div>
     )
 }

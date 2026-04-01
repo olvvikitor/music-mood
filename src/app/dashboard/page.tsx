@@ -37,14 +37,7 @@ function Blobs() {
 
 // ─── Header mobile ────────────────────────────────────────────────────────────
 
-function MobileHeader({ tab }: { tab: DashTab }) {
-    const labels: Record<DashTab, string> = {
-        feed:    "Feed",
-        playing: "Tocando Agora",
-        mix:     "Mix Emocional",
-        friends: "Amigos",
-        profile: "Meu Perfil",
-    };
+function MobileHeader() {
     return (
         <header
             className="sticky top-0 z-50 flex items-center justify-between px-5 py-3.5 lg:hidden"
@@ -55,13 +48,7 @@ function MobileHeader({ tab }: { tab: DashTab }) {
             }}
         >
             <AppBrand className="text-lg" />
-            <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold uppercase tracking-widest"
-                    style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}>
-                    {labels[tab]}
-                </span>
-                <Header />
-            </div>
+            <Header />
         </header>
     );
 }
@@ -117,7 +104,7 @@ export default function Dashboard() {
 
             {/* ── MOBILE ── */}
             <div className="lg:hidden flex flex-col min-h-screen">
-                <MobileHeader tab={tab} />
+                <MobileHeader />
 
                 <main className="flex-1 px-4 py-5 pb-[calc(80px+env(safe-area-inset-bottom))]">
 

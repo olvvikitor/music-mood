@@ -6,11 +6,16 @@ import { Clock3, Construction } from "lucide-react";
 const RELEASE_HOUR = 19;
 
 function buildTimelineState(now: Date) {
-    const start = new Date(now);
-    start.setHours(0, 0, 0, 0);
-
     const release = new Date(now);
     release.setHours(RELEASE_HOUR, 0, 0, 0);
+
+    // Ciclo diario correto: 19h de ontem -> 19h de hoje (ou 19h de hoje -> 19h de amanha)
+    if (now >= release) {
+        release.setDate(release.getDate() + 1);
+    }
+
+    const start = new Date(release);
+    start.setDate(start.getDate() - 1);
 
     const total = release.getTime() - start.getTime();
     const elapsed = now.getTime() - start.getTime();

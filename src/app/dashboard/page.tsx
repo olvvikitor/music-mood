@@ -17,6 +17,7 @@ import { NowPlayingCard } from "./components/NowPlayingCard";
 import { InsightsSection } from "./components/InsightsSection";
 import { EmotionalCardChart } from "./components/EmotionalCardGraphicChart";
 import { ProfileStats } from "./components/ProfileStats";
+import { MoodWeekChart } from "./components/MoodWeekChart";
 
 // ─── Background blobs ─────────────────────────────────────────────────────────
 

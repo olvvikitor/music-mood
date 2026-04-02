@@ -34,7 +34,11 @@ function groupByDay(items: MoodWeekItem[]): (MoodWeekItem | null)[] {
     return days;
 }
 
-export function MoodWeekChart() {
+type MoodWeekChartProps = {
+    hideHeader?: boolean;
+};
+
+export function MoodWeekChart({ hideHeader = false }: MoodWeekChartProps) {
     const [data, setData] = useState<MoodWeekItem[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -54,10 +58,12 @@ export function MoodWeekChart() {
 
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest"
-                style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}>
-                Humor da Semana
-            </h2>
+            {!hideHeader && (
+                <h2 className="text-xs font-bold uppercase tracking-widest"
+                    style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}>
+                    Humor da Semana
+                </h2>
+            )}
 
             <div className="rounded-2xl p-4" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
                 {loading ? (
@@ -80,7 +86,7 @@ export function MoodWeekChart() {
                                     <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1.5" style={{ height: "100%" }}>
                                         {/* Tooltip simples com sentimento */}
                                         {hasData && (
-                                            <span className="text-[8px] font-bold text-center leading-tight px-0.5 truncate w-full text-center"
+                                            <span className="text-[8px] font-bold text-center leading-tight px-0.5 truncate w-full"
                                                 style={{ color, fontFamily: "var(--font-display)" }}>
                                                 {pct}%
                                             </span>

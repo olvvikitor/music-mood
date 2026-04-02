@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { History } from "lucide-react";
 import { getMoodHistory, type MoodHistoryItem } from "../services/profileStatsService";
-import { getMoodTextColor } from "@/shared/lib/moodHelpers";
+import { getMoodDisplayName, getMoodProfile } from "@/shared/lib/moodHelpers";
+import { useProfile } from "../hooks/useProfile";
+import { MoodPrincipalCard } from "./MoodPrincipalCard";
 
 function Skeleton({ className = "" }: { className?: string }) {
     return <div className={`rounded-lg animate-pulse ${className}`} style={{ background: "var(--surface-card-alt)" }} />;
@@ -19,46 +21,64 @@ function formatDate(iso: string) {
     const d = new Date(iso);
     const now = new Date();
     const diff = (now.getTime() - d.getTime()) / 1000;
-    if (diff < 3600)  return `${Math.floor(diff / 60)}min atrás`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h atrás`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d atrás`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}min atras`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h atras`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d atras`;
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 }
 
-export function MoodTimeline() {
-    const [items, setItems]   = useState<MoodHistoryItem[]>([]);
+type MoodTimelineProps = {
+    hideHeader?: boolean;
+    maxItems?: number;
+    horizontal?: boolean;
+};
+
+export function MoodTimeline({ hideHeader = false, maxItems = 6, horizontal = true }: MoodTimelineProps) {
+    const [items, setItems] = useState<MoodHistoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAll, setShowAll] = useState(false);
+    const { data: profile } = useProfile();
 
     useEffect(() => {
-        getMoodHistory(20).then(setItems).catch(() => {}).finally(() => setLoading(false));
+        getMoodHistory(20)
+            .then(setItems)
+            .catch(() => {})
+            .finally(() => setLoading(false));
     }, []);
 
-    const visible = showAll ? items : items.slice(0, 6);
+    const visible = showAll ? items : items.slice(0, maxItems);
+    const listClassName = horizontal
+        ? "flex gap-3 overflow-x-auto snap-x pb-1"
+        : "flex flex-col gap-3";
+    const itemClassName = horizontal
+        ? "rounded-2xl overflow-hidden shrink-0 w-[280px] md:w-[320px] snap-start"
+        : "rounded-2xl overflow-hidden";
 
     return (
         <div className="flex flex-col gap-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest"
-                style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}>
-                Linha do Tempo
-            </h2>
+            {!hideHeader && (
+                <h2
+                    className="text-xs font-bold uppercase tracking-widest"
+                    style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}
+                >
+                    Linha do Tempo
+                </h2>
+            )}
 
             <div className="relative">
-                {/* Linha vertical */}
-                {!loading && items.length > 0 && (
-                    <div className="absolute left-[19px] top-2 bottom-2 w-px"
-                        style={{ background: "var(--border)" }} />
-                )}
-
-                <ul className="flex flex-col gap-0">
+                <ul className={listClassName}>
                     {loading ? (
-                        [1,2,3,4].map(i => (
-                            <li key={i} className="flex items-start gap-3 pb-4 animate-pulse">
-                                <Skeleton className="w-10 h-10 rounded-full shrink-0" />
-                                <div className="flex-1 flex flex-col gap-2 pt-1">
-                                    <Skeleton className="h-3.5 w-28" />
-                                    <Skeleton className="h-2.5 w-20" />
-                                    <Skeleton className="h-1 w-full rounded-full" />
+                        [1, 2, 3, 4].map(i => (
+                            <li
+                                key={i}
+                                className={`${itemClassName} animate-pulse`}
+                                style={{ border: "1px solid var(--border)", background: "var(--surface-card)" }}
+                            >
+                                <Skeleton className="h-40 w-full rounded-none" />
+                                <div className="p-3 flex flex-col gap-2">
+                                    <Skeleton className="h-3.5 w-36" />
+                                    <Skeleton className="h-2.5 w-28" />
+                                    <Skeleton className="h-2 w-full rounded-full" />
                                 </div>
                             </li>
                         ))
@@ -75,86 +95,42 @@ export function MoodTimeline() {
                     ) : (
                         visible.map((item, i) => {
                             const color = moodColor(item.moodScore);
-                            const pct   = Math.round(item.moodScore * 100);
-                            const topEmotions = Object.entries(item.emotions ?? {})
-                                .sort((a, b) => b[1] - a[1])
-                                .slice(0, 3);
-
+                            const accent = getMoodProfile(item.sentiment).accent;
+                            const moodLabel = getMoodDisplayName(item.sentiment, item.sentiment);
+                            const pct = Math.round(item.moodScore * 100);
                             return (
-                                <li key={item.id} className="flex items-start gap-3 pb-5 relative">
-                                    {/* Dot na linha do tempo */}
-                                    <div className="relative shrink-0 z-10">
-                                        {item.image_mood ? (
-                                            <div className="w-10 h-10 rounded-full overflow-hidden"
-                                                style={{ boxShadow: `0 0 0 2px ${color}50, 0 0 0 4px var(--bg-page)` }}>
-                                                <img src={item.image_mood} alt={item.sentiment}
-                                                    className="w-full h-full object-cover object-top" />
-                                            </div>
-                                        ) : (
-                                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black"
-                                                style={{
-                                                    background: `${color}18`,
-                                                    border: `2px solid ${color}50`,
-                                                    boxShadow: `0 0 0 3px var(--bg-page)`,
-                                                    color,
-                                                    fontFamily: "var(--font-display)",
-                                                }}>
-                                                {pct}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Conteúdo */}
-                                    <div className="flex-1 min-w-0 rounded-2xl px-3 py-2.5"
-                                        style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
-                                        <div className="flex items-center justify-between gap-2 mb-1.5">
-                                            <span className="text-sm font-bold truncate"
-                                                style={{ color: getMoodTextColor(item.sentiment), fontFamily: "var(--font-display)" }}>
-                                                {item.sentiment}
-                                            </span>
-                                            <span className="text-[10px] shrink-0" style={{ color: "var(--text-faint)" }}>
-                                                {formatDate(item.analyzedAt)}
-                                            </span>
-                                        </div>
-
-                                        {/* Barra de score */}
-                                        <div className="h-1 rounded-full mb-2" style={{ background: "var(--border)" }}>
-                                            <div className="h-full rounded-full transition-all duration-700"
-                                                style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}88, ${color})` }} />
-                                        </div>
-
-                                        {/* Top emoções */}
-                                        <div className="flex flex-wrap gap-1">
-                                            {topEmotions.map(([k, v]) => (
-                                                <span key={k} className="text-[9px] px-1.5 py-0.5 rounded-full"
-                                                    style={{
-                                                        background: "var(--surface-card-alt)",
-                                                        color: "var(--text-faint)",
-                                                        border: "1px solid var(--border-subtle)",
-                                                    }}>
-                                                    {k} {Math.round(v * 100)}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
+                                <li
+                                    key={item.id}
+                                    className={itemClassName}
+                                    style={{ border: "1px solid var(--border)", background: "var(--surface-card)" }}
+                                >
+                                    <MoodPrincipalCard
+                                        moodImage={item.image_mood}
+                                        sentimentDisplay={moodLabel}
+                                        accent={accent}
+                                        moodScore={pct}
+                                        profileImage={profile?.img_profile}
+                                        displayName={profile?.display_name}
+                                        topRightText={formatDate(item.analyzedAt)}
+                                        minHeight={360}
+                                    />
                                 </li>
                             );
                         })
                     )}
                 </ul>
 
-                {/* Ver mais / menos */}
-                {!loading && items.length > 6 && (
+                {!loading && items.length > maxItems && (
                     <button
                         onClick={() => setShowAll(p => !p)}
-                        className="w-full text-xs font-semibold py-2.5 rounded-xl transition-all"
+                        className="w-full text-xs font-semibold py-2.5 rounded-xl transition-all mt-3"
                         style={{
                             background: "var(--surface-card)",
                             border: "1px solid var(--border)",
                             color: "var(--text-muted)",
                         }}
                     >
-                        {showAll ? "Ver menos ↑" : `Ver mais ${items.length - 6} registros ↓`}
+                        {showAll ? "Ver menos" : `Ver mais ${items.length - maxItems} registros`}
                     </button>
                 )}
             </div>

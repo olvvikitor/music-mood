@@ -1,5 +1,5 @@
 "use client"
-import { type ChangeEvent, useState } from "react";
+import { type ChangeEvent, useRef, useState } from "react";
 import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { useProfile } from "../hooks/useProfile";
@@ -14,6 +14,8 @@ import { updateFacePhotoService } from "@/shared/services/updateFacePhotoService
 import { getMoodDisplayName, getMoodProfile } from "@/shared/lib/moodHelpers";
 import { getCreditBalance } from "@/shared/services/creditService";
 import { CreditModal } from "@/shared/components/CreditModal";
+import { DailyMoodProgressCard } from "./DailyMoodProgressCard";
+import { MoodPrincipalCard } from "./MoodPrincipalCard";
 
 export default function Profile() {
     const { data: profile, isLoading: profileLoading, isError: profileError } = useProfile();
@@ -21,8 +23,6 @@ export default function Profile() {
     const queryClient = useQueryClient();
 
     const [isShareOpen,    setIsShareOpen]    = useState(false);
-    const [gifLoaded,      setGifLoaded]      = useState(false);
-    const [gifFailed,      setGifFailed]      = useState(false);
     const [facePhotoError, setFacePhotoError] = useState("");
     const [isStudioOpen,   setIsStudioOpen]   = useState(false);
     const [selectedStudioId, setSelectedStudioId] = useState<string>("");
@@ -62,6 +62,12 @@ export default function Profile() {
         onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['userProfile'] }); },
     });
 
+    const now = new Date();
+    const isMoodUnlocked = now.getHours() >= 19;
+    const [activeSlide, setActiveSlide] = useState(0);
+    const touchStartX = useRef<number | null>(null);
+    const touchStartY = useRef<number | null>(null);
+
     if (profileLoading || moodLoading) return <LoadingComponent type="profile" />;
     if (moodError || profileError || !mood || !profile) return (
         <ErrorComponent type="profile" retry={() => refreshUser(undefined)} />
@@ -70,7 +76,6 @@ export default function Profile() {
     const sentimentDisplay = getMoodDisplayName(mood?.sentiment, "—");
     const accent = getMoodProfile(mood?.sentiment).accent;
     const moodScore = Math.round((mood?.moodScore ?? 0) * 100);
-
     const handleFacePhotoChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
         event.target.value = "";
@@ -91,6 +96,10 @@ export default function Profile() {
     };
 
     const handleRefreshClick = () => {
+        if (!isMoodUnlocked) {
+            return;
+        }
+
         if (balance <= 0) {
             setNoCredits(true);
             setIsCreditOpen(true);
@@ -101,82 +110,50 @@ export default function Profile() {
         openStudio();
     };
 
-    return (
-        <>
-            <div className="glass-card glass-card-hover h-full flex flex-col overflow-hidden relative" style={{ minHeight: 430 }}>
+    const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+        const touch = event.touches[0];
+        touchStartX.current = touch.clientX;
+        touchStartY.current = touch.clientY;
+    };
 
-                {/* ── Imagem do mood ── */}
-                <div className="flex-1 mx-3 my-3 rounded-2xl overflow-hidden relative" style={{ background: "#05050a", minHeight: 390 }}>
-                    {!gifFailed ? (
-                        <>
-                            <img
-                                src={mood.image_mood}
-                                alt="Mood"
-                                className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${gifLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
-                                style={{ objectPosition: "top center" }}
-                                onLoad={() => setGifLoaded(true)}
-                                onError={() => { setGifFailed(true); setGifLoaded(false); }}
-                            />
-                            {!gifLoaded && (
-                                <div className="absolute inset-0 animate-pulse"
-                                    style={{ background: "linear-gradient(120deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01), rgba(255,255,255,0.05))" }} />
-                            )}
-                        </>
-                    ) : (
-                        <div className="absolute inset-0 flex items-center justify-center"
-                            style={{ background: "radial-gradient(circle at 20% 20%, rgba(111,174,155,0.24), transparent 55%), radial-gradient(circle at 80% 80%, rgba(176,106,133,0.22), transparent 60%), #0b0b11" }}>
-                            <p className="text-xs uppercase tracking-[0.18em] text-white/70"
-                                style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
-                                {sentimentDisplay}
-                            </p>
-                        </div>
-                    )}
+    const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+        if (touchStartX.current === null || touchStartY.current === null) {
+            return;
+        }
 
-                    <div className="absolute inset-0"
-                        style={{ background: "linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 38%, transparent 52%, rgba(0,0,0,.88) 100%)" }} />
-                    <div className="absolute inset-0"
-                        style={{ background: `radial-gradient(ellipse 60% 40% at 80% 15%, ${accent}33 0%, transparent 60%)` }} />
-                    <div className="absolute inset-0 opacity-[0.10] mix-blend-soft-light mood-noise" />
+        const touch = event.changedTouches[0];
+        const deltaX = touch.clientX - touchStartX.current;
+        const deltaY = touch.clientY - touchStartY.current;
 
-                    {/* Topo do card */}
-                    <div className="relative z-10 flex items-center gap-2.5 px-5 pt-5">
-                        <img src={profile.img_profile} alt="Avatar"
-                            className="w-9 h-9 rounded-full object-cover shrink-0"
-                            style={{ border: "1.5px solid rgba(255,255,255,.25)" }} />
-                        <span className="flex-1 text-[11px] uppercase tracking-[.12em] truncate"
-                            style={{ color: "rgba(255,255,255,.6)" }}>
-                            {profile.display_name}
-                        </span>
-                        <span className="text-[11px] uppercase tracking-[.18em]"
-                            style={{ color: "rgba(255,255,255,.28)" }}>
-                            MusicMood
-                        </span>
-                    </div>
+        touchStartX.current = null;
+        touchStartY.current = null;
 
-                    {/* Rodapé do card */}
-                    <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-6">
-                        <p className="text-[9px] uppercase tracking-[.22em] mb-2"
-                            style={{ color: "rgba(255,255,255,.38)" }}>
-                            se sentindo 
-                        </p>
-                        <p className="font-black italic leading-[1.06] tracking-tight whitespace-nowrap overflow-hidden text-ellipsis"
-                            style={{ fontSize: "clamp(24px, 6.4vw, 34px)", color: "#fff", textShadow: "0 2px 24px rgba(0,0,0,.8)" }}>
-                            {sentimentDisplay}
-                        </p>
-                        <div className="flex items-center gap-3 mt-4">
-                            <div className="flex items-center gap-2 rounded-full px-3 py-1"
-                                style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.15)" }}>
-                                <span className="text-[12px] font-bold text-white">{moodScore}%</span>
-                                <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,.4)" }}>score</span>
-                            </div>
-                            <div className="flex items-end gap-0.75" style={{ height: 16 }}>
-                                {[38, 80, 100, 62, 88].map((h, i) => (
-                                    <div key={i} style={{ width: 3, height: `${h}%`, borderRadius: "2px 2px 0 0", background: accent, opacity: 0.8 }} />
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+        const passedThreshold = Math.abs(deltaX) > 40;
+        if (!isHorizontalSwipe || !passedThreshold) {
+            return;
+        }
+
+        if (deltaX < 0) {
+            setActiveSlide(prev => Math.min(prev + 1, 1));
+            return;
+        }
+
+        setActiveSlide(prev => Math.max(prev - 1, 0));
+    };
+
+    const lastMoodCard = (
+        <div className="glass-card glass-card-hover h-full flex flex-col overflow-hidden relative" style={{ minHeight: 520 }}>
+                <MoodPrincipalCard
+                    moodImage={mood.image_mood}
+                    sentimentDisplay={sentimentDisplay}
+                    accent={accent}
+                    moodScore={moodScore}
+                    profileImage={profile.img_profile}
+                    displayName={profile.display_name}
+                    topRightText="MusicMood"
+                    minHeight={470}
+                />
 
                 {/* ── Barra de ações ── */}
                 <div className="px-4 pb-3 flex items-center gap-2 relative z-10">
@@ -204,8 +181,14 @@ export default function Profile() {
                     <button
                         onClick={handleRefreshClick}
                         className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 ml-auto"
-                        style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}
-                        title="Gerar nova imagem">
+                        style={{
+                            background: "var(--surface-card-alt)",
+                            border: "1px solid var(--border-medium)",
+                            opacity: isMoodUnlocked ? 1 : 0.45,
+                            cursor: isMoodUnlocked ? "pointer" : "not-allowed",
+                        }}
+                        title={isMoodUnlocked ? "Gerar nova imagem" : "Atualizacao disponivel as 19h"}
+                        disabled={!isMoodUnlocked}>
                         <RotateCw className={`w-4.5 h-4.5 text-white/65 ${isPending ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
@@ -213,6 +196,70 @@ export default function Profile() {
                 {facePhotoError && (
                     <div className="px-4 pb-3 -mt-1"><p className="text-[10px] text-rose-300">{facePhotoError}</p></div>
                 )}
+        </div>
+    );
+
+    return (
+        <>
+            <div className="relative w-full">
+                <div
+                    className="p-1 rounded-xl mb-3 grid grid-cols-2 gap-1"
+                    style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-subtle)" }}
+                >
+                    <button
+                        onClick={() => setActiveSlide(0)}
+                        className="px-3 py-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all"
+                        style={{
+                            background: activeSlide === 0 ? "var(--surface-card)" : "transparent",
+                            color: activeSlide === 0 ? "var(--text-primary)" : "var(--text-muted)",
+                            border: activeSlide === 0 ? "1px solid var(--border-medium)" : "1px solid transparent",
+                        }}
+                    >
+                        Ultimo humor
+                    </button>
+
+                    <button
+                        onClick={() => setActiveSlide(1)}
+                        className="px-3 py-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all"
+                        style={{
+                            background: activeSlide === 1 ? "var(--surface-card)" : "transparent",
+                            color: activeSlide === 1 ? "var(--text-primary)" : "var(--text-muted)",
+                            border: activeSlide === 1 ? "1px solid var(--border-medium)" : "1px solid transparent",
+                        }}
+                    >
+                        Em construcao
+                    </button>
+                </div>
+
+                <div
+                    className="overflow-hidden rounded-3xl w-full"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                    style={{ touchAction: "pan-y" }}
+                >
+                    <div
+                        className="flex w-full transition-transform duration-500 ease-out"
+                        style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+                    >
+                        <div className="w-full shrink-0">{lastMoodCard}</div>
+                        <div className="w-full shrink-0"><DailyMoodProgressCard /></div>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-2 mt-3">
+                    {[0, 1].map(index => (
+                        <button
+                            key={index}
+                            onClick={() => setActiveSlide(index)}
+                            aria-label={index === 0 ? "Mostrar ultimo humor" : "Mostrar card em construcao"}
+                            className="h-2.5 rounded-full transition-all"
+                            style={{
+                                width: activeSlide === index ? 22 : 10,
+                                background: activeSlide === index ? "#00c4a0" : "var(--border-medium)",
+                            }}
+                        />
+                    ))}
+                </div>
             </div>
 
             {/* ── Modais ── */}
@@ -240,13 +287,6 @@ export default function Profile() {
                     onPurchased={() => void refetchBalance()}
                 />
             )}
-
-            <style jsx>{`
-                .mood-noise {
-                    background-image: radial-gradient(rgba(255,255,255,0.38) 0.6px, transparent 0.6px);
-                    background-size: 3px 3px;
-                }
-            `}</style>
         </>
     );
 }

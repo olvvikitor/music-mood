@@ -8,6 +8,6 @@ export const loginWithEmail = async (email: string, password: string) => {
         if (error.response?.data?.message) {
             throw new Error(error.response.data.message);
         }
-        throw new Error("Erro na conexão com o servidor. Tente novamente.");
+        throw new Error(`Erro na conexão com o servidor. Tente novamente.${error}`);
     }
 };

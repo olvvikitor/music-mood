@@ -17,8 +17,6 @@ import { NowPlayingCard } from "./components/NowPlayingCard";
 import { InsightsSection } from "./components/InsightsSection";
 import { EmotionalCardChart } from "./components/EmotionalCardGraphicChart";
 import { ProfileStats } from "./components/ProfileStats";
-import { MoodWeekChart } from "./components/MoodWeekChart";
-import { MoodTimeline } from "./components/MoodTimeline";
 
 // ─── Background blobs ─────────────────────────────────────────────────────────
 
@@ -73,14 +71,8 @@ function ProfileTab() {
             {/* Insight do dia */}
             <InsightsSection />
 
-            {/* Gráfico da semana */}
-            <MoodWeekChart />
-
             {/* Estatísticas gerais */}
             <ProfileStats />
-
-            {/* Linha do tempo emocional */}
-            <MoodTimeline />
         </div>
     );
 }
@@ -205,12 +197,10 @@ export default function Dashboard() {
                                 <div className="col-span-12 xl:col-span-5 flex flex-col gap-6">
                                     <div className="min-h-[380px]"><Profile /></div>
                                     <InsightsSection />
-                                    <MoodWeekChart />
                                 </div>
                                 {/* Coluna direita */}
                                 <div className="col-span-12 xl:col-span-7 flex flex-col gap-6">
                                     <ProfileStats />
-                                    <MoodTimeline />
                                 </div>
                             </div>
                         </div>

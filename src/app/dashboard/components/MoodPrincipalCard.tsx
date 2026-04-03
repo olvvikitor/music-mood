@@ -27,7 +27,15 @@ export function MoodPrincipalCard({
     const [imageFailed, setImageFailed] = useState(false);
 
     return (
-        <div className="flex-1 mx-3 my-3 rounded-2xl overflow-hidden relative" style={{ background: "#05050a", minHeight }}>
+        <div
+            className="flex-1 mx-3 my-3 rounded-2xl overflow-hidden relative"
+            style={{
+                background: "#05050a",
+                minHeight,
+                aspectRatio: moodImage && !imageFailed ? "9 / 16" : undefined,
+                maxHeight: moodImage && !imageFailed ? 580 : undefined,
+            }}
+        >
             {!imageFailed && moodImage ? (
                 <>
                     <img

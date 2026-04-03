@@ -13,24 +13,28 @@ function Skeleton({ className = "" }: { className?: string }) {
 
 type PanelType = "music" | "moods" | "average" | null;
 
-function StatCard({ icon, label, value, accent, onClick }: {
+function StatCard({ icon, label, value, accent, onClick, isActive }: {
     icon: React.ReactNode;
     label: string;
     value: string | number;
     accent: string;
     onClick: () => void;
+    isActive: boolean;
 }) {
     return (
         <button
             onClick={onClick}
             className="flex flex-col gap-1 rounded-2xl p-4 text-left transition-all active:scale-[0.98]"
-            style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}
+            style={{
+                background: isActive ? "var(--surface-card-alt)" : "var(--surface-card)",
+                border: isActive ? "1px solid var(--border-strong)" : "1px solid var(--border)",
+            }}
         >
             <div className="w-7 h-7 rounded-xl flex items-center justify-center mb-1"
-                style={{ background: `${accent}18`, color: accent }}>
+                style={{ background: `${accent}14`, color: accent }}>
                 {icon}
             </div>
-            <span className="text-2xl font-black" style={{ fontFamily: "var(--font-display)", color: accent }}>
+            <span className="text-2xl font-black" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
                 {value}
             </span>
             <span className="text-[10px] uppercase tracking-widest" style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}>
@@ -52,7 +56,7 @@ export function ProfileStats() {
     const averageTouchStartY = useRef<number | null>(null);
 
     useEffect(() => {
-        getUserStats().then(setData).catch(() => {}).finally(() => setLoading(false));
+        getUserStats().then(setData).catch(() => { }).finally(() => setLoading(false));
     }, []);
 
     const avgPct = Math.round((data?.avgMoodScore ?? 0) * 100);
@@ -98,6 +102,9 @@ export function ProfileStats() {
     const onAverageTouchStart = createTouchStartHandler(averageTouchStartX, averageTouchStartY);
     const onAverageTouchEnd = createTouchEndHandler(averageTouchStartX, averageTouchStartY, setAverageSlide, 1);
 
+    const maxArtistCount = Math.max(...(data?.topArtists ?? []).map(a => a.count), 1);
+    const maxTrackCount = Math.max(...(data?.topTracks ?? []).map(t => t.count), 1);
+
     return (
         <div className="flex flex-col gap-4">
             <h2 className="text-xs font-bold uppercase tracking-widest" style={{ fontFamily: "var(--font-display)", color: "var(--text-muted)" }}>
@@ -107,14 +114,15 @@ export function ProfileStats() {
             {/* Cards resumo */}
             <div className="grid grid-cols-3 gap-3">
                 {loading ? (
-                    [1,2,3].map(i => <Skeleton key={i} className="h-24 rounded-2xl" />)
+                    [1, 2, 3].map(i => <Skeleton key={i} className="h-24 rounded-2xl" />)
                 ) : (
                     <>
                         <StatCard
                             icon={<Headphones className="w-3.5 h-3.5" />}
                             label="Musicas"
                             value={data?.totalListened ?? 0}
-                            accent="#00ffb3"
+                            accent="#6fae9b"
+                            isActive={activePanel === "music"}
                             onClick={() => {
                                 setMusicSlide(0);
                                 setActivePanel("music");
@@ -124,14 +132,16 @@ export function ProfileStats() {
                             icon={<BarChart2 className="w-3.5 h-3.5" />}
                             label="Moods"
                             value={data?.totalMoods ?? 0}
-                            accent="#a259ff"
+                            accent="#8a7bb8"
+                            isActive={activePanel === "moods"}
                             onClick={() => setActivePanel("moods")}
                         />
                         <StatCard
                             icon={<Music2 className="w-3.5 h-3.5" />}
                             label="Media"
                             value={`${avgPct}%`}
-                            accent="#ff2d87"
+                            accent="#b06a85"
+                            isActive={activePanel === "average"}
                             onClick={() => {
                                 setAverageSlide(0);
                                 setActivePanel("average");
@@ -178,11 +188,15 @@ export function ProfileStats() {
                                 onTouchStart={onMusicTouchStart}
                                 onTouchEnd={onMusicTouchEnd}
                             >
+                                {/* Top Artistas */}
                                 <div className="w-full shrink-0 p-3" style={{ background: "var(--surface-card)" }}>
                                     <ul className="flex flex-col gap-2">
                                         {(data?.topArtists ?? []).map((a, i) => (
-                                            <li key={a.name} className="flex items-center gap-3 p-2 rounded-xl" style={{ background: "var(--surface-card-alt)" }}>
-                                                <span className="text-xs font-black w-4" style={{ color: i === 0 ? "#00ffb3" : i === 1 ? "#a259ff" : "var(--text-faint)", fontFamily: "var(--font-display)" }}>{i + 1}</span>
+                                            <li key={a.name} className="flex items-center gap-3 p-2.5 rounded-xl" style={{ background: "var(--surface-card-alt)" }}>
+                                                <span className="text-xs font-black w-5 text-center" style={{
+                                                    color: i === 0 ? "#6fae9b" : "var(--text-faint)",
+                                                    fontFamily: "var(--font-display)",
+                                                }}>{i + 1}</span>
                                                 {a.img_url ? (
                                                     <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0">
                                                         <Image src={a.img_url} alt={a.name} fill sizes="36px" className="object-cover" />
@@ -192,18 +206,37 @@ export function ProfileStats() {
                                                         <User2 className="w-4 h-4" style={{ color: "var(--text-faint)" }} />
                                                     </div>
                                                 )}
-                                                <span className="flex-1 text-sm font-semibold truncate" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>{a.name}</span>
-                                                <span className="text-xs" style={{ color: "var(--text-muted)" }}>{a.count}x</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <span className="text-sm font-semibold truncate block" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>{a.name}</span>
+                                                    {/* Frequency bar */}
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+                                                            <div
+                                                                className="h-full rounded-full transition-all duration-500"
+                                                                style={{
+                                                                    width: `${Math.round((a.count / maxArtistCount) * 100)}%`,
+                                                                    background: "#6fae9b",
+                                                                    opacity: 0.6,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <span className="text-[10px] tabular-nums" style={{ color: "var(--text-faint)" }}>{a.count}x</span>
+                                                    </div>
+                                                </div>
                                             </li>
                                         ))}
                                     </ul>
                                 </div>
 
+                                {/* Top Musicas */}
                                 <div className="w-full shrink-0 p-3" style={{ background: "var(--surface-card)" }}>
                                     <ul className="flex flex-col gap-2">
                                         {(data?.topTracks ?? []).map((t, i) => (
-                                            <li key={`${t.title}-${i}`} className="flex items-center gap-3 p-2 rounded-xl" style={{ background: "var(--surface-card-alt)" }}>
-                                                <span className="text-xs font-black w-4" style={{ color: i === 0 ? "#00ffb3" : i === 1 ? "#a259ff" : "var(--text-faint)", fontFamily: "var(--font-display)" }}>{i + 1}</span>
+                                            <li key={`${t.title}-${i}`} className="flex items-center gap-3 p-2.5 rounded-xl" style={{ background: "var(--surface-card-alt)" }}>
+                                                <span className="text-xs font-black w-5 text-center" style={{
+                                                    color: i === 0 ? "#8a7bb8" : "var(--text-faint)",
+                                                    fontFamily: "var(--font-display)",
+                                                }}>{i + 1}</span>
                                                 {t.img_url ? (
                                                     <div className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0">
                                                         <Image src={t.img_url} alt={t.title} fill sizes="36px" className="object-cover" />
@@ -215,9 +248,21 @@ export function ProfileStats() {
                                                 )}
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>{t.title}</p>
-                                                    <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>{t.artist}</p>
+                                                    <p className="text-[10px] truncate" style={{ color: "var(--text-faint)" }}>{t.artist}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+                                                            <div
+                                                                className="h-full rounded-full transition-all duration-500"
+                                                                style={{
+                                                                    width: `${Math.round((t.count / maxTrackCount) * 100)}%`,
+                                                                    background: "#8a7bb8",
+                                                                    opacity: 0.5,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <span className="text-[10px] tabular-nums" style={{ color: "var(--text-faint)" }}>{t.count}x</span>
+                                                    </div>
                                                 </div>
-                                                <span className="text-xs" style={{ color: "var(--text-muted)" }}>{t.count}x</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -267,20 +312,16 @@ export function ProfileStats() {
                                         style={{
                                             background: "var(--surface-card-alt)",
                                             border: "1px solid var(--border)",
-                                            boxShadow: "inset 0 0 40px rgba(255,45,135,0.08)",
                                         }}>
-                                        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full"
-                                            style={{ background: "radial-gradient(circle, rgba(255,45,135,0.24), transparent 70%)" }} />
 
                                         <div
                                             className="w-24 h-24 rounded-full shrink-0 flex items-center justify-center"
                                             style={{
-                                                background: `conic-gradient(#ff2d87 ${avgPct * 3.6}deg, rgba(255,255,255,0.12) 0deg)`,
-                                                boxShadow: "0 0 24px rgba(255,45,135,0.22)",
+                                                background: `conic-gradient(#b06a85 ${avgPct * 3.6}deg, var(--border) 0deg)`,
                                             }}
                                         >
                                             <div className="w-18 h-18 rounded-full flex items-center justify-center" style={{ background: "var(--surface-card)" }}>
-                                                <span className="text-lg font-black" style={{ color: "#ff2d87", fontFamily: "var(--font-display)" }}>{avgPct}%</span>
+                                                <span className="text-lg font-black" style={{ color: "#b06a85", fontFamily: "var(--font-display)" }}>{avgPct}%</span>
                                             </div>
                                         </div>
 
@@ -306,7 +347,7 @@ export function ProfileStats() {
                                     className="h-2 rounded-full transition-all"
                                     style={{
                                         width: averageSlide === index ? 20 : 8,
-                                        background: averageSlide === index ? "#ff2d87" : "var(--border-medium)",
+                                        background: averageSlide === index ? "#b06a85" : "var(--border-medium)",
                                     }}
                                 />
                             ))}

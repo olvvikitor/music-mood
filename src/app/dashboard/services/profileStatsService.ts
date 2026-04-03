@@ -35,3 +35,30 @@ export async function getMoodWeek(): Promise<MoodWeekItem[]> {
 export async function getUserStats(): Promise<UserStats> {
     return api.get("/user/stats").then(r => r.data);
 }
+
+export type Badge = {
+    id: string;
+    label: string;
+    description: string;
+    earned: boolean;
+};
+
+export type UserInsights = {
+    moodStreak: number;
+    dominantMoodMonth: string | null;
+    volatility: number;
+    volatilityLabel: string;
+    bestDay: string | null;
+    worstDay: string | null;
+    peakHour: number | null;
+    listenerType: "explorador" | "fiel";
+    uniqueArtists: number;
+    totalTracksListened: number;
+    badges: Badge[];
+    listeningPeriods: { manha: number; tarde: number; noite: number; madrugada: number };
+    totalMoods: number;
+};
+
+export async function getUserInsights(): Promise<UserInsights> {
+    return api.get("/user/insights").then(r => r.data);
+}

@@ -1,19 +1,16 @@
 "use client"
-import { type ChangeEvent, useRef, useState } from "react";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { useProfile } from "../hooks/useProfile";
-import { Camera, RotateCw, Share2 } from 'lucide-react';
+import { Camera, Share2 } from 'lucide-react';
 import { useMoodProfile } from "../hooks/useMoodProfile";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getRefreshMoodStudios, getRefreshProfile, type RefreshMoodStudio } from "../services/getRefreshProfileService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getRefreshProfile } from "../services/getRefreshProfileService";
 import NProgress from "nprogress";
 import { ShareModal } from "./ShareModal";
-import { StudioPickerModal } from "./StudioPickerModal";
 import { updateFacePhotoService } from "@/shared/services/updateFacePhotoService";
 import { getMoodDisplayName, getMoodProfile } from "@/shared/lib/moodHelpers";
-import { getCreditBalance } from "@/shared/services/creditService";
-import { CreditModal } from "@/shared/components/CreditModal";
 import { DailyMoodProgressCard } from "./DailyMoodProgressCard";
 import { MoodPrincipalCard } from "./MoodPrincipalCard";
 
@@ -22,38 +19,18 @@ export default function Profile() {
     const { data: mood, isLoading: moodLoading, isError: moodError } = useMoodProfile();
     const queryClient = useQueryClient();
 
-    const [isShareOpen,    setIsShareOpen]    = useState(false);
+    const [isShareOpen, setIsShareOpen] = useState(false);
     const [facePhotoError, setFacePhotoError] = useState("");
-    const [isStudioOpen,   setIsStudioOpen]   = useState(false);
-    const [selectedStudioId, setSelectedStudioId] = useState<string>("");
-    const [isCreditOpen, setIsCreditOpen] = useState(false);
-    const [noCredits, setNoCredits] = useState(false);
-
-    const { data: creditData, refetch: refetchBalance } = useQuery({
-        queryKey: ["creditBalance"],
-        queryFn: getCreditBalance,
-        staleTime: 30_000,
-    });
-    const balance = creditData?.balance ?? 0;
-
-    // Studios disponíveis
-    const { data: studios = [], isLoading: studiosLoading, isError: studiosError, refetch: refetchStudios } = useQuery({
-        queryKey: ["refreshMoodStudios"],
-        queryFn: getRefreshMoodStudios,
-        enabled: false,
-        staleTime: 1000 * 60 * 10,
-    });
+    const autoRefreshTriggered = useRef(false);
 
     const { mutate: refreshUser, isPending } = useMutation({
         mutationFn: (studioId?: string) => getRefreshProfile(studioId),
         onMutate: () => NProgress.start(),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['moodProfile'] });
-            await refetchBalance();
         },
         onSettled: () => {
             NProgress.done();
-            setIsStudioOpen(false);
         },
     });
 
@@ -62,8 +39,27 @@ export default function Profile() {
         onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['userProfile'] }); },
     });
 
-    const now = new Date();
-    const isMoodUnlocked = now.getHours() >= 19;
+    // ── Auto-refresh às 19h ──
+    useEffect(() => {
+        if (moodLoading || !mood || autoRefreshTriggered.current || isPending) return;
+
+        const now = new Date();
+        if (now.getHours() < 19) return;
+
+        // Verifica se o mood atual já foi analisado depois das 19h de hoje
+        const todayRelease = new Date(now);
+        todayRelease.setHours(19, 0, 0, 0);
+
+        const analyzedAt = new Date(mood.analyzedAt);
+        if (analyzedAt >= todayRelease) return; // Já foi atualizado hoje
+
+        autoRefreshTriggered.current = true;
+        const preferredStudio = typeof window !== "undefined"
+            ? localStorage.getItem("preferredStudioId") ?? undefined
+            : undefined;
+        refreshUser(preferredStudio);
+    }, [mood, moodLoading, isPending, refreshUser]);
+
     const [activeSlide, setActiveSlide] = useState(0);
     const touchStartX = useRef<number | null>(null);
     const touchStartY = useRef<number | null>(null);
@@ -85,29 +81,6 @@ export default function Profile() {
         setFacePhotoError("");
         try { await updateFacePhoto(selectedFile); }
         catch { setFacePhotoError("Não foi possível atualizar a foto agora."); }
-    };
-
-    const openStudio = () => {
-        setIsStudioOpen(true);
-        void refetchStudios().then(result => {
-            const list = result.data ?? [];
-            if (!selectedStudioId && list.length > 0) setSelectedStudioId(list[0].id);
-        });
-    };
-
-    const handleRefreshClick = () => {
-        if (!isMoodUnlocked) {
-            return;
-        }
-
-        if (balance <= 0) {
-            setNoCredits(true);
-            setIsCreditOpen(true);
-            return;
-        }
-
-        setNoCredits(false);
-        openStudio();
     };
 
     const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -144,58 +117,43 @@ export default function Profile() {
 
     const lastMoodCard = (
         <div className="glass-card glass-card-hover h-full flex flex-col overflow-hidden relative" style={{ minHeight: 520 }}>
-                <MoodPrincipalCard
-                    moodImage={mood.image_mood}
-                    sentimentDisplay={sentimentDisplay}
-                    accent={accent}
-                    moodScore={moodScore}
-                    profileImage={profile.img_profile}
-                    displayName={profile.display_name}
-                    topRightText="MusicMood"
-                    minHeight={470}
-                />
+            <MoodPrincipalCard
+                moodImage={mood.image_mood}
+                sentimentDisplay={sentimentDisplay}
+                accent={accent}
+                moodScore={moodScore}
+                profileImage={profile.img_profile}
+                displayName={profile.display_name}
+                topRightText="MusicMood"
+                minHeight={470}
+            />
 
-                {/* ── Barra de ações ── */}
-                <div className="px-4 pb-3 flex items-center gap-2 relative z-10">
+            {/* ── Barra de ações ── */}
+            <div className="px-4 pb-3 flex items-center gap-2 relative z-10">
 
-                    {/* Câmera */}
-                    <label
-                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer"
-                        style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)", opacity: isUpdatingFacePhoto ? 0.7 : 1 }}
-                        title="Atualizar foto do rosto">
-                        <Camera className={`w-4.5 h-4.5 text-white/65 ${isUpdatingFacePhoto ? 'animate-pulse' : ''}`} />
-                        <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
-                            disabled={isUpdatingFacePhoto}
-                            onChange={event => { void handleFacePhotoChange(event); }} />
-                    </label>
+                {/* Câmera */}
+                <label
+                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+                    style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)", opacity: isUpdatingFacePhoto ? 0.7 : 1 }}
+                    title="Atualizar foto do rosto">
+                    <Camera className={`w-4.5 h-4.5 text-white/65 ${isUpdatingFacePhoto ? 'animate-pulse' : ''}`} />
+                    <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
+                        disabled={isUpdatingFacePhoto}
+                        onChange={event => { void handleFacePhotoChange(event); }} />
+                </label>
 
-                    {/* Compartilhar */}
-                    <button onClick={() => setIsShareOpen(true)}
-                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
-                        style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}
-                        title="Compartilhar">
-                        <Share2 className="w-4.5 h-4.5 text-white/65" />
-                    </button>
+                {/* Compartilhar */}
+                <button onClick={() => setIsShareOpen(true)}
+                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+                    style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}
+                    title="Compartilhar">
+                    <Share2 className="w-4.5 h-4.5 text-white/65" />
+                </button>
+            </div>
 
-                    {/* Gerar imagem */}
-                    <button
-                        onClick={handleRefreshClick}
-                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 ml-auto"
-                        style={{
-                            background: "var(--surface-card-alt)",
-                            border: "1px solid var(--border-medium)",
-                            opacity: isMoodUnlocked ? 1 : 0.45,
-                            cursor: isMoodUnlocked ? "pointer" : "not-allowed",
-                        }}
-                        title={isMoodUnlocked ? "Gerar nova imagem" : "Atualizacao disponivel as 19h"}
-                        disabled={!isMoodUnlocked}>
-                        <RotateCw className={`w-4.5 h-4.5 text-white/65 ${isPending ? 'animate-spin' : ''}`} />
-                    </button>
-                </div>
-
-                {facePhotoError && (
-                    <div className="px-4 pb-3 -mt-1"><p className="text-[10px] text-rose-300">{facePhotoError}</p></div>
-                )}
+            {facePhotoError && (
+                <div className="px-4 pb-3 -mt-1"><p className="text-[10px] text-rose-300">{facePhotoError}</p></div>
+            )}
         </div>
     );
 
@@ -227,7 +185,7 @@ export default function Profile() {
                             border: activeSlide === 1 ? "1px solid var(--border-medium)" : "1px solid transparent",
                         }}
                     >
-                        Em construcao
+                        Proximo humor
                     </button>
                 </div>
 
@@ -251,7 +209,7 @@ export default function Profile() {
                         <button
                             key={index}
                             onClick={() => setActiveSlide(index)}
-                            aria-label={index === 0 ? "Mostrar ultimo humor" : "Mostrar card em construcao"}
+                            aria-label={index === 0 ? "Mostrar ultimo humor" : "Mostrar proximo humor"}
                             className="h-2.5 rounded-full transition-all"
                             style={{
                                 width: activeSlide === index ? 22 : 10,
@@ -265,27 +223,6 @@ export default function Profile() {
             {/* ── Modais ── */}
             {profile && mood && (
                 <ShareModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} mood={mood} profile={profile} />
-            )}
-
-            {isStudioOpen && (
-                <StudioPickerModal
-                    studios={studios}
-                    loading={studiosLoading}
-                    error={studiosError}
-                    selectedId={selectedStudioId}
-                    onSelect={s => setSelectedStudioId(s.id)}
-                    onConfirm={() => refreshUser(selectedStudioId || undefined)}
-                    onClose={() => !isPending && setIsStudioOpen(false)}
-                    isPending={isPending}
-                />
-            )}
-
-            {isCreditOpen && (
-                <CreditModal
-                    noCredits={noCredits}
-                    onClose={() => setIsCreditOpen(false)}
-                    onPurchased={() => void refetchBalance()}
-                />
             )}
         </>
     );

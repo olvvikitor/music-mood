@@ -42,7 +42,7 @@ export function MoodTimeline({ hideHeader = false, maxItems = 6, horizontal = tr
     useEffect(() => {
         getMoodHistory(20)
             .then(setItems)
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => setLoading(false));
     }, []);
 
@@ -51,7 +51,7 @@ export function MoodTimeline({ hideHeader = false, maxItems = 6, horizontal = tr
         ? "flex gap-3 overflow-x-auto snap-x pb-1"
         : "flex flex-col gap-3";
     const itemClassName = horizontal
-        ? "rounded-2xl overflow-hidden shrink-0 w-[280px] md:w-[320px] snap-start"
+        ? "rounded-2xl overflow-hidden shrink-0 w-[240px] md:w-[280px] snap-start"
         : "rounded-2xl overflow-hidden";
 
     return (
@@ -112,7 +112,7 @@ export function MoodTimeline({ hideHeader = false, maxItems = 6, horizontal = tr
                                         profileImage={profile?.img_profile}
                                         displayName={profile?.display_name}
                                         topRightText={formatDate(item.analyzedAt)}
-                                        minHeight={360}
+                                        minHeight={320}
                                     />
                                 </li>
                             );

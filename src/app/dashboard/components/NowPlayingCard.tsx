@@ -85,10 +85,7 @@ export function NowPlayingCard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-[1fr_160px] gap-4 items-start">
                     <div className="min-w-0 space-y-2">
-                        <p className="text-[10px] uppercase tracking-[0.16em] text-white/35"
-                            style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}>
-                            Tocando agora
-                        </p>
+
                         <h3 className="text-lg md:text-xl leading-tight text-white font-800 truncate"
                             style={{ fontFamily: "var(--font-display)", fontWeight: 800 }}>
                             {track.music}

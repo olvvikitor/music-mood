@@ -200,12 +200,12 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
     return createPortal(
         <div
             className="fixed inset-0 z-100 flex items-center sm:items-center justify-center bg-black/80 backdrop-blur-xl overflow-y-auto"
-              onClick={onClose}
+            onClick={onClose}
 
         >
             <div
                 className="relative w-full max-w-sm mx-auto rounded-t-[28px] sm:rounded-[28px] overflow-hidden"
-                style={{ background: "#0e0e0e", border: "1px solid rgba(255,255,255,0.1)" }}
+                style={{ background: "#0e0e0e", border: "1px solid rgba(255,255,255,0.1)", maxHeight: "95vh" }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Fechar */}
@@ -215,7 +215,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                 <div
                     ref={posterRef}
                     className="w-full relative overflow-hidden flex flex-col"
-                    style={{ aspectRatio: "9/16", maxHeight: 360, background: "#05050a" }}
+                    style={{ aspectRatio: "9/16", maxHeight: "calc(95vh - 200px)", background: "#05050a" }}
                 >
                     {/* GIF */}
                     <img
@@ -280,7 +280,7 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                             className="text-[9px] uppercase tracking-[.22em] mb-2"
                             style={{ color: "rgba(255,255,255,.38)" }}
                         >
-                            se sentindo 
+                            se sentindo
                         </p>
 
                         <p

@@ -74,7 +74,7 @@ function ComparePanel({
     useEffect(() => {
         compareMood(friendId)
             .then(setData)
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => setLoading(false));
     }, [friendId]);
 
@@ -270,7 +270,15 @@ export function FeedPost({ post }: { post: FeedPostData }) {
             className="glass-card glass-card-hover h-full flex flex-col overflow-hidden relative"
             style={{ minHeight: 390 }}
         >
-            <div className="relative flex-1 mx-3 mt-3 mb-2 rounded-2xl overflow-hidden" style={{ minHeight: 320, background: "#05050a" }}>
+            <div
+                className="relative flex-1 mx-3 mt-3 mb-2 rounded-2xl overflow-hidden"
+                style={{
+                    minHeight: 320,
+                    background: "#05050a",
+                    aspectRatio: imageMood ? "9 / 16" : undefined,
+                    maxHeight: imageMood ? 580 : undefined,
+                }}
+            >
                 {!imgLoaded && imageMood && (
                     <div
                         className="absolute inset-0 animate-pulse"
@@ -323,7 +331,7 @@ export function FeedPost({ post }: { post: FeedPostData }) {
 
                 <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-4">
                     <p className="text-[9px] uppercase tracking-[.22em] mb-2" style={{ color: "rgba(255,255,255,.38)" }}>
-                        se sentindo 
+                        se sentindo
                     </p>
 
                     <p

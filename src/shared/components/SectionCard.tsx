@@ -22,7 +22,7 @@ export function SectionCard({
     return (
         <div className={`glass-card flex flex-col overflow-hidden ${noPadding ? "" : "p-5 md:p-6"} ${className}`}>
             {(title || icon) && (
-                <div className="flex items-center justify-between mb-4 shrink-0">
+                <div className={`flex items-center justify-between mb-4 shrink-0 ${noPadding ? "px-5 pt-5" : ""}`}>
                     <div className="flex items-center gap-2.5">
                         {icon && (
                             <div

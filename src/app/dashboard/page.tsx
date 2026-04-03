@@ -17,6 +17,7 @@ import { NowPlayingCard } from "./components/NowPlayingCard";
 import { InsightsSection } from "./components/InsightsSection";
 import { EmotionalCardChart } from "./components/EmotionalCardGraphicChart";
 import { ProfileStats } from "./components/ProfileStats";
+import { ProfileInsights } from "./components/ProfileInsights";
 import { MoodWeekChart } from "./components/MoodWeekChart";
 
 // ─── Background blobs ─────────────────────────────────────────────────────────
@@ -55,10 +56,10 @@ function MobileHeader() {
 // ─── Desktop sidebar ──────────────────────────────────────────────────────────
 
 const SIDEBAR_TABS: { key: DashTab; label: string; icon: React.ReactNode }[] = [
-    { key: "feed",    label: "Feed",          icon: <LayoutGrid className="w-4 h-4" /> },
-    { key: "profile", label: "Meu Perfil",    icon: <UserCircle className="w-4 h-4" /> },
+    { key: "feed", label: "Feed", icon: <LayoutGrid className="w-4 h-4" /> },
+    { key: "profile", label: "Meu Perfil", icon: <UserCircle className="w-4 h-4" /> },
     { key: "playing", label: "Tocando Agora", icon: <Radio className="w-4 h-4" /> },
-    { key: "mix",     label: "Mix Emocional", icon: <Sparkles className="w-4 h-4" /> },
+    { key: "mix", label: "Mix Emocional", icon: <Sparkles className="w-4 h-4" /> },
 ];
 
 // ─── Conteúdo da aba Perfil ───────────────────────────────────────────────────
@@ -69,11 +70,11 @@ function ProfileTab() {
             {/* Card de perfil + mood atual */}
             <div className="min-h-[340px]"><Profile /></div>
 
-            {/* Insight do dia */}
-            <InsightsSection />
-
             {/* Estatísticas gerais */}
             <ProfileStats />
+
+            {/* Insights detalhados + AI insights */}
+            <ProfileInsights />
         </div>
     );
 }
@@ -85,11 +86,11 @@ export default function Dashboard() {
     const { theme } = useTheme();
     const isLight = theme === "light";
 
-    const sidebarBorder       = isLight ? "rgba(0,0,0,0.07)"         : "rgba(255,255,255,0.06)";
-    const sidebarActiveBg     = isLight ? "rgba(0,196,160,0.08)"     : "rgba(0,255,179,0.08)";
-    const sidebarActiveBorder = isLight ? "rgba(0,196,160,0.20)"     : "rgba(0,255,179,0.18)";
-    const sidebarActiveColor  = "#00c4a0";
-    const sidebarInactiveColor = isLight ? "rgba(15,15,20,0.45)"     : "rgba(255,255,255,0.4)";
+    const sidebarBorder = isLight ? "rgba(0,0,0,0.07)" : "rgba(255,255,255,0.06)";
+    const sidebarActiveBg = isLight ? "rgba(0,196,160,0.08)" : "rgba(0,255,179,0.08)";
+    const sidebarActiveBorder = isLight ? "rgba(0,196,160,0.20)" : "rgba(0,255,179,0.18)";
+    const sidebarActiveColor = "#00c4a0";
+    const sidebarInactiveColor = isLight ? "rgba(15,15,20,0.45)" : "rgba(255,255,255,0.4)";
 
     return (
         <div className="min-h-screen antialiased" style={{ fontFamily: "var(--font-body)", color: "var(--text-primary)" }}>
@@ -197,11 +198,11 @@ export default function Dashboard() {
                                 {/* Coluna esquerda */}
                                 <div className="col-span-12 xl:col-span-5 flex flex-col gap-6">
                                     <div className="min-h-[380px]"><Profile /></div>
-                                    <InsightsSection />
                                 </div>
                                 {/* Coluna direita */}
                                 <div className="col-span-12 xl:col-span-7 flex flex-col gap-6">
                                     <ProfileStats />
+                                    <ProfileInsights />
                                 </div>
                             </div>
                         </div>
@@ -215,7 +216,7 @@ export default function Dashboard() {
                                 <div className="col-span-12 xl:col-span-7">
                                     <SectionCard title="Tocando Agora" icon={<Radio />}
                                         iconColor="text-brand-primary" accentColor="#6fae9b"
-                                        noPadding className="min-h-[360px]">
+                                        noPadding className="min-h-[360px] ml-6">
                                         <NowPlayingCard />
                                     </SectionCard>
                                 </div>

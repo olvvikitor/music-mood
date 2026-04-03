@@ -33,134 +33,130 @@ export const emotionStyles: Record<string, string> = {
 // 🔥 NOVO PADRÃO (poético + consistente)
 const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
     // ── POSITIVO / ATIVO ─────────────────────────────────────
-    EuforiaAtiva: "puro hype",
-    ConfiancaAlta: "protagonista",
-    EnergiaBruta: "modo turbo",
-    IntensidadeCriativa: "fora da caixa",
+    Euforia: "puro hype",
+    Confianca: "protagonista",
+    Energia: "modo turbo",
 
     // ── POSITIVO / CALMO ─────────────────────────────────────
-    AmorLeve: "coração quentinho",
-    ConexaoQuente: "vibe que bate",
-    NostalgiaBoa: "saudade boa",
-    Sereno: "de boa",
-    PazTotal: "na paz",
-    ReflexivoPositivo: "pensativo",
+    Amor: "coração quentinho",
+    Paz: "na paz",
+    Reflexao: "pensativo",
 
     // ── NEGATIVO / ATIVO ─────────────────────────────────────
-    CaosInterno: "caos interno",
-    FrustracaoAtiva: "no limite",
-    AnsiedadeAlta: "mente a mil",
-    RaivaExplosiva: "p da vida",
+    Tensao: "mente a mil",
+    Revolta: "p da vida",
+    Frustracao: "no limite",
 
     // ── NEGATIVO / CALMO ─────────────────────────────────────
     Melancolia: "pra baixo",
-    TristezaProfunda: "na fossa",
-    Apatia: "tanto faz",
-    Vazio: "vazio",
+    Tristeza: "na fossa",
+    Vazio: "tanto faz",
 
     // ── CENTRO ───────────────────────────────────────────────
-    Vulneravel: "ralinho",
     Ambivalente: "sentimentos mistos",
-    Desligado: "modo fantasma",
 };
 
-// (descrições mantidas — já estão boas)
 const PROFILE_MOOD_DESCRIPTIONS: Record<string, string> = {
-    EuforiaAtiva: "Energia no máximo. Dia de movimento, intensidade e som alto.",
-    ConfiancaAlta: "Presença firme. Tudo flui com segurança e controle.",
-    EnergiaBruta: "Impulso puro. Ritmo forte e corpo em ação constante.",
-    IntensidadeCriativa: "Pressão virando criação. Foco intenso e mente ativa.",
+    Euforia: "Energia no máximo. Dia de movimento, intensidade e som alto.",
+    Confianca: "Presença firme. Tudo flui com segurança e controle.",
+    Energia: "Impulso puro. Ritmo forte e corpo em ação constante.",
 
-    AmorLeve: "Afeto tranquilo. Sensação de conforto e calor constante.",
-    ConexaoQuente: "Clima de proximidade. Sons que aproximam e conectam.",
-    NostalgiaBoa: "Memórias suaves. Saudade que aquece sem pesar.",
-    Sereno: "Respiração calma. Tudo desacelera naturalmente.",
-    PazTotal: "Silêncio interno. Estado leve e equilibrado.",
-    ReflexivoPositivo: "Pensamento fluindo. Espaço para sentir e entender.",
+    Amor: "Afeto tranquilo. Sensação de conforto e conexão constante.",
+    Paz: "Silêncio interno. Estado leve, equilibrado e tranquilo.",
+    Reflexao: "Espaço para sentir e entender. Resiliência e ideias claras.",
 
-    CaosInterno: "Emoções intensas. Tudo acontecendo ao mesmo tempo.",
-    FrustracaoAtiva: "Pressão acumulada pedindo saída.",
-    AnsiedadeAlta: "Mente acelerada, difícil desacelerar.",
-    RaivaExplosiva: "Energia no limite. Hora de descarregar.",
+    Tensao: "Mente acelerada, angústia intensa, difícil desacelerar.",
+    Revolta: "Energia no limite. Hora de descarregar com som pesado.",
+    Frustracao: "Pressão acumulada pedindo saída. Descontentamento.",
 
-    Melancolia: "Tristeza suave, quase confortável.",
-    TristezaProfunda: "Peso emocional forte e persistente.",
-    Apatia: "Falta de energia e motivação.",
-    Vazio: "Pouca conexão emocional. Espaço interno silencioso.",
+    Melancolia: "Tristeza suave, quase confortável, nostalgia.",
+    Tristeza: "Peso emocional forte e persistente.",
+    Vazio: "Falta de energia. Desconexão emocional e silêncio interno.",
 
-    Vulneravel: "Sensibilidade exposta. Emoções à flor da pele.",
-    Ambivalente: "Oscilação constante entre sentimentos.",
-    Desligado: "Baixa resposta emocional. Estado de pausa.",
-};// (accents mantido)
+    Ambivalente: "Oscilação constante entre sentimentos difusos.",
+};
+
 const PROFILE_MOOD_ACCENTS: Record<string, string> = {
-    EuforiaAtiva: "#ffaa00",
-    ConfiancaAlta: "#a3e635",
-    EnergiaBruta: "#f97316",
-    IntensidadeCriativa: "#22d3ee",
+    Euforia: "#ffaa00",
+    Confianca: "#a3e635",
+    Energia: "#f97316",
 
-    AmorLeve: "#fb7185",
-    ConexaoQuente: "#f472b6",
-    NostalgiaBoa: "#818cf8",
-    Sereno: "#38bdf8",
-    PazTotal: "#2dd4bf",
-    ReflexivoPositivo: "#a78bfa",
+    Amor: "#fb7185",
+    Paz: "#2dd4bf",
+    Reflexao: "#a78bfa",
 
-    CaosInterno: "#facc15",
-    FrustracaoAtiva: "#fb923c",
-    AnsiedadeAlta: "#f87171",
-    RaivaExplosiva: "#ef4444",
+    Tensao: "#f87171",
+    Revolta: "#ef4444",
+    Frustracao: "#fb923c",
 
     Melancolia: "#94a3b8",
-    TristezaProfunda: "#64748b",
-    Apatia: "#6b7280",
-    Vazio: "#9ca3af",
+    Tristeza: "#64748b",
+    Vazio: "#6b7280",
 
-    Vulneravel: "#f9a8d4",
     Ambivalente: "#cbd5f5",
-    Desligado: "#67e8f9",
 };
+
 // aliases aceitos para normalizar inputs antigos/poeticos
 const MOOD_ALIAS_TO_BACKEND: Record<string, string> = {
-    // aliases legados (dados antigos salvos no banco)
-    "confiancadominante": "ConfiancaAlta",
-    "rockeletrizante": "EnergiaBruta",
-    "tensaocriativa": "IntensidadeCriativa",
-    "amorcalmo": "AmorLeve",
-    "conexaoafetiva": "ConexaoQuente",
-    "nostalgiafeliz": "NostalgiaBoa",
-    "serenidade": "Sereno",
-    "pazinterior": "PazTotal",
-    "contemplacao": "ReflexivoPositivo",
-    "tensaodramatica": "CaosInterno",
-    "frustracao": "FrustracaoAtiva",
-    "irritacaoativa": "AnsiedadeAlta",
-    "nostalgiaprofunda": "TristezaProfunda",
-    "desanimo": "Apatia",
-    "vulnerabilidadeemocional": "Vulneravel",
+    // aliases da versão 2.0 (os 21 clusters antigos)
+    "euforiaativa": "Euforia",
+    "confiancaalta": "Confianca",
+    "energiabruta": "Energia",
+    "intensidadecriativa": "Energia",
+    "amorleve": "Amor",
+    "conexaoquente": "Amor",
+    "nostalgiaboa": "Reflexao",
+    "sereno": "Paz",
+    "paztotal": "Paz",
+    "reflexivopositivo": "Reflexao",
+    "caosinterno": "Tensao",
+    "frustracaoativa": "Frustracao",
+    "ansiedadealta": "Tensao",
+    "raivaexplosiva": "Revolta",
+    "tristezaprofunda": "Tristeza",
+    "apatia": "Vazio",
+    "vulneravel": "Melancolia",
+    "desligado": "Vazio",
+
+    // aliases legados
+    "confiancadominante": "Confianca",
+    "rockeletrizante": "Energia",
+    "tensaocriativa": "Energia",
+    "amorcalmo": "Amor",
+    "conexaoafetiva": "Amor",
+    "nostalgiafeliz": "Reflexao",
+    "serenidade": "Paz",
+    "pazinterior": "Paz",
+    "contemplacao": "Reflexao",
+    "tensaodramatica": "Tensao",
+    "frustracao": "Frustracao",
+    "irritacaoativa": "Tensao",
+    "nostalgiaprofunda": "Melancolia",
+    "desanimo": "Vazio",
+    "vulnerabilidadeemocional": "Melancolia",
     "ambivalencia": "Ambivalente",
-    "estupor": "Desligado",
+    "estupor": "Vazio",
 
-    "pilhado": "EuforiaAtiva",
-    "ta numa marra ein": "ConfiancaAlta",
-    "adrenalina pura": "EnergiaBruta",
-    "caos controlado": "IntensidadeCriativa",
-    "apaixonadx": "AmorLeve",
-    "love love": "ConexaoQuente",
-    "saudade boa": "NostalgiaBoa",
-    "de boa": "Sereno",
-    "zerado": "PazTotal",
-    "viajando": "ReflexivoPositivo",
-    "pressentindo": "CaosInterno",
-    "de cara": "FrustracaoAtiva",
-    "p da vida": "AnsiedadeAlta",
-    "surtando": "RaivaExplosiva",
-    "chorando no banheiro": "TristezaProfunda",
-    "quebrado": "Apatia",
-    "deixa pra la": "Vulneravel",
+    "pilhado": "Euforia",
+    "ta numa marra ein": "Confianca",
+    "adrenalina pura": "Energia",
+    "caos controlado": "Energia",
+    "apaixonadx": "Amor",
+    "love love": "Amor",
+    "saudade boa": "Reflexao",
+    "de boa": "Paz",
+    "zerado": "Paz",
+    "viajando": "Reflexao",
+    "pressentindo": "Tensao",
+    "de cara": "Frustracao",
+    "p da vida": "Tensao",
+    "surtando": "Revolta",
+    "chorando no banheiro": "Tristeza",
+    "quebrado": "Vazio",
+    "deixa pra la": "Melancolia",
     "to confuso": "Ambivalente",
-    "travado": "Desligado",
+    "travado": "Vazio",
 };
-
 
 // 🔧 normalização (mantida)
 function normalizeMoodKey(value?: string): string {
@@ -171,7 +167,6 @@ function normalizeMoodKey(value?: string): string {
         .toLowerCase()
         .replace(/[^a-z0-9]/g, "");
 }
-
 
 // 🔥 resolve centralizado (fonte única)
 function resolveBackendMoodKey(mood?: string): string | null {
@@ -195,14 +190,12 @@ function resolveBackendMoodKey(mood?: string): string | null {
     return alias ?? null;
 }
 
-
 export type FrontMoodProfile = {
     backendKey: string;
     label: string;
     description: string;
     accent: string;
 };
-
 
 export function getMoodProfile(mood?: string): FrontMoodProfile {
     const backendKey = resolveBackendMoodKey(mood) ?? "Ambivalente";
@@ -217,7 +210,6 @@ export function getMoodProfile(mood?: string): FrontMoodProfile {
     };
 }
 
-
 // 🔥 display agora só UI (não usado pra lógica)
 export function getMoodDisplayName(mood?: string, fallback = "-"): string {
     const safeFallback = (fallback ?? "").trim() || "-";
@@ -230,34 +222,25 @@ export function getMoodDisplayName(mood?: string, fallback = "-"): string {
     return PROFILE_MOOD_DISPLAY_NAMES[backendKey] ?? safeFallback;
 }
 
-
 // 🔥 CORES AGORA BASEADAS EM BACKEND (CORREÇÃO IMPORTANTE)
 const MOOD_TEXT_COLORS: Record<string, string> = {
-    EuforiaAtiva: "#34d399",
-    ConfiancaAlta: "#a3e635",
-    EnergiaBruta: "#facc15",
-    IntensidadeCriativa: "#84cc16",
+    Euforia: "#34d399",
+    Confianca: "#a3e635",
+    Energia: "#facc15",
 
-    AmorLeve: "#f472b6",
-    ConexaoQuente: "#fb7185",
-    NostalgiaBoa: "#f9a8d4",
-    Sereno: "#38bdf8",
-    PazTotal: "#2dd4bf",
-    ReflexivoPositivo: "#818cf8",
+    Amor: "#f472b6",
+    Paz: "#2dd4bf",
+    Reflexao: "#818cf8",
 
-    CaosInterno: "#c084fc",
-    FrustracaoAtiva: "#fb923c",
-    AnsiedadeAlta: "#f87171",
-    RaivaExplosiva: "#ef4444",
+    Tensao: "#f87171",
+    Revolta: "#ef4444",
+    Frustracao: "#fb923c",
 
     Melancolia: "#94a3b8",
-    TristezaProfunda: "#64748b",
-    Apatia: "#6b7280",
+    Tristeza: "#64748b",
     Vazio: "#9ca3af",
 
-    Vulneravel: "#f9a8d4",
     Ambivalente: "#cbd5e1",
-    Desligado: "#67e8f9",
 };
 
 

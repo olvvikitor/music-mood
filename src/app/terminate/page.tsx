@@ -15,9 +15,9 @@ import { uploadFacePhotoService } from "./services/uploadFacePhotoService";
 export type FormAceptNotification = { push: boolean; email: boolean; weekly: boolean };
 
 const NOTIFICATION_OPTIONS = [
-  { id: "push" as const,   label: "Push",           description: "Alertas em tempo real",        icon: <Bell className="w-3 h-3" /> },
-  { id: "email" as const,  label: "E-mail",          description: "Insights no seu e-mail",       icon: <Mail className="w-3 h-3" /> },
-  { id: "weekly" as const, label: "Resumo semanal",  description: "Relatorio toda semana",        icon: <BarChart3 className="w-3 h-3" /> },
+  { id: "push" as const, label: "Push", description: "Alertas em tempo real", icon: <Bell className="w-3 h-3" /> },
+  { id: "email" as const, label: "E-mail", description: "Insights no seu e-mail", icon: <Mail className="w-3 h-3" /> },
+  { id: "weekly" as const, label: "Resumo semanal", description: "Relatorio toda semana", icon: <BarChart3 className="w-3 h-3" /> },
 ];
 
 // â”€â”€ Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -53,8 +53,15 @@ function OnboardingContent() {
 
   useEffect(() => {
     const token = searchParams.get("token");
-    if (token) localStorage.setItem("auth_token", token);
-    else router.push("/login");
+    const isNew = searchParams.get("new");
+    if (token) {
+      localStorage.setItem("auth_token", token);
+      if (isNew === "false") {
+        router.push("/dashboard");
+      }
+    } else {
+      router.push("/login");
+    }
   }, [searchParams, router]);
 
   const { data, isLoading, isError } = usePlataformProfile();

@@ -3,7 +3,7 @@ import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { useProfile } from "../hooks/useProfile";
-import { Camera, Share2 } from 'lucide-react';
+import { Camera, Share2, Sparkles } from 'lucide-react';
 import { useMoodProfile } from "../hooks/useMoodProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRefreshProfile } from "../services/getRefreshProfileService";
@@ -13,6 +13,7 @@ import { updateFacePhotoService } from "@/shared/services/updateFacePhotoService
 import { getMoodDisplayName, getMoodProfile } from "@/shared/lib/moodHelpers";
 import { DailyMoodProgressCard } from "./DailyMoodProgressCard";
 import { MoodPrincipalCard } from "./MoodPrincipalCard";
+import { FacePhotoNudgeModal } from "./FacePhotoNudgeModal";
 
 export default function Profile() {
     const { data: profile, isLoading: profileLoading, isError: profileError } = useProfile();
@@ -21,6 +22,7 @@ export default function Profile() {
 
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [facePhotoError, setFacePhotoError] = useState("");
+    const [showFaceNudge, setShowFaceNudge] = useState(false);
     const autoRefreshTriggered = useRef(false);
 
     const { mutate: refreshUser, isPending } = useMutation({
@@ -28,6 +30,15 @@ export default function Profile() {
         onMutate: () => NProgress.start(),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['moodProfile'] });
+            // Show face photo nudge once per session if user has no face photo
+            const already = sessionStorage.getItem("faceNudgeSeen");
+            if (!already) {
+                const prof = queryClient.getQueryData<{ face_photo_path?: string | null }>(['userProfile']);
+                if (!prof?.face_photo_path) {
+                    setShowFaceNudge(true);
+                    sessionStorage.setItem("faceNudgeSeen", "1");
+                }
+            }
         },
         onSettled: () => {
             NProgress.done();
@@ -131,20 +142,67 @@ export default function Profile() {
             {/* ── Barra de ações ── */}
             <div className="px-4 pb-3 flex items-center gap-2 relative z-10">
 
-                {/* Câmera */}
-                <label
-                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer"
-                    style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)", opacity: isUpdatingFacePhoto ? 0.7 : 1 }}
-                    title="Atualizar foto do rosto">
-                    <Camera className={`w-4.5 h-4.5 text-white/65 ${isUpdatingFacePhoto ? 'animate-pulse' : ''}`} />
-                    <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
-                        disabled={isUpdatingFacePhoto}
-                        onChange={event => { void handleFacePhotoChange(event); }} />
-                </label>
+                {!profile.face_photo_path ? (
+                    /* ── Premium face photo onboarding ── */
+                    <label
+                        className="flex-1 flex items-center gap-3 px-3 py-2.5 rounded-2xl cursor-pointer transition-all duration-300 active:scale-[0.98] group"
+                        style={{
+                            background: "rgba(111,174,155,0.06)",
+                            border: "1px solid rgba(111,174,155,0.22)",
+                            opacity: isUpdatingFacePhoto ? 0.7 : 1,
+                        }}
+                        title="Adicionar sua foto"
+                    >
+                        {/* Icon */}
+                        <div
+                            className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center"
+                            style={{ background: "rgba(111,174,155,0.12)", border: "1px solid rgba(111,174,155,0.25)" }}
+                        >
+                            {isUpdatingFacePhoto
+                                ? <Sparkles className="w-4 h-4 animate-pulse" style={{ color: "#6fae9b" }} />
+                                : <Camera className="w-4 h-4" style={{ color: "#6fae9b" }} />
+                            }
+                        </div>
+
+                        {/* Copy */}
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[11px] font-bold leading-tight" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
+                                {isUpdatingFacePhoto ? "Processando sua foto..." : "Adicione seu rosto"}
+                            </p>
+                            <p className="text-[10px] leading-snug mt-0.5" style={{ color: "var(--text-muted)" }}>
+                                Suas imagens de mood serão geradas com você
+                            </p>
+                        </div>
+
+                        <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            className="hidden"
+                            disabled={isUpdatingFacePhoto}
+                            onChange={event => { void handleFacePhotoChange(event); }}
+                        />
+                    </label>
+                ) : (
+                    /* ── Compact camera button (photo already set) ── */
+                    <label
+                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+                        style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)", opacity: isUpdatingFacePhoto ? 0.7 : 1 }}
+                        title="Atualizar foto do rosto"
+                    >
+                        <Camera className={`w-4.5 h-4.5 text-white/65 ${isUpdatingFacePhoto ? 'animate-pulse' : ''}`} />
+                        <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            className="hidden"
+                            disabled={isUpdatingFacePhoto}
+                            onChange={event => { void handleFacePhotoChange(event); }}
+                        />
+                    </label>
+                )}
 
                 {/* Compartilhar */}
                 <button onClick={() => setIsShareOpen(true)}
-                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90 shrink-0"
                     style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}
                     title="Compartilhar">
                     <Share2 className="w-4.5 h-4.5 text-white/65" />
@@ -224,6 +282,7 @@ export default function Profile() {
             {profile && mood && (
                 <ShareModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} mood={mood} profile={profile} />
             )}
+            <FacePhotoNudgeModal isOpen={showFaceNudge} onClose={() => setShowFaceNudge(false)} />
         </>
     );
 }

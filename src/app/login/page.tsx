@@ -11,7 +11,7 @@ const PROVIDERS = [
   {
     id: "spotify",
     label: "Spotify",
-    href: "https://motionfy.onrender.com/auth/spotify/callback",
+    href: `${process.env.NEXT_PUBLIC_API_URL}/auth/spotify/callback`,
     color: "#1DB954",
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">

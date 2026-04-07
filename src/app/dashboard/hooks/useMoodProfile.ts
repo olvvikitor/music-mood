@@ -5,7 +5,7 @@ export function useMoodProfile() {
     return useQuery({
         queryKey: ["moodProfile"],
         queryFn: getMoodProfile,
-        staleTime: 10 * 60 * 1000, // 10 minutos
+        staleTime: Infinity,
         refetchOnWindowFocus: false,
     });
 }

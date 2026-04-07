@@ -65,11 +65,9 @@ export default function Profile() {
         if (analyzedAt >= todayRelease) return; // Já foi atualizado hoje
 
         autoRefreshTriggered.current = true;
-        const preferredStudio = typeof window !== "undefined"
-            ? localStorage.getItem("preferredStudioId") ?? undefined
-            : undefined;
-        refreshUser(preferredStudio);
-    }, [mood, moodLoading, isPending, refreshUser]);
+
+        refreshUser(profile?.preferredStudioId ?? undefined);
+    }, [mood, moodLoading, isPending, refreshUser, profile]);
 
     const [activeSlide, setActiveSlide] = useState(0);
     const touchStartX = useRef<number | null>(null);
@@ -258,7 +256,7 @@ export default function Profile() {
                         style={{ transform: `translateX(-${activeSlide * 100}%)` }}
                     >
                         <div className="w-full shrink-0">{lastMoodCard}</div>
-                        <div className="w-full shrink-0"><DailyMoodProgressCard /></div>
+                        <div className="w-full shrink-0"><DailyMoodProgressCard initialStudioId={profile?.preferredStudioId ?? undefined} /></div>
                     </div>
                 </div>
 

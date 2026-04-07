@@ -1,22 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Clock3, Music2, Headphones } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { Clock3, Music2, Headphones, ChevronLeft, ChevronRight } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { getRefreshMoodStudios, type RefreshMoodStudio } from "../../dashboard/services/getRefreshProfileService";
+import api from "@/shared/services/apiService";
 
 const RELEASE_HOUR = 19;
-const STORAGE_KEY = "preferredStudioId";
-
-function getPreferredStudioId(): string {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem(STORAGE_KEY) ?? "";
-}
-
-function setPreferredStudioId(id: string) {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, id);
-}
 
 function buildTimelineState(now: Date) {
     const release = new Date(now);
@@ -103,14 +93,19 @@ function TimerSeparator() {
     );
 }
 
-export function DailyMoodProgressCard() {
+export function DailyMoodProgressCard({ initialStudioId }: { initialStudioId?: string }) {
     const [now, setNow] = useState(() => new Date());
-    const [selectedStudio, setSelectedStudio] = useState(getPreferredStudioId);
+    const [selectedStudio, setSelectedStudio] = useState(initialStudioId ?? "");
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     const { data: studios = [] } = useQuery({
         queryKey: ["refreshMoodStudios"],
         queryFn: getRefreshMoodStudios,
         staleTime: 1000 * 60 * 30,
+    });
+
+    const { mutate: updateStudioPreference } = useMutation({
+        mutationFn: async (id: string) => api.put("/user/studio-preference", { studioId: id }),
     });
 
     useEffect(() => {
@@ -123,13 +118,21 @@ export function DailyMoodProgressCard() {
         if (!selectedStudio && studios.length > 0) {
             const first = studios[0].id;
             setSelectedStudio(first);
-            setPreferredStudioId(first);
+            updateStudioPreference(first);
         }
-    }, [studios, selectedStudio]);
+    }, [studios, selectedStudio, updateStudioPreference]);
 
     const handleStudioChange = (value: string) => {
         setSelectedStudio(value);
-        setPreferredStudioId(value);
+        updateStudioPreference(value);
+    };
+
+    const scrollStudios = (direction: 'left' | 'right') => {
+        if (scrollRef.current) {
+            const { clientWidth } = scrollRef.current;
+            const scrollAmount = direction === 'left' ? -clientWidth / 1.5 : clientWidth / 1.5;
+            scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        }
     };
 
     const { progress, remainingMs } = useMemo(() => buildTimelineState(now), [now]);
@@ -222,34 +225,86 @@ export function DailyMoodProgressCard() {
 
                 {/* Studio selector */}
                 <div className="relative z-10 mb-5">
-                    <p
-                        className="text-[9px] uppercase tracking-[0.2em] font-bold mb-2"
-                        style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-display)" }}
+                    <div className="flex items-center justify-between mb-3">
+                        <p
+                            className="text-[9px] uppercase tracking-[0.2em] font-bold"
+                            style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-display)" }}
+                        >
+                            estilo da proxima arte
+                        </p>
+
+                        {/* Desktop Navigation Arrows */}
+                        <div className="hidden md:flex items-center gap-1.5">
+                            <button
+                                onClick={() => scrollStudios('left')}
+                                className="w-6 h-6 rounded-full flex items-center justify-center transition-all bg-white/5 hover:bg-white/10 active:scale-90"
+                                style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                                aria-label="Scroll Left"
+                            >
+                                <ChevronLeft className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} />
+                            </button>
+                            <button
+                                onClick={() => scrollStudios('right')}
+                                className="w-6 h-6 rounded-full flex items-center justify-center transition-all bg-white/5 hover:bg-white/10 active:scale-90"
+                                style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                                aria-label="Scroll Right"
+                            >
+                                <ChevronRight className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        ref={scrollRef}
+                        className="flex gap-2 overflow-x-auto pb-2 px-1 -mx-1 modern-scrollbar snap-x"
+                        style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}
                     >
-                        estilo da proxima arte
-                    </p>
-                    <select
-                        value={selectedStudio}
-                        onChange={e => handleStudioChange(e.target.value)}
-                        className="studio-select w-full px-4 py-3 rounded-xl text-sm font-bold appearance-none cursor-pointer transition-all"
-                        style={{
-                            background: "rgba(255,255,255,0.04)",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                            color: "rgba(255,255,255,0.85)",
-                            fontFamily: "var(--font-display)",
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-                            backgroundRepeat: "no-repeat",
-                            backgroundPosition: "right 12px center",
-                            backgroundSize: "16px",
-                            outline: "none",
-                        }}
-                    >
-                        {studios.map(studio => (
-                            <option key={studio.id} value={studio.id}>
-                                {studio.company} — {studio.referenceAnimes.slice(0, 2).join(", ")}
-                            </option>
-                        ))}
-                    </select>
+                        {studios.map(studio => {
+                            const isSelected = selectedStudio === studio.id;
+                            return (
+                                <button
+                                    key={studio.id}
+                                    onClick={() => handleStudioChange(studio.id)}
+                                    className="snap-start shrink-0 flex flex-col items-start px-4 py-3 rounded-xl transition-all duration-300 relative overflow-hidden group text-left"
+                                    style={{
+                                        minWidth: 156,
+                                        maxWidth: 180,
+                                        background: isSelected ? "rgba(111,174,155,0.12)" : "rgba(255,255,255,0.03)",
+                                        border: isSelected ? "1px solid rgba(111,174,155,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                                        boxShadow: isSelected ? "0 4px 12px rgba(111,174,155,0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)" : "none",
+                                    }}
+                                >
+                                    {isSelected && (
+                                        <div
+                                            className="absolute top-0 right-0 w-16 h-16 rounded-full"
+                                            style={{
+                                                background: "radial-gradient(circle, rgba(111,174,155,0.2), transparent 70%)",
+                                                transform: "translate(30%, -30%)"
+                                            }}
+                                        />
+                                    )}
+                                    <span
+                                        className="text-sm font-black mb-1 truncate w-full transition-colors duration-300 relative z-10"
+                                        style={{
+                                            color: isSelected ? "#fff" : "rgba(255,255,255,0.85)",
+                                            fontFamily: "var(--font-display)"
+                                        }}
+                                    >
+                                        {studio.company}
+                                    </span>
+                                    <span
+                                        className="text-[9px] uppercase font-bold truncate w-full transition-colors duration-300 relative z-10"
+                                        style={{
+                                            color: isSelected ? "rgba(111,174,155,0.9)" : "rgba(255,255,255,0.3)",
+                                            letterSpacing: "0.05em"
+                                        }}
+                                    >
+                                        {studio.referenceAnimes.slice(0, 2).join(", ")}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 {/* Progress section */}
@@ -332,6 +387,13 @@ export function DailyMoodProgressCard() {
                         linear-gradient(90deg, rgba(255,255,255,0.5) 0.5px, transparent 0.5px);
                     background-size: 28px 28px;
                 }
+                
+                /* Modern elegant scrollbar for desktop fallback */
+                .modern-scrollbar::-webkit-scrollbar { height: 4px; }
+                .modern-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 10px; margin: 0 4px; }
+                .modern-scrollbar::-webkit-scrollbar-thumb { background: rgba(111, 174, 155, 0.3); border-radius: 10px; }
+                .modern-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(111, 174, 155, 0.6); }
+
                 @keyframes timerPulse {
                     0%, 100% { opacity: 1; }
                     50% { opacity: 0.3; }

@@ -187,9 +187,9 @@ export function ProfileInsights() {
 
     // insights data
     const { data: mood } = useMoodProfile();
-    const { data: week = [], isLoading: weekLoading } = useQuery({ queryKey: ["moodWeek"], queryFn: getMoodWeek, staleTime: 60_000 });
-    const { data: history = [], isLoading: historyLoading } = useQuery({ queryKey: ["moodHistory", 20], queryFn: () => getMoodHistory(20), staleTime: 60_000 });
-    const { data: stats } = useQuery({ queryKey: ["userStats"], queryFn: getUserStats, staleTime: 60_000 });
+    const { data: week = [], isLoading: weekLoading } = useQuery({ queryKey: ["moodWeek"], queryFn: getMoodWeek, staleTime: Infinity, refetchOnWindowFocus: false });
+    const { data: history = [], isLoading: historyLoading } = useQuery({ queryKey: ["moodHistory", 20], queryFn: () => getMoodHistory(20), staleTime: Infinity, refetchOnWindowFocus: false });
+    const { data: stats } = useQuery({ queryKey: ["userStats"], queryFn: getUserStats, staleTime: Infinity, refetchOnWindowFocus: false });
     const aiInsightsLoading = weekLoading || historyLoading;
     const aiInsights = buildDashboardInsights({ mood, week, history, stats });
 

@@ -7,6 +7,7 @@ export type UserResponseDto = {
     id: string;
     img_profile: string;
     face_photo_path?: string | null;
+    preferredStudioId?: string | null;
     provider: string;
 };
 

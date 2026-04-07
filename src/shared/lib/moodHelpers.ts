@@ -38,7 +38,7 @@ const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
     Energia: "modo turbo",
 
     // ── POSITIVO / CALMO ─────────────────────────────────────
-    Amor: "coração quentinho",
+    Amor: "apaixonadx",
     Paz: "na paz",
     Reflexao: "pensativo",
 

@@ -3,20 +3,20 @@
 import { useState } from "react";
 import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
-import { useMoodProfile } from "../hooks/useMoodProfile";
+import { useTodayTracks } from "../hooks/useTodayTracks";
 import Image from "next/image";
 import { Track } from "../types/music";
 import { MoodBadge } from "@/shared/components/MoodBadge";
 import { TrackDrawer } from "./TrackDrawer";
 
 export default function RecentSongs({ compact = false }: { compact?: boolean }) {
-    const { data, isLoading, isError, isFetching } = useMoodProfile();
+    const { data, isLoading, isError, isFetching } = useTodayTracks();
     const [drawerTrack, setDrawerTrack] = useState<Track | null>(null);
 
     if (isLoading || (isFetching && compact)) return <LoadingComponent type="listCompact" />;
-    if (isError || !data?.tracksAnalyzeds) return <ErrorComponent type="list" />;
+    if (isError || !data) return <ErrorComponent type="list" />;
 
-    const tracks = compact ? data.tracksAnalyzeds.slice(0, 15) : data.tracksAnalyzeds;
+    const tracks = compact ? data.slice(0, 15) : data;
 
     return (
         <div className="flex flex-col h-full overflow-hidden">

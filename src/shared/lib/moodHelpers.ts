@@ -34,6 +34,7 @@ export const emotionStyles: Record<string, string> = {
 const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
     // ── POSITIVO / ATIVO ─────────────────────────────────────
     Euforia: "puro hype",
+    Celebracao: "em galera",
     Confianca: "protagonista",
     Energia: "modo turbo",
 
@@ -57,7 +58,8 @@ const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
 };
 
 const PROFILE_MOOD_DESCRIPTIONS: Record<string, string> = {
-    Euforia: "Energia no máximo. Dia de movimento, intensidade e som alto.",
+    Euforia: "Energia no máximo. Ritmo acelerado, adrenalina e muita intensidade.",
+    Celebracao: "Energia coletiva. Músicas de festa e conexão para cantar junto.",
     Confianca: "Presença firme. Tudo flui com segurança e controle.",
     Energia: "Impulso puro. Ritmo forte e corpo em ação constante.",
 
@@ -78,6 +80,7 @@ const PROFILE_MOOD_DESCRIPTIONS: Record<string, string> = {
 
 const PROFILE_MOOD_ACCENTS: Record<string, string> = {
     Euforia: "#ffaa00",
+    Celebracao: "#f43f5e",
     Confianca: "#a3e635",
     Energia: "#f97316",
 
@@ -225,6 +228,7 @@ export function getMoodDisplayName(mood?: string, fallback = "-"): string {
 // 🔥 CORES AGORA BASEADAS EM BACKEND (CORREÇÃO IMPORTANTE)
 const MOOD_TEXT_COLORS: Record<string, string> = {
     Euforia: "#34d399",
+    Celebracao: "#f43f5e",
     Confianca: "#a3e635",
     Energia: "#facc15",
 

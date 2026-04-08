@@ -15,6 +15,8 @@ import { DailyMoodProgressCard } from "./DailyMoodProgressCard";
 import { MoodPrincipalCard } from "./MoodPrincipalCard";
 import { FacePhotoNudgeModal } from "./FacePhotoNudgeModal";
 
+let autoRefreshTriggered = false;
+
 export default function Profile() {
     const { data: profile, isLoading: profileLoading, isError: profileError } = useProfile();
     const { data: mood, isLoading: moodLoading, isError: moodError } = useMoodProfile();
@@ -23,7 +25,6 @@ export default function Profile() {
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [facePhotoError, setFacePhotoError] = useState("");
     const [showFaceNudge, setShowFaceNudge] = useState(false);
-    const autoRefreshTriggered = useRef(false);
 
     const { mutate: refreshUser, isPending } = useMutation({
         mutationFn: (studioId?: string) => getRefreshProfile(studioId),
@@ -52,7 +53,7 @@ export default function Profile() {
 
     // ── Auto-refresh às 19h ──
     useEffect(() => {
-        if (moodLoading || !mood || autoRefreshTriggered.current || isPending) return;
+        if (moodLoading || !mood || autoRefreshTriggered || isPending) return;
 
         const now = new Date();
         if (now.getHours() < 19) return;
@@ -64,7 +65,7 @@ export default function Profile() {
         const analyzedAt = new Date(mood.analyzedAt);
         if (analyzedAt >= todayRelease) return; // Já foi atualizado hoje
 
-        autoRefreshTriggered.current = true;
+        autoRefreshTriggered = true;
 
         refreshUser(profile?.preferredStudioId ?? undefined);
     }, [mood, moodLoading, isPending, refreshUser, profile]);

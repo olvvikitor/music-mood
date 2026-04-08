@@ -2,31 +2,29 @@
 // Paleta alinhada com o design system: brand-primary #6fae9b, brand-secondary #b06a85, brand-accent #8a7bb8.
 
 export const emotionStyles: Record<string, string> = {
-    euforiaativa: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
-    confiancaalta: "bg-lime-400/15 text-lime-300 border-lime-400/30",
-    energiabruta: "bg-yellow-400/15 text-yellow-300 border-yellow-400/30",
-    intensidadecriativa: "bg-teal-400/15 text-teal-300 border-teal-400/30",
+    // ── POSITIVO / ATIVO ─────────────────────────────────────
+    euforia: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
+    celebracao: "bg-rose-400/15 text-rose-300 border-rose-400/30",
+    confianca: "bg-lime-400/15 text-lime-300 border-lime-400/30",
+    energia: "bg-yellow-400/15 text-yellow-300 border-yellow-400/30",
 
-    amorleve: "bg-pink-400/15 text-pink-300 border-pink-400/30",
-    conexaoquente: "bg-rose-400/15 text-rose-300 border-rose-400/30",
-    nostalgiaboa: "bg-indigo-400/15 text-indigo-300 border-indigo-400/30",
-    sereno: "bg-sky-400/15 text-sky-300 border-sky-400/30",
-    paztotal: "bg-teal-400/15 text-teal-300 border-teal-400/30",
-    reflexivopositivo: "bg-violet-400/15 text-violet-300 border-violet-400/30",
+    // ── POSITIVO / CALMO ─────────────────────────────────────
+    amor: "bg-pink-400/15 text-pink-300 border-pink-400/30",
+    paz: "bg-teal-400/15 text-teal-300 border-teal-400/30",
+    reflexao: "bg-violet-400/15 text-violet-300 border-violet-400/30",
 
-    caosinterno: "bg-amber-400/15 text-amber-300 border-amber-400/30",
-    frustracaoativa: "bg-orange-400/15 text-orange-300 border-orange-400/30",
-    ansiedadealta: "bg-red-400/15 text-red-300 border-red-400/30",
-    raivaexplosiva: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+    // ── NEGATIVO / ATIVO ─────────────────────────────────────
+    tensao: "bg-red-400/15 text-red-300 border-red-400/30",
+    revolta: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+    frustracao: "bg-orange-400/15 text-orange-300 border-orange-400/30",
 
+    // ── NEGATIVO / CALMO ─────────────────────────────────────
     melancolia: "bg-slate-400/15 text-slate-300 border-slate-400/30",
-    tristezaprofunda: "bg-slate-500/15 text-slate-300 border-slate-500/30",
-    apatia: "bg-gray-400/15 text-gray-300 border-gray-400/30",
+    tristeza: "bg-slate-500/15 text-slate-300 border-slate-500/30",
     vazio: "bg-zinc-400/15 text-zinc-300 border-zinc-400/30",
 
-    vulneravel: "bg-fuchsia-400/15 text-fuchsia-300 border-fuchsia-400/30",
+    // ── CENTRO ───────────────────────────────────────────────
     ambivalente: "bg-blue-200/15 text-blue-100 border-blue-200/30",
-    desligado: "bg-cyan-400/15 text-cyan-300 border-cyan-400/30",
 };
 
 
@@ -34,7 +32,7 @@ export const emotionStyles: Record<string, string> = {
 const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
     // ── POSITIVO / ATIVO ─────────────────────────────────────
     Euforia: "puro hype",
-    Celebracao: "em galera",
+    Celebracao: "celebrando",
     Confianca: "protagonista",
     Energia: "modo turbo",
 

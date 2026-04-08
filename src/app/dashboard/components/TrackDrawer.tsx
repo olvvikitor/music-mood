@@ -7,7 +7,7 @@ import Image from "next/image";
 import { createPortal } from "react-dom";
 import { EmotionalVectorBars } from "@/shared/components/EmotionalVectorBars";
 import { MoodBadge } from "@/shared/components/MoodBadge";
-import { emotionStyles } from "@/shared/lib/moodHelpers";
+import { emotionStyles, getMoodProfile } from "@/shared/lib/moodHelpers";
 import { CLUSTER } from "@/shared/lib/moodCardHelpers";
 
 interface TrackDrawerProps {
@@ -46,7 +46,7 @@ export function TrackDrawer({ track, onClose }: TrackDrawerProps) {
         setTimeout(onClose, 350);
     };
 
-    const sentimentKey = track.dominantSentiment?.toLowerCase() ?? "";
+    const sentimentKey = getMoodProfile(track.dominantSentiment ?? "").backendKey.toLowerCase();
     const badgeStyle = emotionStyles[sentimentKey] ?? "";
     const bgMatch = badgeStyle.match(/bg-([^\s\/]+)/);
     const glowClass = bgMatch ? `bg-${bgMatch[1]}` : "bg-brand-primary";

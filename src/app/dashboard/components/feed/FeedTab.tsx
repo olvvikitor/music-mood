@@ -8,8 +8,15 @@ import {
 import { FeedPost, FeedPostSkeleton, type FeedPostData } from "./FeedPost";
 import { Users } from "lucide-react";
 import Link from "next/link";
+import { getProfile, type UserResponseDto } from "@/shared/services/userService";
 
 export function FeedTab() {
+    const { data: currentUser } = useQuery({
+        queryKey: ["userInfo"],
+        queryFn: getProfile,
+        staleTime: Infinity,
+    });
+
     const { data: posts, isLoading } = useQuery({
         queryKey: ["feedPosts"],
         queryFn: async () => {
@@ -77,7 +84,7 @@ export function FeedTab() {
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
             {posts?.map(p => (
-                <FeedPost key={p.id} post={p} />
+                <FeedPost key={p.id} post={p} currentUser={currentUser} />
             ))}
         </div>
     );

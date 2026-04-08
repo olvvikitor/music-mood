@@ -42,7 +42,7 @@ export function MoodPrincipalCard({
                         src={moodImage}
                         alt="Mood"
                         className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"}`}
-                        style={{ objectPosition: "top center" }}
+                        style={{ objectPosition: "center" }}
                         onLoad={() => setImageLoaded(true)}
                         onError={() => {
                             setImageFailed(true);

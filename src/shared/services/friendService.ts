@@ -33,12 +33,15 @@ export type PendingRequest = {
 };
 
 export type MoodData = {
+    id: string;
     moodScore: number;
     sentiment: string;
     emotions: Record<string, number>;
     coreAxes: Record<string, number>;
     analyzedAt: string;
     image_mood?: string;
+    reactions?: { emoji: string; user: { id: string; display_name: string; img_profile: string; } }[];
+    comments?: { id: string; text: string; createdAt: string; user: { id: string; display_name: string; img_profile: string; } }[];
 } | null;
 
 // isPlaying: false → nada tocando; isPlaying: true → dados completos
@@ -102,4 +105,12 @@ export async function getFriendListeningNow(friendId: string): Promise<Listening
 
 export async function compareMood(friendId: string): Promise<CompareMoodData> {
     return api.get(`/friendship/${friendId}/compare-mood`).then((r) => r.data);
+}
+
+export async function toggleReaction(moodId: string, emoji: string): Promise<{ action: string, emoji?: string }> {
+    return api.post(`/friendship/mood/${moodId}/reaction`, { emoji }).then((r) => r.data);
+}
+
+export async function addComment(moodId: string, text: string): Promise<any> {
+    return api.post(`/friendship/mood/${moodId}/comment`, { text }).then((r) => r.data);
 }

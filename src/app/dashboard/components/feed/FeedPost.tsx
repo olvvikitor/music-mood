@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Music2, BarChart2, MessageCircle, Send, Heart } from "lucide-react";
-import { compareMood, type CompareMoodData, type Friend } from "@/shared/services/friendService";
+import { compareMood, type CompareMoodData, type Friend, toggleReaction, addComment } from "@/shared/services/friendService";
 import { getMoodDisplayName, getMoodTextColor } from "@/shared/lib/moodHelpers";
 import { useTheme } from "@/shared/providers/ThemeProvider";
+import type { UserResponseDto } from "@/shared/services/userService";
 
 export type FeedPostData = Friend & {
     isPlaying: boolean;
@@ -25,19 +26,18 @@ export type FeedPostData = Friend & {
         reasoning?: string;
         image_mood?: string;
         analyzedAt?: string;
+        id?: string;
+        reactions?: { emoji: string; user: { id: string; display_name: string; img_profile: string; } }[];
+        comments?: { id: string; text: string; createdAt: string; user: { id: string; display_name: string; img_profile: string; } }[];
     } | null;
 };
 
 type Reaction = { emoji: string; label: string };
-type Comment = { id: string; text: string; at: string };
 
 const REACTIONS: Reaction[] = [
-    { emoji: "🔥", label: "pilhado" },
-    { emoji: "💚", label: "em paz" },
-    { emoji: "💜", label: "pensando" },
-    { emoji: "😢", label: "sentindo" },
-    { emoji: "⚡", label: "energia" },
-    { emoji: "🫂", label: "abraco" },
+    { emoji: "❤️", label: "amei" },
+    { emoji: "😂", label: "risos" },
+    { emoji: "😢", label: "triste" },
 ];
 
 function moodColor(score: number) {
@@ -210,7 +210,7 @@ function ComparePanel({
     );
 }
 
-export function FeedPost({ post }: { post: FeedPostData }) {
+export function FeedPost({ post, currentUser }: { post: FeedPostData, currentUser?: UserResponseDto }) {
     const { theme } = useTheme();
     const isLight = theme === "light";
     const score = post.mood?.moodScore ?? 0;
@@ -224,13 +224,20 @@ export function FeedPost({ post }: { post: FeedPostData }) {
     );
     const moodWords = sentimentDisplay.split(" ");
 
-    const [myReaction, setMyReaction] = useState<string | null>(null);
-    const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
+    const initialReactions = post.mood?.reactions || [];
+    const initialComments = post.mood?.comments || [];
+
+    const [reactionsList, setReactionsList] = useState(initialReactions);
+    const [comments, setComments] = useState(initialComments);
+
     const [showReactions, setShowReactions] = useState(false);
     const [showComments, setShowComments] = useState(false);
     const [showCompare, setShowCompare] = useState(false);
     const [showFullMoodImage, setShowFullMoodImage] = useState(false);
-    const [comments, setComments] = useState<Comment[]>([]);
+
+    // Who reacted modal
+    const [showReactorsFor, setShowReactorsFor] = useState<string | null>(null);
+
     const [commentText, setCommentText] = useState("");
     const [imgLoaded, setImgLoaded] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -240,30 +247,36 @@ export function FeedPost({ post }: { post: FeedPostData }) {
     const iconButtonBorder = isLight ? "rgba(12,12,18,0.16)" : "var(--border-medium)";
     const iconButtonColor = isLight ? "rgba(12,12,18,0.68)" : "rgba(255,255,255,0.65)";
 
+    const reactionCounts: Record<string, number> = {};
+    reactionsList.forEach(r => { reactionCounts[r.emoji] = (reactionCounts[r.emoji] || 0) + 1; });
+    const myReactionObj = currentUser ? reactionsList.find(r => r.user.id === currentUser.id) : null;
+    const myReaction = myReactionObj?.emoji || null;
+
     function handleReact(emoji: string) {
-        setReactionCounts((prev) => {
-            const next = { ...prev };
-            if (myReaction === emoji) {
-                next[emoji] = Math.max(0, (next[emoji] ?? 1) - 1);
-                setMyReaction(null);
-            } else {
-                if (myReaction) next[myReaction] = Math.max(0, (next[myReaction] ?? 1) - 1);
-                next[emoji] = (next[emoji] ?? 0) + 1;
-                setMyReaction(emoji);
-            }
-            return next;
+        if (!currentUser || !post.mood?.id) return;
+
+        setReactionsList(prev => {
+            const withoutMe = prev.filter(r => r.user.id !== currentUser.id);
+            if (myReaction === emoji) return withoutMe;
+            return [...withoutMe, { emoji, user: currentUser as any }];
         });
+
+        toggleReaction(post.mood.id, emoji).catch(console.error);
         setShowReactions(false);
     }
 
     function handleComment() {
         const text = commentText.trim();
-        if (!text) return;
-        setComments((prev) => [...prev, { id: Date.now().toString(), text, at: new Date().toISOString() }]);
+        if (!text || !currentUser || !post.mood?.id) return;
+
+        const tempId = Date.now().toString();
+        setComments(prev => [...prev, { id: tempId, text, createdAt: new Date().toISOString(), user: currentUser as any }]);
         setCommentText("");
+
+        addComment(post.mood.id, text).catch(console.error);
     }
 
-    const totalReactions = Object.values(reactionCounts).reduce((a, b) => a + b, 0);
+    const totalReactions = reactionsList.length;
 
     return (
         <article
@@ -470,14 +483,14 @@ export function FeedPost({ post }: { post: FeedPostData }) {
             )}
 
             {totalReactions > 0 && (
-                <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+                <div className="px-4 pb-2 flex flex-wrap gap-1.5 relative">
                     {Object.entries(reactionCounts)
                         .filter(([, count]) => count > 0)
                         .map(([emoji, count]) => (
                             <button
                                 key={emoji}
-                                onClick={() => handleReact(emoji)}
-                                className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs transition-all"
+                                onClick={() => setShowReactorsFor(prev => prev === emoji ? null : emoji)}
+                                className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs transition-all relative"
                                 style={{
                                     background: myReaction === emoji ? `${color}20` : "rgba(255,255,255,0.05)",
                                     border: myReaction === emoji ? `1px solid ${color}40` : "1px solid rgba(255,255,255,0.08)",
@@ -489,6 +502,26 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                                 </span>
                             </button>
                         ))}
+
+                    {showReactorsFor && (
+                        <div className="absolute left-4 bottom-full mb-1 z-30 p-2 rounded-xl flex flex-col gap-2 shadow-2xl"
+                            style={{ background: "var(--surface-solid)", border: "1px solid var(--border-medium)", minWidth: 140 }}>
+                            <div className="flex justify-between items-center px-1">
+                                <span className="text-[9px] uppercase tracking-wider text-white/40 font-bold" style={{ fontFamily: "var(--font-display)" }}>
+                                    Reações {showReactorsFor}
+                                </span>
+                                <button onClick={() => setShowReactorsFor(null)} className="text-white/30 hover:text-white/80">&times;</button>
+                            </div>
+                            <div className="max-h-32 overflow-y-auto flex flex-col gap-1.5 hide-scrollbar">
+                                {reactionsList.filter(r => r.emoji === showReactorsFor).map(r => (
+                                    <div key={r.user.id} className="flex items-center gap-2 px-1">
+                                        <img src={r.user.img_profile} alt="Avatar" className="w-5 h-5 rounded-full border border-white/10 object-cover" />
+                                        <span className="text-[10px] text-white/80 truncate font-medium">{r.user.display_name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -582,18 +615,16 @@ export function FeedPost({ post }: { post: FeedPostData }) {
             {showComments && (
                 <div style={{ borderTop: `1px solid ${actionsDivider}` }}>
                     {comments.length > 0 && (
-                        <ul className="flex flex-col divide-y divide-white/4 px-4 pt-3">
+                        <ul className="flex flex-col divide-y divide-white/4 px-4 pt-3 max-h-56 overflow-y-auto hide-scrollbar">
                             {comments.map((comment) => (
                                 <li key={comment.id} className="flex gap-2.5 py-2.5">
-                                    <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-black" style={{ background: `${color}20`, color }}>
-                                        Eu
-                                    </div>
+                                    <img src={comment.user.img_profile} alt={comment.user.display_name} className="w-7 h-7 rounded-full shrink-0 border border-white/10 object-cover" />
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">
                                             <span className="text-xs font-bold text-white/80" style={{ fontFamily: "var(--font-display)" }}>
-                                                Voce
+                                                {comment.user.display_name}
                                             </span>
-                                            <span className="text-[10px] text-white/25">{timeAgo(comment.at)}</span>
+                                            <span className="text-[10px] text-white/25">{timeAgo(comment.createdAt)}</span>
                                         </div>
                                         <p className="text-sm text-white/65 leading-relaxed">{comment.text}</p>
                                     </div>
@@ -603,9 +634,11 @@ export function FeedPost({ post }: { post: FeedPostData }) {
                     )}
 
                     <div className="flex items-center gap-2.5 px-4 py-3">
-                        <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-black" style={{ background: `${color}20`, color }}>
-                            Eu
-                        </div>
+                        {currentUser ? (
+                            <img src={currentUser.img_profile} alt="Você" className="w-7 h-7 rounded-full shrink-0 border border-white/10 object-cover" />
+                        ) : (
+                            <div className="w-7 h-7 rounded-full shrink-0 bg-white/5" />
+                        )}
                         <div className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}>
                             <input
                                 ref={inputRef}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { X, Music2, User2, BarChart2, Headphones, History } from "lucide-react";
 import Image from "next/image";
 import {
@@ -47,8 +47,19 @@ function formatDate(iso: string) {
     return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 }
 
-function Skeleton({ className = "" }: { className?: string }) {
-    return <div className={`rounded-xl animate-pulse ${className}`} style={{ background: "var(--surface-card-alt)" }} />;
+function Skeleton({
+    className = "",
+    style,
+}: {
+    className?: string;
+    style?: CSSProperties;
+}) {
+    return (
+        <div
+            className={`rounded-xl animate-pulse ${className}`}
+            style={{ background: "var(--surface-card-alt)", ...style }}
+        />
+    );
 }
 
 // ─── Seção: Gráfico da semana ─────────────────────────────────────────────────
@@ -149,11 +160,11 @@ function FriendStats({ data, loading }: { data: UserStats | null; loading: boole
                     [1, 2, 3].map(i => <Skeleton key={i} className="h-20" />)
                 ) : (
                     <>
-                        {[
+                        {([
                             { icon: <Headphones className="w-3.5 h-3.5" />, label: "Músicas", value: data?.totalListened ?? 0, color: "#6fae9b" },
                             { icon: <BarChart2 className="w-3.5 h-3.5" />, label: "Moods", value: data?.totalMoods ?? 0, color: "#8a7bb8" },
                             { icon: <Music2 className="w-3.5 h-3.5" />, label: "Média", value: `${avgPct}%`, color: "#b06a85" },
-                        ].map(card => (
+                        ]).map(card => (
                             <div key={card.label} className="flex flex-col gap-1 rounded-2xl p-3"
                                 style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
                                 <div className="w-6 h-6 rounded-lg flex items-center justify-center mb-0.5"
@@ -433,7 +444,7 @@ export function FriendProfileDrawer({ friend, onClose }: FriendProfileDrawerProp
 
                         {/* Card de mood atual */}
                         {loadingMood ? (
-                            <Skeleton className="w-full rounded-2xl" style={{ aspectRatio: "9/16", maxHeight: 400 } as any} />
+                            <Skeleton className="w-full rounded-2xl" style={{ aspectRatio: "9/16", maxHeight: 400}} />
                         ) : (
                             <div className="glass-card overflow-hidden" style={{ minHeight: 320 }}>
                                 <MoodPrincipalCard

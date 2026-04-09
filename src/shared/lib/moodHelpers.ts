@@ -34,7 +34,7 @@ const PROFILE_MOOD_DISPLAY_NAMES: Record<string, string> = {
     Euforia: "puro hype",
     Celebracao: "celebrando",
     Confianca: "protagonista",
-    Energia: "modo turbo",
+    Energia: "energia pura",
 
     // ── POSITIVO / CALMO ─────────────────────────────────────
     Amor: "apaixonadx",

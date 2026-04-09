@@ -28,9 +28,9 @@ export function MoodPrincipalCard({
 
     return (
         <div
-            className="flex-1 mx-3 my-3 rounded-2xl overflow-hidden relative"
+            className="flex-1 mx-3 my-3 self-center rounded-2xl overflow-hidden relative flex flex-col items-center w-[calc(100%-24px)] md:w-full max-w-md mx-auto"
             style={{
-                background: "#05050a",
+                background: "#292929ff",
                 minHeight,
                 aspectRatio: moodImage && !imageFailed ? "9 / 16" : undefined,
                 maxHeight: moodImage && !imageFailed ? 580 : undefined,
@@ -68,8 +68,7 @@ export function MoodPrincipalCard({
             )}
 
             <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 38%, transparent 52%, rgba(0,0,0,.88) 100%)" }} />
-            <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 60% 40% at 80% 15%, ${accent}33 0%, transparent 60%)` }} />
-            <div className="absolute inset-0 opacity-[0.10] mix-blend-soft-light mood-noise" />
+            <div className="absolute inset-0  mix-blend-soft-light mood-noise" />
 
             <div className="relative z-10 flex items-center gap-2.5 px-5 pt-5">
                 {profileImage ? (
@@ -92,7 +91,7 @@ export function MoodPrincipalCard({
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-6">
-                <p className="text-[9px] uppercase tracking-[.22em] mb-2" style={{ color: "rgba(255,255,255,.38)" }}>
+                <p className="text-[9px] uppercase tracking-[.22em] mb-2" style={{ color: "rgba(255,255,255,.89)" }}>
                     se sentindo
                 </p>
                 <p
@@ -116,7 +115,7 @@ export function MoodPrincipalCard({
 
             <style jsx>{`
                 .mood-noise {
-                    background-image: radial-gradient(rgba(255,255,255,0.38) 0.6px, transparent 0.6px);
+                    background-image: radial-gradient(rgba(202, 202, 202, 0.38) 0.6px, transparent 0.6px);
                     background-size: 3px 3px;
                 }
             `}</style>

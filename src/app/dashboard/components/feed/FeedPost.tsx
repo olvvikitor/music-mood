@@ -284,12 +284,13 @@ export function FeedPost({ post, currentUser }: { post: FeedPostData, currentUse
             style={{ minHeight: 390 }}
         >
             <div
-                className="relative flex-1 mx-3 mt-3 mb-2 rounded-2xl overflow-hidden"
+                className="relative flex-1 mx-auto self-center w-[calc(100%-24px)] md:w-full mt-3 mb-2 rounded-2xl overflow-hidden"
                 style={{
                     minHeight: 320,
                     background: "#05050a",
                     aspectRatio: imageMood ? "9 / 16" : undefined,
                     maxHeight: imageMood ? 580 : undefined,
+                    transform: "translateZ(0)",
                 }}
             >
                 {!imgLoaded && imageMood && (
@@ -307,7 +308,7 @@ export function FeedPost({ post, currentUser }: { post: FeedPostData, currentUse
                     <img
                         src={imageMood}
                         alt={`Mood de ${post.display_name}`}
-                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 cursor-zoom-in"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[101%] h-[101%] object-cover transition-opacity duration-500 cursor-zoom-in"
                         style={{ opacity: imgLoaded ? 0.85 : 0, objectPosition: "top center" }}
                         onLoad={() => setImgLoaded(true)}
                         onClick={() => setShowFullMoodImage(true)}

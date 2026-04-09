@@ -214,15 +214,14 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                 {/* POSTER capturado pelo htmlToImage */}
                 <div
                     ref={posterRef}
-                    className="w-full relative overflow-hidden flex flex-col"
-                    style={{ aspectRatio: "9/16", maxHeight: "calc(95vh - 200px)", background: "#05050a" }}
+                    className="w-full mx-auto relative overflow-hidden flex flex-col"
+                    style={{ aspectRatio: "9/16", maxHeight: "calc(95vh - 200px)", background: "#05050a", transform: "translateZ(0)" }}
                 >
                     {/* GIF */}
                     <img
                         src={mood.image_mood}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover"
-                        style={{ opacity: 0.75 }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[101%] h-[101%] object-cover"
                         crossOrigin="anonymous"
                     />
 
@@ -235,13 +234,6 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                         }}
                     />
 
-                    {/* Glow de acento por mood */}
-                    <div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                            background: `radial-gradient(ellipse 60% 40% at 80% 15%, ${accent}33 0%, transparent 60%)`,
-                        }}
-                    />
 
                     {/* Topo */}
                     <div className="relative z-10 flex items-center gap-2 px-5 pt-5">

@@ -1,4 +1,5 @@
 import api from '@/shared/services/apiService';
+import type { MoodHistoryItem, MoodWeekItem, UserStats } from '@/app/dashboard/services/profileStatsService';
 
 export type FriendshipStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'BLOCKED' | null;
 
@@ -44,7 +45,6 @@ export type MoodData = {
     comments?: { id: string; text: string; createdAt: string; user: { id: string; display_name: string; img_profile: string; } }[];
 } | null;
 
-// isPlaying: false → nada tocando; isPlaying: true → dados completos
 export type ListeningNowData =
     | { isPlaying: false }
     | {
@@ -93,7 +93,7 @@ export async function removeFriend(friendshipId: string): Promise<void> {
     return api.delete(`/friendship/${friendshipId}`).then((r) => r.data);
 }
 
-// ─── Funcionalidades sociais ──────────────────────────────────────────────────
+// ─── Mood e dados do amigo ───────────────────────────────────────────────────
 
 export async function getFriendMood(friendId: string): Promise<MoodData> {
     return api.get(`/friendship/${friendId}/mood`).then((r) => r.data);
@@ -106,6 +106,22 @@ export async function getFriendListeningNow(friendId: string): Promise<Listening
 export async function compareMood(friendId: string): Promise<CompareMoodData> {
     return api.get(`/friendship/${friendId}/compare-mood`).then((r) => r.data);
 }
+
+// ─── Perfil público do amigo ─────────────────────────────────────────────────
+
+export async function getFriendMoodHistory(friendId: string, limit = 20): Promise<MoodHistoryItem[]> {
+    return api.get(`/friendship/${friendId}/mood-history?limit=${limit}`).then((r) => r.data);
+}
+
+export async function getFriendMoodWeek(friendId: string): Promise<MoodWeekItem[]> {
+    return api.get(`/friendship/${friendId}/mood-week`).then((r) => r.data);
+}
+
+export async function getFriendStats(friendId: string): Promise<UserStats> {
+    return api.get(`/friendship/${friendId}/stats`).then((r) => r.data);
+}
+
+// ─── Reações e comentários ───────────────────────────────────────────────────
 
 export async function toggleReaction(moodId: string, emoji: string): Promise<{ action: string, emoji?: string }> {
     return api.post(`/friendship/mood/${moodId}/reaction`, { emoji }).then((r) => r.data);

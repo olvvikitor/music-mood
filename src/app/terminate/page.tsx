@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, Suspense } from "react";
 import { Bell, Mail, BarChart3, ChevronRight, Loader2, Check, Lock, Eye, EyeOff, ShieldCheck, Camera } from "lucide-react";

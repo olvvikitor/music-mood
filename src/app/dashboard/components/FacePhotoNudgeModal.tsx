@@ -114,7 +114,7 @@ export function FacePhotoNudgeModal({ isOpen, onClose }: FacePhotoNudgeModalProp
                             Adicione seu rosto às artes
                         </h3>
                         <p className="text-sm leading-relaxed mt-2" style={{ color: "var(--text-muted)" }}>
-                            Com uma foto sua, cada imagem gerada pelo MusicMood terá o seu rosto — tornando cada arte única e pessoal.
+                            Com uma foto sua, cada imagem gerada pelo MusicMood terá o seu rosto, tornando cada arte única e pessoal.
                         </p>
                     </div>
 

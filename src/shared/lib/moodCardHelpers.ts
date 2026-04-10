@@ -8,7 +8,7 @@ export const CLUSTER: Record<string, {
 }> = {
   // 🔥 Positivo + Alta Energia
   euforia:     { color: "#facc15", bg: "rgba(250,204,21,0.08)",   border: "rgba(250,204,21,0.20)",   phrase: "Energia no limite máximo." },
-  celebracao:  { color: "#f43f5e", bg: "rgba(244,63,94,0.08)",    border: "rgba(244,63,94,0.20)",    phrase: "Hora de celebrar junto." },
+  celebracao:  { color: "#f43f5e", bg: "rgba(244,63,94,0.08)",    border: "rgba(244,63,94,0.20)",    phrase: "Da galera." },
   confianca:   { color: "#a3e635", bg: "rgba(163,230,53,0.08)",   border: "rgba(163,230,53,0.20)",   phrase: "Modo chefe ativado." },
   energia:     { color: "#fb923c", bg: "rgba(251,146,60,0.08)",   border: "rgba(251,146,60,0.20)",   phrase: "Frenético, mas no comando." },
 

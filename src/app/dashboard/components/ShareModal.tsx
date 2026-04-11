@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Download, Check, Play } from "lucide-react";
@@ -107,6 +107,9 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
     const [mounted, setMounted] = useState(false);
     const [dlState, setDlState] = useState<BtnState>("idle");
     const [storyState, setStoryState] = useState<BtnState>("idle");
+    // Imagem pré-carregada como base64 para garantir que o htmlToImage
+    // não precise fazer fetch cross-origin (falha silenciosamente no mobile)
+    const [posterImgSrc, setPosterImgSrc] = useState<string | null>(null);
 
     const platform = detectPlatform();
     const hint = platformHint[platform];
@@ -115,6 +118,31 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
     useEffect(() => {
         if (!isOpen) { setDlState("idle"); setStoryState("idle"); }
     }, [isOpen]);
+
+    // Pré-carrega a imagem do mood como data URL ao abrir o modal
+    useEffect(() => {
+        if (!isOpen || !mood.image_mood) return;
+        let cancelled = false;
+
+        async function preloadImage() {
+            try {
+                const res = await fetch(mood.image_mood, { mode: "cors", cache: "no-cache" });
+                const blob = await res.blob();
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (!cancelled) setPosterImgSrc(reader.result as string);
+                };
+                reader.readAsDataURL(blob);
+            } catch {
+                // fallback: usa a URL original (pode não funcionar no htmlToImage no mobile)
+                if (!cancelled) setPosterImgSrc(mood.image_mood);
+            }
+        }
+
+        setPosterImgSrc(null);
+        preloadImage();
+        return () => { cancelled = true; };
+    }, [isOpen, mood.image_mood]);
 
     if (!isOpen || !mounted) return null;
 
@@ -217,13 +245,14 @@ export function ShareModal({ isOpen, onClose, mood, profile }: ShareModalProps) 
                     className="w-full mx-auto relative overflow-hidden flex flex-col"
                     style={{ aspectRatio: "9/16", maxHeight: "calc(95vh - 200px)", background: "#05050a", transform: "translateZ(0)" }}
                 >
-                    {/* GIF */}
-                    <img
-                        src={mood.image_mood}
-                        alt=""
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[101%] h-[101%] object-cover"
-                        crossOrigin="anonymous"
-                    />
+                    {/* GIF / Imagem do mood — usa data URL pré-carregada para garantir captura no mobile */}
+                    {posterImgSrc && (
+                        <img
+                            src={posterImgSrc}
+                            alt=""
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[101%] h-[101%] object-cover"
+                        />
+                    )}
 
                     {/* Overlay escuro */}
                     <div

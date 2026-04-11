@@ -58,7 +58,6 @@ function MobileHeader() {
 const SIDEBAR_TABS: { key: DashTab; label: string; icon: React.ReactNode }[] = [
     { key: "feed", label: "Feed", icon: <LayoutGrid className="w-4 h-4" /> },
     { key: "profile", label: "Meu Perfil", icon: <UserCircle className="w-4 h-4" /> },
-    { key: "playing", label: "Tocando Agora", icon: <Radio className="w-4 h-4" /> },
     { key: "mix", label: "Mix Emocional", icon: <Sparkles className="w-4 h-4" /> },
 ];
 
@@ -69,6 +68,19 @@ function ProfileTab() {
         <div className="flex flex-col gap-6">
             {/* Card de perfil + mood atual */}
             <div className="min-h-[340px]"><Profile /></div>
+
+            {/* Tocando agora */}
+            <SectionCard title="Tocando Agora" icon={<Radio />}
+                iconColor="text-brand-primary" accentColor="#6fae9b"
+                noPadding className="min-h-[260px]">
+                <NowPlayingCard />
+            </SectionCard>
+
+            {/* Últimas faixas */}
+            <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
+                iconColor="text-brand-primary" accentColor="#6fae9b">
+                <RecentSongs compact />
+            </SectionCard>
 
             {/* Estatísticas gerais */}
             <ProfileStats />
@@ -110,19 +122,7 @@ export default function Dashboard() {
                         <div className="max-w-xl mx-auto"><ProfileTab /></div>
                     )}
 
-                    {tab === "playing" && (
-                        <div className="max-w-xl mx-auto flex flex-col gap-4">
-                            <SectionCard title="Tocando Agora" icon={<Radio />}
-                                iconColor="text-brand-primary" accentColor="#6fae9b"
-                                noPadding className="min-h-[260px]">
-                                <NowPlayingCard />
-                            </SectionCard>
-                            <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
-                                iconColor="text-brand-primary" accentColor="#6fae9b">
-                                <RecentSongs compact />
-                            </SectionCard>
-                        </div>
-                    )}
+
 
                     {tab === "mix" && (
                         <div className="max-w-xl mx-auto">
@@ -198,6 +198,15 @@ export default function Dashboard() {
                                 {/* Coluna esquerda */}
                                 <div className="col-span-12 xl:col-span-5 flex flex-col gap-6">
                                     <div className="min-h-[380px]"><Profile /></div>
+                                    <SectionCard title="Tocando Agora" icon={<Radio />}
+                                        iconColor="text-brand-primary" accentColor="#6fae9b"
+                                        noPadding className="min-h-[260px]">
+                                        <NowPlayingCard />
+                                    </SectionCard>
+                                    <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
+                                        iconColor="text-brand-primary" accentColor="#6fae9b">
+                                        <RecentSongs compact />
+                                    </SectionCard>
                                 </div>
                                 {/* Coluna direita */}
                                 <div className="col-span-12 xl:col-span-7 flex flex-col gap-6">
@@ -208,28 +217,7 @@ export default function Dashboard() {
                         </div>
                     )}
 
-                    {tab === "playing" && (
-                        <div className="max-w-6xl mx-auto">
-                            <h1 className="text-lg font-black uppercase tracking-tight"
-                                style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Tocando Agora</h1>
-                            <div className="grid grid-cols-12 gap-6 mt-5 items-start">
-                                <div className="col-span-12 xl:col-span-7">
-                                    <SectionCard title="Tocando Agora" icon={<Radio />}
-                                        iconColor="text-brand-primary" accentColor="#6fae9b"
-                                        noPadding className="min-h-[360px] ml-6">
-                                        <NowPlayingCard />
-                                    </SectionCard>
-                                </div>
-                                <div className="col-span-12 xl:col-span-5">
-                                    <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
-                                        iconColor="text-brand-primary" accentColor="#6fae9b"
-                                        className="min-h-[540px]">
-                                        <RecentSongs compact />
-                                    </SectionCard>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+
 
                     {tab === "mix" && (
                         <div className="max-w-6xl mx-auto">

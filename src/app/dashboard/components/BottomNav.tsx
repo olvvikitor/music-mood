@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
-import { LayoutGrid, Radio, Sparkles, UserCircle, Sun, Moon } from "lucide-react";
+import { LayoutGrid, Sparkles, UserCircle, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/shared/providers/ThemeProvider";
 
-export type DashTab = "feed" | "playing" | "mix" | "profile" | "friends";
+export type DashTab = "feed" | "mix" | "profile" | "friends";
 
 interface BottomNavProps {
     active: DashTab;
@@ -13,7 +13,6 @@ interface BottomNavProps {
 const TABS: { key: DashTab; icon: React.ReactNode; label: string }[] = [
     { key: "profile", icon: <UserCircle className="w-5 h-5" />, label: "Perfil"  },
     { key: "feed",    icon: <LayoutGrid className="w-5 h-5" />, label: "Feed"    },
-    { key: "playing", icon: <Radio className="w-5 h-5" />,      label: "Playing" },
     { key: "mix",     icon: <Sparkles className="w-5 h-5" />,   label: "Mix"     },
 ];
 

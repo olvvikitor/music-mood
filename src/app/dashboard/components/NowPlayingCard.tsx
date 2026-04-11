@@ -95,7 +95,7 @@ export function NowPlayingCard() {
                         </p>
 
                         {track.reasoning && (
-                            <p className="text-[11px] leading-relaxed text-white/52 italic line-clamp-2"
+                            <p className="text-[11px] leading-relaxed text-white/65 truncate italic line-clamp-2"
                                 style={{ fontFamily: "var(--font-body)" }}>
                                 "{track.reasoning}"
                             </p>

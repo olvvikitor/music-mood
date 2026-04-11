@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Zap, Sparkles, Radio, LayoutGrid, UserCircle } from "lucide-react";
+import { type TouchEvent, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Zap, Sparkles, Radio, LayoutGrid, UserCircle } from "lucide-react";
 
 import { AppBrand } from "@/shared/components/AppBrand";
 import { SectionCard } from "@/shared/components/SectionCard";
@@ -61,6 +61,94 @@ const SIDEBAR_TABS: { key: DashTab; label: string; icon: React.ReactNode }[] = [
     { key: "mix", label: "Mix Emocional", icon: <Sparkles className="w-4 h-4" /> },
 ];
 
+// ─── Carrossel Tocando Agora / Últimas Faixas ────────────────────────────────
+
+const CAROUSEL_SLIDES = ["Tocando Agora", "Últimas Faixas"] as const;
+
+function NowPlayingCarousel() {
+    const [slide, setSlide] = useState(0);
+    const touchStartX = useRef<number | null>(null);
+    const touchStartY = useRef<number | null>(null);
+
+    function onTouchStart(e: TouchEvent<HTMLDivElement>) {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    }
+
+    function onTouchEnd(e: TouchEvent<HTMLDivElement>) {
+        if (touchStartX.current === null || touchStartY.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        const dy = e.changedTouches[0].clientY - touchStartY.current;
+        touchStartX.current = null;
+        touchStartY.current = null;
+        if (Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < 40) return;
+        setSlide(prev => dx < 0 ? Math.min(prev + 1, 1) : Math.max(prev - 1, 0));
+    }
+
+    return (
+        <div className="rounded-2xl overflow-hidden" style={{ background: "var(--surface-card)", border: "1px solid var(--border)" }}>
+            {/* Header do carrossel */}
+            <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                <button
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}
+                    onClick={() => setSlide(prev => Math.max(prev - 1, 0))}
+                >
+                    <ChevronLeft className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
+                </button>
+
+                <span className="text-[11px] uppercase tracking-[0.14em]" style={{ color: "var(--text-muted)", fontFamily: "var(--font-display)" }}>
+                    {CAROUSEL_SLIDES[slide]}
+                </span>
+
+                <button
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ background: "var(--surface-card-alt)", border: "1px solid var(--border-medium)" }}
+                    onClick={() => setSlide(prev => Math.min(prev + 1, 1))}
+                >
+                    <ChevronRight className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
+                </button>
+            </div>
+
+            {/* Slides */}
+            <div className="overflow-hidden">
+                <div
+                    className="flex transition-transform duration-500"
+                    style={{ transform: `translateX(-${slide * 100}%)`, touchAction: "pan-y" }}
+                    onTouchStart={onTouchStart}
+                    onTouchEnd={onTouchEnd}
+                >
+                    {/* Slide 0 — Tocando Agora */}
+                    <div className="w-full shrink-0 p-3 min-h-[260px]" style={{ background: "var(--surface-card)" }}>
+                        <NowPlayingCard />
+                    </div>
+
+                    {/* Slide 1 — Últimas Faixas */}
+                    <div className="w-full shrink-0 p-3" style={{ background: "var(--surface-card)" }}>
+                        <RecentSongs compact />
+                    </div>
+                </div>
+            </div>
+
+            {/* Dots */}
+            <div className="flex items-center justify-center gap-2 py-3">
+                {[0, 1].map(i => (
+                    <button
+                        key={i}
+                        onClick={() => setSlide(i)}
+                        aria-label={CAROUSEL_SLIDES[i]}
+                        className="h-2 rounded-full transition-all"
+                        style={{
+                            width: slide === i ? 20 : 8,
+                            background: slide === i ? "#6fae9b" : "var(--border-medium)",
+                        }}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
 // ─── Conteúdo da aba Perfil ───────────────────────────────────────────────────
 
 function ProfileTab() {
@@ -69,18 +157,8 @@ function ProfileTab() {
             {/* Card de perfil + mood atual */}
             <div className="min-h-[340px]"><Profile /></div>
 
-            {/* Tocando agora */}
-            <SectionCard title="Tocando Agora" icon={<Radio />}
-                iconColor="text-brand-primary" accentColor="#6fae9b"
-                noPadding className="min-h-[260px]">
-                <NowPlayingCard />
-            </SectionCard>
-
-            {/* Últimas faixas */}
-            <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
-                iconColor="text-brand-primary" accentColor="#6fae9b">
-                <RecentSongs compact />
-            </SectionCard>
+            {/* Carrossel Tocando Agora / Últimas Faixas */}
+            <NowPlayingCarousel />
 
             {/* Estatísticas gerais */}
             <ProfileStats />
@@ -198,15 +276,8 @@ export default function Dashboard() {
                                 {/* Coluna esquerda */}
                                 <div className="col-span-12 xl:col-span-5 flex flex-col gap-6">
                                     <div className="min-h-[380px]"><Profile /></div>
-                                    <SectionCard title="Tocando Agora" icon={<Radio />}
-                                        iconColor="text-brand-primary" accentColor="#6fae9b"
-                                        noPadding className="min-h-[260px]">
-                                        <NowPlayingCard />
-                                    </SectionCard>
-                                    <SectionCard title="Últimas Faixas" icon={<Zap fill="currentColor" />}
-                                        iconColor="text-brand-primary" accentColor="#6fae9b">
-                                        <RecentSongs compact />
-                                    </SectionCard>
+                                    {/* Carrossel Tocando Agora / Últimas Faixas */}
+                                    <NowPlayingCarousel />
                                 </div>
                                 {/* Coluna direita */}
                                 <div className="col-span-12 xl:col-span-7 flex flex-col gap-6">

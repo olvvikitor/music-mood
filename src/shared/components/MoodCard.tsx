@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { CoreAxes, EmotionalVector } from "@/app/dashboard/types/music";
@@ -15,6 +15,12 @@ type MoodCardData = {
     moodScore: number;
     reasoning?: string;
     emotionalVector: EmotionalVector;
+    mostListenedGenre?: string;
+    mostListenedSong?: {
+        name: string;
+        artist: string;
+        img_url: string;
+    };
 };
 
 interface MoodCardProps {
@@ -218,6 +224,53 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                         style={{ fontFamily: "var(--font-body)", color: reasoningTextColor }}>
                         "{data.reasoning}"
                     </p>
+                </div>
+            )}
+
+            {/* Most Listened Info */}
+            {(data.mostListenedSong || data.mostListenedGenre) && (
+                <div
+                    className="flex items-center gap-3 px-3 py-3 rounded-xl"
+                    style={{
+                        background: metricCardBg,
+                        border: `1px solid ${metricCardBorder}`,
+                        animation: mounted ? "fadeInUp 0.5s 0.28s cubic-bezier(0.16,1,0.3,1) both" : "none",
+                    }}
+                >
+                    {data.mostListenedSong?.img_url ? (
+                        <div className="relative shrink-0 w-10 h-10 rounded-md overflow-hidden shadow-sm" style={{ border: `1px solid ${metricCardBorder}` }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img 
+                                src={data.mostListenedSong.img_url} 
+                                alt={data.mostListenedSong.name}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    ) : (
+                        <div className="w-10 h-10 rounded-md flex items-center justify-center shrink-0 shadow-sm"
+                            style={{ background: "rgba(138,123,184,0.1)", border: `1px solid ${metricCardBorder}` }}>
+                            <Zap className="w-4 h-4" style={{ color: "#8a7bb8", opacity: 0.5 }} />
+                        </div>
+                    )}
+                    <div className="flex flex-col flex-1 min-w-0 justify-center">
+                        <span className="text-[9px] uppercase tracking-wider mb-0.5"
+                            style={{ fontFamily: "var(--font-display)", color: subtleLabelColor, fontWeight: 600 }}>
+                            Principais do Dia
+                        </span>
+                        {data.mostListenedSong && (
+                            <span className="text-[12px] font-800 truncate block"
+                                style={{ fontFamily: "var(--font-display)", color: secondaryTextColor }}>
+                                {data.mostListenedSong.name}
+                                <span className="font-400 opacity-70 ml-1">· {data.mostListenedSong.artist}</span>
+                            </span>
+                        )}
+                        {data.mostListenedGenre && (
+                            <span className="text-[10px] italic truncate block mt-0.5"
+                                style={{ color: accentColor, fontFamily: "var(--font-body)", opacity: 0.9 }}>
+                                Gênero top: <span className="font-700 capitalize">{data.mostListenedGenre}</span>
+                            </span>
+                        )}
+                    </div>
                 </div>
             )}
 

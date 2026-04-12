@@ -11,6 +11,12 @@ type MoodPrincipalCardProps = {
     displayName?: string;
     topRightText?: string;
     minHeight?: number;
+    mostListenedGenre?: string;
+    mostListenedSong?: {
+        name: string;
+        artist: string;
+        img_url: string;
+    };
 };
 
 export function MoodPrincipalCard({
@@ -22,9 +28,13 @@ export function MoodPrincipalCard({
     displayName,
     topRightText = "MusicMood",
     minHeight = 390,
+    mostListenedGenre,
+    mostListenedSong,
 }: MoodPrincipalCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageFailed, setImageFailed] = useState(false);
+
+    console.log("DEBUG FRONTEND:", { mostListenedGenre, mostListenedSong });
 
     return (
         <div
@@ -90,27 +100,71 @@ export function MoodPrincipalCard({
                 </span>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-6">
-                <p className="text-[9px] uppercase tracking-[.22em] mb-2" style={{ color: "rgba(255,255,255,.89)" }}>
-                    se sentindo
-                </p>
-                <p
-                    className="font-black italic leading-[1.06] tracking-tight whitespace-nowrap overflow-hidden text-ellipsis"
-                    style={{ fontSize: "clamp(24px, 6.4vw, 34px)", color: "#fff", textShadow: "0 2px 24px rgba(0,0,0,.8)" }}
-                >
-                    {sentimentDisplay}
-                </p>
-                <div className="flex items-center gap-3 mt-4">
-                    <div className="flex items-center gap-2 rounded-full px-3 py-1" style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.15)" }}>
-                        <span className="text-[12px] font-bold text-white">{moodScore}%</span>
-                        <span className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,.4)" }}>score</span>
-                    </div>
-                    <div className="flex items-end gap-0.75" style={{ height: 16 }}>
-                        {[38, 80, 100, 62, 88].map((h, i) => (
-                            <div key={i} style={{ width: 3, height: `${h}%`, borderRadius: "2px 2px 0 0", background: accent, opacity: 0.8 }} />
-                        ))}
+            <div className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-6 flex items-end justify-between gap-4">
+                {/* Esquerda: Informações do Mood */}
+                <div className="flex flex-col min-w-0 shrink">
+                    <p className="text-[9px] uppercase tracking-[.22em] mb-1.5" style={{ color: "rgba(255,255,255,.89)" }}>
+                        se sentindo
+                    </p>
+                    <p
+                        className="font-black italic leading-[1.06] tracking-tight whitespace-nowrap overflow-hidden text-ellipsis mb-3"
+                        style={{ fontSize: "clamp(22px, 6vw, 32px)", color: "#fff", textShadow: "0 2px 24px rgba(0,0,0,.8)" }}
+                    >
+                        {sentimentDisplay}
+                    </p>
+
+                    <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-1.5 rounded-full px-2.5 py-0.5" style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.15)" }}>
+                            <span className="text-[12px] font-bold text-white">{moodScore}%</span>
+                            <span className="text-[9px] uppercase tracking-widest text-white/50">score</span>
+                        </div>
+                        <div className="flex items-end gap-[3px]" style={{ height: 16 }}>
+                            {[38, 80, 100, 62, 88].map((h, i) => (
+                                <div key={i} style={{ width: 3, height: `${h}%`, borderRadius: "2px 2px 0 0", background: accent, opacity: 0.8 }} />
+                            ))}
+                        </div>
                     </div>
                 </div>
+
+                {/* Direita: Música / Gênero mais tocados */}
+                {(mostListenedSong || mostListenedGenre) && (
+                    <div className="flex flex-col items-end gap-2.5 min-w-0 max-w-[50%]">
+                        {mostListenedGenre && (
+                            <div className="flex flex-col items-end w-full" style={{ color: accent, opacity: 0.9 }}>
+                                <span className="text-[8px] uppercase tracking-[0.16em] text-white/60 mb-0.5" style={{ fontFamily: "var(--font-display)" }}>
+                                    Gênero mais tocado
+                                </span>
+                                <span className="text-[12px] tracking-[0.05em] font-black truncate uppercase text-right w-full">
+                                    {mostListenedGenre}
+                                </span>
+                            </div>
+                        )}
+                        {mostListenedSong && (
+                            <div className="flex items-center gap-2 rounded-xl p-1.5 pr-2.5 backdrop-blur-md transition-all shadow-xl max-w-full" 
+                                 style={{ background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                                {mostListenedSong.img_url ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img 
+                                        src={mostListenedSong.img_url}
+                                        alt="Capa"
+                                        className="w-8 h-8 rounded-lg shrink-0 object-cover shadow-sm"
+                                        style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                                )}
+                                <div className="flex flex-col min-w-0 flex-1">
+                                    <span className="text-[8px] uppercase tracking-[0.1em] text-white/50" style={{ fontFamily: "var(--font-display)" }}>
+                                        Música mais tocada
+                                    </span>
+                                    <span className="text-[10px] font-bold text-white truncate drop-shadow-md w-full">
+                                        {mostListenedSong.name}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             <style jsx>{`

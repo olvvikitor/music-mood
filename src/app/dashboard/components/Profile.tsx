@@ -136,6 +136,8 @@ export default function Profile() {
                 displayName={profile.display_name}
                 topRightText="MusicMood"
                 minHeight={470}
+                mostListenedGenre={mood.mostListenedGenre}
+                mostListenedSong={mood.mostListenedSong}
             />
 
             {/* ── Barra de ações ── */}

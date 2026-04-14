@@ -27,6 +27,8 @@ export type MoodProfileResponse = {
         artist: string;
         img_url: string;
     };
+    reactions?: { emoji: string; user: { id: string; display_name: string; img_profile: string; } }[];
+    comments?: { id: string; text: string; createdAt: string; user: { id: string; display_name: string; img_profile: string; } }[];
 }
 
 

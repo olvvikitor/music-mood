@@ -41,6 +41,13 @@ export type MoodData = {
     coreAxes: Record<string, number>;
     analyzedAt: string;
     image_mood?: string;
+    mostListenedGenre?: string;
+    mostListenedSong?: {
+        id: string;
+        name: string;
+        artist: string;
+        img_url: string;
+    };
     reactions?: { emoji: string; user: { id: string; display_name: string; img_profile: string; } }[];
     comments?: { id: string; text: string; createdAt: string; user: { id: string; display_name: string; img_profile: string; } }[];
 } | null;
@@ -52,6 +59,7 @@ export type ListeningNowData =
         moodScore: number;
         dominantSentiment: string;
         tracks: {
+            id: string;
             music: string;
             artist: string;
             img_url: string;

@@ -14,3 +14,7 @@ export type UserResponseDto = {
 export async function getProfile(): Promise<UserResponseDto> {
     return await api.get("user/me").then((response) => response.data);
 }
+
+export async function addTrackToQueue(trackId: string): Promise<void> {
+    await api.post("user/queue", { trackId });
+}

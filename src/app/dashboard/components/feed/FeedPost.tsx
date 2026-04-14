@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Music2, BarChart2, MessageCircle, Send, Heart } from "lucide-react";
+import { Music2, BarChart2, MessageCircle, Send, Heart, Check, ListPlus } from "lucide-react";
 import { compareMood, type CompareMoodData, type Friend, toggleReaction, addComment } from "@/shared/services/friendService";
+import { addTrackToQueue } from "@/shared/services/userService";
 import { getMoodDisplayName, getMoodTextColor } from "@/shared/lib/moodHelpers";
 import { useTheme } from "@/shared/providers/ThemeProvider";
 import type { UserResponseDto } from "@/shared/services/userService";
@@ -12,6 +13,7 @@ import { FriendProfileDrawer } from "@/shared/components/FriendProfileDrawer";
 export type FeedPostData = Friend & {
     isPlaying: boolean;
     track?: {
+        id: string;
         music: string;
         artist: string;
         img_url: string;
@@ -28,6 +30,13 @@ export type FeedPostData = Friend & {
         image_mood?: string;
         analyzedAt?: string;
         id?: string;
+        mostListenedGenre?: string;
+        mostListenedSong?: {
+            id: string;
+            name: string;
+            artist: string;
+            img_url: string;
+        };
         reactions?: { emoji: string; user: { id: string; display_name: string; img_profile: string; } }[];
         comments?: { id: string; text: string; createdAt: string; user: { id: string; display_name: string; img_profile: string; } }[];
     } | null;
@@ -184,6 +193,10 @@ export function FeedPost({ post, currentUser }: { post: FeedPostData; currentUse
     const [showCompare,    setShowCompare]    = useState(false);
     const [showFullImage,  setShowFullImage]  = useState(false);
     const [showReactorsFor, setShowReactorsFor] = useState<string | null>(null);
+    const [queueing,       setQueueing]       = useState(false);
+    const [queueSuccess,   setQueueSuccess]   = useState(false);
+    const [queueingMost,   setQueueingMost]   = useState(false);
+    const [queueSuccessMost, setQueueSuccessMost] = useState(false);
 
     // ── Drawer de perfil do amigo ──
     const [showProfile, setShowProfile] = useState(false);
@@ -351,6 +364,27 @@ export function FeedPost({ post, currentUser }: { post: FeedPostData; currentUse
                                     <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#6fae9b" }} />
                                     <span className="text-[9px] uppercase tracking-wider text-white/40">live</span>
                                 </div>
+                                <button 
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        if(queueing || queueSuccess || !post.track?.id) return;
+                                        setQueueing(true);
+                                        try {
+                                            await addTrackToQueue(post.track.id);
+                                            setQueueSuccess(true);
+                                            setTimeout(() => setQueueSuccess(false), 3000);
+                                        } catch {
+                                            // Handle error naturally
+                                        } finally {
+                                            setQueueing(false);
+                                        }
+                                    }}
+                                    disabled={queueing || queueSuccess}
+                                    className="ml-2 w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-white/[0.06] hover:bg-emerald-400/20 text-emerald-400 hover:text-emerald-300 disabled:opacity-40 shrink-0"
+                                    title="Adicionar à fila"
+                                >
+                                    {queueSuccess ? <Check className="w-4 h-4 text-emerald-400" /> : <ListPlus className="w-4 h-4 text-emerald-400" />}
+                                </button>
                             </div>
                         ) : (
                             <div className="mt-3 inline-flex items-center gap-2 rounded-xl px-3 py-1.5"
@@ -391,6 +425,70 @@ export function FeedPost({ post, currentUser }: { post: FeedPostData; currentUse
                         <p className="text-[13px] text-white/50 leading-relaxed italic line-clamp-3">
                             "{post.mood.reasoning}"
                         </p>
+                    </div>
+                )}
+
+                {/* Most Listened do Amigo */}
+                {(post.mood?.mostListenedSong || post.mood?.mostListenedGenre) && (
+                    <div className="px-4 pb-3">
+                        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all" 
+                            style={{ background: iconButtonBg, borderColor: iconButtonBorder }}>
+                            {post.mood.mostListenedSong?.img_url ? (
+                                <div className="relative shrink-0 w-10 h-10 rounded-md overflow-hidden shadow-sm border border-white/10">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={post.mood.mostListenedSong.img_url} alt={post.mood.mostListenedSong.name} className="w-full h-full object-cover" />
+                                </div>
+                            ) : (
+                                <div className="w-10 h-10 rounded-md flex items-center justify-center shrink-0 shadow-sm border border-white/5" 
+                                    style={{ background: "rgba(255,255,255,0.05)" }}>
+                                    <Music2 className="w-4 h-4 text-white/30" />
+                                </div>
+                            )}
+                            
+                            <div className="flex flex-col flex-1 min-w-0 justify-center">
+                                <span className="text-[9px] uppercase tracking-wider mb-0.5" 
+                                    style={{ fontFamily: "var(--font-display)", color: isLight ? "rgba(12,12,18,0.58)" : "rgba(255,255,255,0.38)", fontWeight: 700 }}>
+                                    Principais do Dia
+                                </span>
+                                {post.mood.mostListenedSong && (
+                                    <span className="text-[12px] font-bold truncate block" 
+                                        style={{ fontFamily: "var(--font-display)", color: isLight ? "rgba(12,12,18,0.85)" : "rgba(255,255,255,0.85)" }}>
+                                        {post.mood.mostListenedSong.name}
+                                        <span className="font-medium opacity-60 ml-1">· {post.mood.mostListenedSong.artist}</span>
+                                    </span>
+                                )}
+                                {post.mood.mostListenedGenre && (
+                                    <span className="text-[10px] italic truncate block mt-0.5" 
+                                        style={{ color: color, fontFamily: "var(--font-body)", opacity: 0.9 }}>
+                                        Gênero top: <span className="font-bold capitalize">{post.mood.mostListenedGenre}</span>
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Add to queue button for most listened song */}
+                            {post.mood.mostListenedSong && (
+                                <button 
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        if(queueingMost || queueSuccessMost || !post.mood?.mostListenedSong?.id) return;
+                                        setQueueingMost(true);
+                                        try {
+                                            await addTrackToQueue(post.mood.mostListenedSong.id);
+                                            setQueueSuccessMost(true);
+                                            setTimeout(() => setQueueSuccessMost(false), 3000);
+                                        } catch {
+                                        } finally {
+                                            setQueueingMost(false);
+                                        }
+                                    }}
+                                    disabled={queueingMost || queueSuccessMost}
+                                    className="ml-2 w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-white/[0.06] hover:bg-emerald-400/20 text-emerald-400 hover:text-emerald-300 disabled:opacity-40 shrink-0"
+                                    title="Adicionar música principal à fila"
+                                >
+                                    {queueSuccessMost ? <Check className="w-4 h-4 text-emerald-400" /> : <ListPlus className="w-4 h-4 text-emerald-400" />}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 )}
 

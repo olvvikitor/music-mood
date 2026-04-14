@@ -3,7 +3,7 @@ import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import LoadingComponent from "@/shared/components/Loading";
 import ErrorComponent from "@/shared/components/Error";
 import { useProfile } from "../hooks/useProfile";
-import { Camera, Share2, Sparkles } from 'lucide-react';
+import { Camera, Share2, Sparkles, Heart, MessageCircle } from 'lucide-react';
 import { useMoodProfile } from "../hooks/useMoodProfile";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRefreshProfile } from "../services/getRefreshProfileService";
@@ -208,6 +208,23 @@ export default function Profile() {
                     title="Compartilhar">
                     <Share2 className="w-4.5 h-4.5 text-white/65" />
                 </button>
+
+                {/* Curtidas e Comentários (Recebidos no mood) */}
+                <div className="flex items-center gap-3 ml-auto px-3.5 py-2 rounded-full shrink-0" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border-medium)" }}>
+                    <div className="flex items-center gap-1.5" title="Reações recebidas">
+                        <Heart className="w-3.5 h-3.5 text-white/50" />
+                        <span className="text-[11px] font-bold text-white/80" style={{ fontFamily: "var(--font-display)" }}>
+                            {mood.reactions?.length || 0}
+                        </span>
+                    </div>
+                    <div className="w-[1px] h-3 bg-white/10" />
+                    <div className="flex items-center gap-1.5" title="Comentários recebidos">
+                        <MessageCircle className="w-3.5 h-3.5 text-white/50" />
+                        <span className="text-[11px] font-bold text-white/80" style={{ fontFamily: "var(--font-display)" }}>
+                            {mood.comments?.length || 0}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {facePhotoError && (

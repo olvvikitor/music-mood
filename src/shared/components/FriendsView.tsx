@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import {
     Users, UserPlus, Search, Check, X, UserMinus,
-    Clock, Radio, BarChart2, Loader2, Music2,
+    Clock, Radio, BarChart2, Loader2, Music2, ListPlus
 } from "lucide-react";
 import { MoodBadge } from "@/shared/components/MoodBadge";
 import { getMoodDisplayName, getMoodTextColor } from "@/shared/lib/moodHelpers";
@@ -15,12 +15,11 @@ import {
     type Friend, type PendingRequest, type UserSearchResult,
     type MoodData, type ListeningNowData, type CompareMoodData,
 } from "@/shared/services/friendService";
+import { addTrackToQueue } from "@/shared/services/userService";
 
-// â”€â”€â”€ Tipos internos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type FriendsTab = "friends" | "requests" | "search";
 type FriendPanel = "listening" | "compare" | null;
 
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function moodColor(score: number) {
     if (score >= 0.7) return "#6fae9b";
@@ -69,12 +68,13 @@ function EmptyState({ icon, message, sub, action }: {
     );
 }
 
-// â”€â”€â”€ Painel: Tocando agora â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ListeningPanel({ friendId, friendName }: { friendId: string; friendName: string }) {
     const [data, setData] = useState<ListeningNowData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [queueing, setQueueing] = useState(false);
+    const [queueSuccess, setQueueSuccess] = useState(false);
 
     useEffect(() => {
         setLoading(true); setError(false);
@@ -138,6 +138,29 @@ function ListeningPanel({ friendId, friendName }: { friendId: string; friendName
                     </span>
                 </div>
                 {track.reasoning && <p className="text-[10px] text-white/25 italic line-clamp-1 mt-1">"{track.reasoning}"</p>}
+                
+                <div className="mt-2 text-xs">
+                    <button 
+                        onClick={async () => {
+                            if(queueing || queueSuccess) return;
+                            setQueueing(true);
+                            try {
+                                await addTrackToQueue(track.id);
+                                setQueueSuccess(true);
+                                setTimeout(() => setQueueSuccess(false), 3000);
+                            } catch {
+                                // optional error handling
+                            } finally {
+                                setQueueing(false);
+                            }
+                        }}
+                        disabled={queueing || queueSuccess}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-all font-semibold disabled:opacity-50"
+                    >
+                        {queueSuccess ? <Check className="w-3.5 h-3.5" /> : <ListPlus className="w-3.5 h-3.5" />}
+                        {queueSuccess ? "Adicionada à Fila!" : queueing ? "Adicionando..." : "Adicionar à fila"}
+                    </button>
+                </div>
             </div>
         </div>
     );

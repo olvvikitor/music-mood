@@ -115,8 +115,8 @@ export function MoodPrincipalCard({
 
                     <div className="flex items-center gap-2.5">
                         <div className="flex items-center gap-1.5 rounded-full px-2.5 py-0.5" style={{ background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.15)" }}>
-                            <span className="text-[12px] font-bold text-white">{moodScore}%</span>
-                            <span className="text-[9px] uppercase tracking-widest text-white/50">score</span>
+                            <span className="text-[12px] font-bold text-white/100">{moodScore}%</span>
+                            <span className="text-[9px] uppercase tracking-widest text-white/100">score</span>
                         </div>
                         <div className="flex items-end gap-[3px]" style={{ height: 16 }}>
                             {[38, 80, 100, 62, 88].map((h, i) => (
@@ -131,7 +131,7 @@ export function MoodPrincipalCard({
                     <div className="flex flex-col items-end gap-2.5 min-w-0 max-w-[50%]">
                         {mostListenedGenre && (
                             <div className="flex flex-col items-end w-full" style={{ color: accent, opacity: 0.9 }}>
-                                <span className="text-[8px] uppercase tracking-[0.16em] text-white/60 mb-0.5" style={{ fontFamily: "var(--font-display)" }}>
+                                <span className="text-[8px] uppercase tracking-[0.16em] text-white/100 mb-0.5" style={{ fontFamily: "var(--font-display)" }}>
                                     Gênero mais tocado
                                 </span>
                                 <span className="text-[12px] tracking-[0.05em] font-black truncate uppercase text-right w-full">
@@ -154,10 +154,10 @@ export function MoodPrincipalCard({
                                     <div className="w-8 h-8 rounded-lg shrink-0" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)" }} />
                                 )}
                                 <div className="flex flex-col min-w-0 flex-1">
-                                    <span className="text-[8px] uppercase tracking-[0.1em] text-white/50" style={{ fontFamily: "var(--font-display)" }}>
+                                    <span className="text-[8px] uppercase tracking-[0.1em] text-white/100" style={{ fontFamily: "var(--font-display)" }}>
                                         Música mais tocada
                                     </span>
-                                    <span className="text-[10px] font-bold text-white truncate drop-shadow-md w-full">
+                                    <span className="text-[10px] font-bold text-white/100 truncate drop-shadow-md w-full">
                                         {mostListenedSong.name}
                                     </span>
                                 </div>

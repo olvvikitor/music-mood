@@ -51,23 +51,35 @@ export default function Profile() {
         onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['userProfile'] }); },
     });
 
-    // ── Auto-refresh às 19h ──
+    // ── Auto-refresh ──
     useEffect(() => {
         if (moodLoading || !mood || autoRefreshTriggered || isPending) return;
 
         const now = new Date();
-        if (now.getHours() < 19) return;
-
-        // Verifica se o mood atual já foi analisado depois das 19h de hoje
-        const todayRelease = new Date(now);
-        todayRelease.setHours(19, 0, 0, 0);
-
         const analyzedAt = new Date(mood.analyzedAt);
-        if (analyzedAt >= todayRelease) return; // Já foi atualizado hoje
+        
+        const msIn24h = 24 * 60 * 60 * 1000;
+        const isOlderThan24h = (now.getTime() - analyzedAt.getTime()) >= msIn24h;
+        
+        let shouldRefresh = false;
 
-        autoRefreshTriggered = true;
+        // 1. Se passou 24h, deve atualizar
+        if (isOlderThan24h) {
+            shouldRefresh = true;
+        } 
+        // 2. Ou se for depois das 19h, mas o último mood foi antes das 19h de hoje
+        else if (now.getHours() >= 19) {
+            const todayRelease = new Date(now);
+            todayRelease.setHours(19, 0, 0, 0);
+            if (analyzedAt < todayRelease) {
+                shouldRefresh = true;
+            }
+        }
 
-        refreshUser(profile?.preferredStudioId ?? undefined);
+        if (shouldRefresh) {
+            autoRefreshTriggered = true;
+            refreshUser(profile?.preferredStudioId ?? undefined);
+        }
     }, [mood, moodLoading, isPending, refreshUser, profile]);
 
     const [activeSlide, setActiveSlide] = useState(0);

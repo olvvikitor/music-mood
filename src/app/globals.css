@@ -417,3 +417,13 @@
   transform: rotate(3deg) translate(0, -4px);
 }
 
+/* ── APP LOGO THEME ─────────────────────────────────────────────────── */
+/* white.png (dark-logo) = visible on dark backgrounds, hidden on light  */
+/* dark.png  (light-logo) = visible on light backgrounds, hidden on dark */
+
+.dark-logo  { display: block; }
+.light-logo { display: none;  }
+
+[data-theme="light"] .dark-logo  { display: none;  }
+[data-theme="light"] .light-logo { display: block; }
+

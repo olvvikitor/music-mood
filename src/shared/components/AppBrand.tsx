@@ -3,12 +3,18 @@ import Image from "next/image";
 export function AppBrand({ className = "" }: { className?: string }) {
     return (
         <div className={`flex items-center gap-2.5 ${className}`}>
-            <div className="relative w-8 h-8 flex-shrink-0">
-                <Image 
-                    src="/logo.png" 
-                    alt="Logo" 
-                    fill 
-                    className="object-contain drop-shadow-md"
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 flex-shrink-0">
+                <Image
+                    src="/app_logo/white.png"
+                    alt="Logo"
+                    fill
+                    className="object-contain drop-shadow-md block dark-logo"
+                />
+                <Image
+                    src="/app_logo/dark.png"
+                    alt="Logo"
+                    fill
+                    className="object-contain drop-shadow-md hidden light-logo"
                 />
             </div>
             <span

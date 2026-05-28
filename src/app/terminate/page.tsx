@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { Bell, Mail, BarChart3, ChevronRight, Loader2, Check, Lock, Eye, EyeOff, ShieldCheck, Camera } from "lucide-react";
+import { Bell, Mail, BarChart3, ChevronRight, Loader2, Check, Lock, Eye, EyeOff, ShieldCheck, Camera, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getRefreshProfile } from "../dashboard/services/getRefreshProfileService";
 import { usePlataformProfile } from "./hooks/useMoodProfile";
@@ -11,6 +11,7 @@ import { ParticleBackground } from "@/shared/components/orbital/ParticlesBackgor
 import { AppBrand } from "@/shared/components/AppBrand";
 import { setPasswordService } from "./services/setPasswordService";
 import { uploadFacePhotoService } from "./services/uploadFacePhotoService";
+import { CameraCapture } from "./components/CameraCapture";
 
 export type FormAceptNotification = { push: boolean; email: boolean; weekly: boolean };
 
@@ -75,6 +76,7 @@ function OnboardingContent() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [facePhotoFile, setFacePhotoFile] = useState<File | null>(null);
   const [facePhotoPreview, setFacePhotoPreview] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
 
   const passwordsMatch = password.length > 0 && password === confirmPassword;
 
@@ -92,9 +94,10 @@ function OnboardingContent() {
 
   const { mutate: refreshUser } = useMutation({
     mutationFn: getRefreshProfile,
-    onMutate: () => router.push("/build-mood"),
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["moodProfile"] }); },
-    onSettled: () => router.push("/dashboard"),
+    onSuccess: async () => {
+      router.push("/build-mood");
+      await queryClient.invalidateQueries({ queryKey: ["moodProfile"] });
+    },
   });
 
   const handleConfirm = async () => {
@@ -109,7 +112,13 @@ function OnboardingContent() {
     setError(null);
     try {
       if (facePhotoFile) {
-        await uploadFacePhotoService(facePhotoFile);
+        try {
+          await uploadFacePhotoService(facePhotoFile);
+        } catch (photoErr: any) {
+          setError(`Foto: ${photoErr.message || "falha no upload da imagem."}`);
+          setConfirming(false);
+          return;
+        }
       }
 
       await updateProfileService(notifications);
@@ -204,35 +213,62 @@ function OnboardingContent() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0"
-              style={{ border: "1px solid var(--border-strong)" }}>
+            <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 relative group"
+              style={{ border: "2px solid var(--border-strong)" }}>
               <img
                 src={facePhotoPreview ?? data?.face_photo_path ?? data?.img_profile ?? ""}
                 alt="Previa da foto"
                 className="w-full h-full object-cover"
               />
+              {(facePhotoPreview || data?.face_photo_path) && (
+                <button
+                  type="button"
+                  onClick={() => { setFacePhotoFile(null); setFacePhotoPreview(null); }}
+                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ background: "rgba(0,0,0,0.6)" }}>
+                  <X className="w-5 h-5 text-white/80" />
+                </button>
+              )}
             </div>
 
-            <label
-              className="flex-1 cursor-pointer rounded-lg px-3 py-2 text-[11px] font-600 text-white/70 transition-colors"
-              style={{
-                background: "var(--surface-card-alt)",
-                border: "1px dashed var(--border-strong)",
-                fontFamily: "var(--font-body)",
-                fontWeight: 600,
-              }}
-            >
-              {facePhotoFile ? facePhotoFile.name : "Selecionar imagem (JPG, PNG, WEBP)"}
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                className="hidden"
-                onChange={(e) => {
-                  const next = e.target.files?.[0] ?? null;
-                  setFacePhotoFile(next);
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label
+                className="cursor-pointer rounded-lg px-3 py-2 text-[11px] font-600 text-white/70 transition-colors text-center"
+                style={{
+                  background: "var(--surface-card-alt)",
+                  border: "1px dashed var(--border-strong)",
+                  fontFamily: "var(--font-body)",
+                  fontWeight: 600,
                 }}
-              />
-            </label>
+              >
+                {facePhotoFile ? facePhotoFile.name : "Escolher arquivo"}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const next = e.target.files?.[0] ?? null;
+                    setFacePhotoFile(next);
+                  }}
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setShowCamera(true)}
+                className="flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-600 transition-all active:scale-95"
+                style={{
+                  background: "var(--surface-card-alt)",
+                  border: "1px solid var(--border-medium)",
+                  color: "#6fae9b",
+                  fontFamily: "var(--font-body)",
+                  fontWeight: 600,
+                }}
+              >
+                <Camera className="w-3 h-3" />
+                Tirar foto
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -326,10 +362,13 @@ function OnboardingContent() {
       <div className="px-6 pb-6 pt-4 flex flex-col gap-3"
         style={{ animation: "fadeUp 0.5s 0.35s ease-out both", opacity: 0 }}>
         {error && (
-          <p className="text-[11px] text-rose-400 text-center font-500"
-            style={{ fontFamily: "var(--font-body)" }}>
-            {error}
-          </p>
+          <div className="rounded-lg px-3 py-2 text-center"
+            style={{ background: "rgba(251,113,133,0.08)", border: "1px solid rgba(251,113,133,0.2)" }}>
+            <p className="text-[11px] text-rose-400 font-500"
+              style={{ fontFamily: "var(--font-body)" }}>
+              {error}
+            </p>
+          </div>
         )}
         <button
           onClick={handleConfirm}
@@ -354,6 +393,16 @@ function OnboardingContent() {
           )}
         </button>
       </div>
+
+      {showCamera && (
+        <CameraCapture
+          onCapture={(file) => {
+            setFacePhotoFile(file);
+            setShowCamera(false);
+          }}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
     </div>
   );
 }

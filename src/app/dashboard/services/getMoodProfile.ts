@@ -21,7 +21,7 @@ export type MoodProfileResponse = {
         dominantSentiment: string;
         coreAxes: CoreAxes;
     }[];
-    mostListenedGenre?: string;
+    mostListenedSubgenre?: string;
     mostListenedSong?: {
         name: string;
         artist: string;

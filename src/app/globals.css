@@ -418,8 +418,8 @@
 }
 
 /* ── APP LOGO THEME ─────────────────────────────────────────────────── */
-/* white.png (dark-logo) = visible on dark backgrounds, hidden on light  */
-/* dark.png  (light-logo) = visible on light backgrounds, hidden on dark */
+/* white mode.png (dark-logo) = visible on dark backgrounds, hidden on light  */
+/* dark mode.png  (light-logo) = visible on light backgrounds, hidden on dark */
 
 .dark-logo  { display: block; }
 .light-logo { display: none;  }

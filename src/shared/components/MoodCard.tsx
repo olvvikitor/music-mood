@@ -15,7 +15,7 @@ type MoodCardData = {
     moodScore: number;
     reasoning?: string;
     emotionalVector: EmotionalVector;
-    mostListenedGenre?: string;
+    mostListenedSubgenre?: string;
     mostListenedSong?: {
         name: string;
         artist: string;
@@ -228,7 +228,7 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
             )}
 
             {/* Most Listened Info */}
-            {(data.mostListenedSong || data.mostListenedGenre) && (
+            {(data.mostListenedSong || data.mostListenedSubgenre) && (
                 <div
                     className="flex items-center gap-3 px-3 py-3 rounded-xl"
                     style={{
@@ -264,10 +264,10 @@ export function MoodCard({ data, mode = "hero" }: MoodCardProps) {
                                 <span className="font-400 opacity-70 ml-1">· {data.mostListenedSong.artist}</span>
                             </span>
                         )}
-                        {data.mostListenedGenre && (
+                        {data.mostListenedSubgenre && (
                             <span className="text-[10px] italic truncate block mt-0.5"
                                 style={{ color: accentColor, fontFamily: "var(--font-body)", opacity: 0.9 }}>
-                                Gênero top: <span className="font-700 capitalize">{data.mostListenedGenre}</span>
+                                Subgênero top: <span className="font-700 capitalize">{data.mostListenedSubgenre}</span>
                             </span>
                         )}
                     </div>

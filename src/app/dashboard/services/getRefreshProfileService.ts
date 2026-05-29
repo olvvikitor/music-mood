@@ -10,10 +10,12 @@ export type RefreshMoodStudio = {
      renderingNotes: string;
 };
 
-export async function getRefreshProfile(studioId?: string): Promise<void> {
-     await api.get("user/refreshMood", {
-          params: studioId ? { studioId } : undefined,
-     });
+export async function getRefreshProfile(studioId?: string, animeId?: string, nostalgic?: boolean): Promise<void> {
+     const params: Record<string, string> = {};
+     if (studioId) params.studioId = studioId;
+     if (animeId) params.animeId = animeId;
+     if (nostalgic) params.nostalgic = '1';
+     await api.get("user/refreshMood", { params });
 }
 
 export async function getRefreshMoodStudios(): Promise<RefreshMoodStudio[]> {

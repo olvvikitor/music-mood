@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Clock3, Music2, Headphones, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock3, Music2, Headphones, ChevronLeft, ChevronRight, Tv2 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getRefreshMoodStudios, type RefreshMoodStudio } from "../../dashboard/services/getRefreshProfileService";
 import api from "@/shared/services/apiService";
@@ -96,7 +96,14 @@ function TimerSeparator() {
 export function DailyMoodProgressCard({ initialStudioId }: { initialStudioId?: string }) {
     const [now, setNow] = useState(() => new Date());
     const [selectedStudio, setSelectedStudio] = useState(initialStudioId ?? "");
+    const [nostalgic, setNostalgic] = useState(() => localStorage.getItem("mm-nostalgic") === "1");
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const toggleNostalgic = () => {
+        const next = !nostalgic;
+        setNostalgic(next);
+        localStorage.setItem("mm-nostalgic", next ? "1" : "0");
+    };
 
     const { data: studios = [] } = useQuery({
         queryKey: ["refreshMoodStudios"],
@@ -221,6 +228,27 @@ export function DailyMoodProgressCard({ initialStudioId }: { initialStudioId?: s
                     <TimerDigit value={String(minutes).padStart(2, "0")} label="min" />
                     <TimerSeparator />
                     <TimerDigit value={String(seconds).padStart(2, "0")} label="seg" />
+                </div>
+
+                {/* Nostalgic toggle */}
+                <div className="relative z-10 mb-4 flex items-center justify-center">
+                    <button
+                        onClick={toggleNostalgic}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] uppercase tracking-[0.15em] font-bold transition-all active:scale-95"
+                        style={{
+                            background: nostalgic ? "rgba(176,106,133,0.12)" : "rgba(255,255,255,0.03)",
+                            border: nostalgic ? "1px solid rgba(176,106,133,0.35)" : "1px solid rgba(255,255,255,0.08)",
+                            color: nostalgic ? "#b06a85" : "rgba(255,255,255,0.35)",
+                            fontFamily: "var(--font-display)",
+                            boxShadow: nostalgic ? "0 0 12px rgba(176,106,133,0.15)" : "none",
+                        }}
+                    >
+                        <Tv2 className="w-3.5 h-3.5" />
+                        anime vintage (90s/2000s)
+                        {nostalgic && (
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#b06a85", boxShadow: "0 0 6px #b06a85" }} />
+                        )}
+                    </button>
                 </div>
 
                 {/* Studio selector */}

@@ -30,7 +30,7 @@ export type FeedPostData = Friend & {
         image_mood?: string;
         analyzedAt?: string;
         id?: string;
-        mostListenedGenre?: string;
+        mostListenedSubgenre?: string;
         mostListenedSong?: {
             id: string;
             name: string;
@@ -429,7 +429,7 @@ export function FeedPost({ post, currentUser }: { post: FeedPostData; currentUse
                 )}
 
                 {/* Most Listened do Amigo */}
-                {(post.mood?.mostListenedSong || post.mood?.mostListenedGenre) && (
+                {(post.mood?.mostListenedSong || post.mood?.mostListenedSubgenre) && (
                     <div className="px-4 pb-3">
                         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all" 
                             style={{ background: iconButtonBg, borderColor: iconButtonBorder }}>
@@ -457,10 +457,10 @@ export function FeedPost({ post, currentUser }: { post: FeedPostData; currentUse
                                         <span className="font-medium opacity-60 ml-1">· {post.mood.mostListenedSong.artist}</span>
                                     </span>
                                 )}
-                                {post.mood.mostListenedGenre && (
+                                {post.mood.mostListenedSubgenre && (
                                     <span className="text-[10px] italic truncate block mt-0.5" 
                                         style={{ color: color, fontFamily: "var(--font-body)", opacity: 0.9 }}>
-                                        Gênero top: <span className="font-bold capitalize">{post.mood.mostListenedGenre}</span>
+                                        Subgênero top: <span className="font-bold capitalize">{post.mood.mostListenedSubgenre}</span>
                                     </span>
                                 )}
                             </div>

@@ -2,37 +2,21 @@ import Image from "next/image";
 
 export function AppBrand({ className = "" }: { className?: string }) {
     return (
-        <div className={`flex items-center gap-2.5 ${className}`}>
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 flex-shrink-0">
+        <div className={`flex items-center ${className}`}>
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 flex-shrink-0">
                 <Image
-                    src="/app_logo/white.png"
+                    src="/app_logo/dark mode.png"
                     alt="Logo"
                     fill
                     className="object-contain drop-shadow-md block dark-logo"
                 />
                 <Image
-                    src="/app_logo/dark.png"
+                    src="/app_logo/white mode.png"
                     alt="Logo"
                     fill
                     className="object-contain drop-shadow-md hidden light-logo"
                 />
             </div>
-            <span
-                className="font-black uppercase leading-none tracking-tighter select-none"
-                style={{ fontFamily: "var(--font-display)" }}
-            >
-                <span className="text-white">Motion</span>
-                <span
-                    style={{
-                        background: "linear-gradient(90deg, #6fae9b, #8a7bb8)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                    }}
-                >
-                    fy
-                </span>
-            </span>
         </div>
     );
 }

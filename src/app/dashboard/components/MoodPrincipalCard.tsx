@@ -11,7 +11,7 @@ type MoodPrincipalCardProps = {
     displayName?: string;
     topRightText?: string;
     minHeight?: number;
-    mostListenedGenre?: string;
+    mostListenedSubgenre?: string;
     mostListenedSong?: {
         name: string;
         artist: string;
@@ -28,13 +28,13 @@ export function MoodPrincipalCard({
     displayName,
     topRightText = "MusicMood",
     minHeight = 390,
-    mostListenedGenre,
+    mostListenedSubgenre,
     mostListenedSong,
 }: MoodPrincipalCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageFailed, setImageFailed] = useState(false);
 
-    console.log("DEBUG FRONTEND:", { mostListenedGenre, mostListenedSong });
+    console.log("DEBUG FRONTEND:", { mostListenedSubgenre, mostListenedSong });
 
     return (
         <div
@@ -127,15 +127,15 @@ export function MoodPrincipalCard({
                 </div>
 
                 {/* Direita: Música / Gênero mais tocados */}
-                {(mostListenedSong || mostListenedGenre) && (
+                {(mostListenedSong || mostListenedSubgenre) && (
                     <div className="flex flex-col items-end gap-2.5 min-w-0 max-w-[50%]">
-                        {mostListenedGenre && (
+                        {mostListenedSubgenre && (
                             <div className="flex flex-col items-end w-full" style={{ color: accent, opacity: 0.9 }}>
                                 <span className="text-[8px] uppercase tracking-[0.16em] text-white/100 mb-0.5" style={{ fontFamily: "var(--font-display)" }}>
-                                    Gênero mais tocado
+                                    Subgênero mais tocado
                                 </span>
                                 <span className="text-[12px] tracking-[0.05em] font-black truncate uppercase text-right w-full">
-                                    {mostListenedGenre}
+                                    {mostListenedSubgenre}
                                 </span>
                             </div>
                         )}

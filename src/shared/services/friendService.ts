@@ -41,7 +41,7 @@ export type MoodData = {
     coreAxes: Record<string, number>;
     analyzedAt: string;
     image_mood?: string;
-    mostListenedGenre?: string;
+    mostListenedSubgenre?: string;
     mostListenedSong?: {
         id: string;
         name: string;

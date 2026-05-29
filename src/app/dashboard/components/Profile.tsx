@@ -27,7 +27,11 @@ export default function Profile() {
     const [showFaceNudge, setShowFaceNudge] = useState(false);
 
     const { mutate: refreshUser, isPending } = useMutation({
-        mutationFn: (studioId?: string) => getRefreshProfile(studioId),
+        mutationFn: () => {
+            const animeId = localStorage.getItem("mm-selected-anime") ?? undefined;
+            const nostalgic = localStorage.getItem("mm-nostalgic") === "1";
+            return getRefreshProfile(undefined, animeId, nostalgic);
+        },
         onMutate: () => NProgress.start(),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['moodProfile'] });
@@ -78,7 +82,7 @@ export default function Profile() {
 
         if (shouldRefresh) {
             autoRefreshTriggered = true;
-            refreshUser(profile?.preferredStudioId ?? undefined);
+            refreshUser();
         }
     }, [mood, moodLoading, isPending, refreshUser, profile]);
 
@@ -88,7 +92,7 @@ export default function Profile() {
 
     if (profileLoading || moodLoading) return <LoadingComponent type="profile" />;
     if (moodError || profileError || !mood || !profile) return (
-        <ErrorComponent type="profile" retry={() => refreshUser(undefined)} />
+        <ErrorComponent type="profile" retry={() => refreshUser()} />
     );
 
     const sentimentDisplay = getMoodDisplayName(mood?.sentiment, "—");
@@ -148,7 +152,7 @@ export default function Profile() {
                 displayName={profile.display_name}
                 topRightText="MusicMood"
                 minHeight={470}
-                mostListenedGenre={mood.mostListenedGenre}
+                mostListenedSubgenre={mood.mostListenedSubgenre}
                 mostListenedSong={mood.mostListenedSong}
             />
 

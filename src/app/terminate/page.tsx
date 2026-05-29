@@ -93,7 +93,7 @@ function OnboardingContent() {
   }, [facePhotoFile]);
 
   const { mutate: refreshUser } = useMutation({
-    mutationFn: getRefreshProfile,
+    mutationFn: () => getRefreshProfile(),
     onSuccess: async () => {
       router.push("/build-mood");
       await queryClient.invalidateQueries({ queryKey: ["moodProfile"] });
